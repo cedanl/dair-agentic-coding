@@ -1,0 +1,15 @@
+{
+  "name": "DAIR Agentic Coding",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "remoteUser": "dev",
+  "postCreateCommand": "bash .devcontainer/welcome.sh",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  }
+}
