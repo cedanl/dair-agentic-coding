@@ -1,0 +1,24 @@
+{
+  "name": "dair-agentic-coding",
+  "version": "1.0.0",
+  "description": "Welkom bij de agentic coding sessie. Je hebt geen lokale installatie nodig — alles draait in de browser via GitHub Codespaces.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cedanl/dair-agentic-coding.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/cedanl/dair-agentic-coding/issues"
+  },
+  "homepage": "https://github.com/cedanl/dair-agentic-coding#readme",
+  "dependencies": {
+    "playwright": "^1.61.1"
+  }
+}
