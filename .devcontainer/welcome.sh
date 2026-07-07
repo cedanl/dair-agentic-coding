@@ -14,11 +14,13 @@ echo ""
 echo -e "  Welkom! Je werkomgeving is klaar."
 echo ""
 
-if command -v claude &>/dev/null; then
-  echo -e "  ${GREEN}✔${RESET}  Claude Code beschikbaar"
-else
-  echo -e "  Claude Code niet gevonden — neem contact op met de begeleider."
-fi
+for cli in claude entire; do
+  if command -v "$cli" &>/dev/null; then
+    echo -e "  ${GREEN}✔${RESET}  $cli beschikbaar"
+  else
+    echo -e "  $cli niet gevonden — neem contact op met de begeleider."
+  fi
+done
 
 echo ""
 echo -e "  ${BOLD}Aan de slag:${RESET}"

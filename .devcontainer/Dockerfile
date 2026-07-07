@@ -1,5 +1,11 @@
 FROM debian:bookworm-slim
 
+# ── Pinned versions ───────────────────────────────────────────────────────────
+# This is the single place to update tool versions.
+# To upgrade a tool: change the value and rebuild.
+ARG ENTIRE_VERSION="0.8.0"
+# ─────────────────────────────────────────────────────────────────────────────
+
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         git \
@@ -37,6 +43,15 @@ ARG GID=1000
 RUN groupadd --gid ${GID} ${USERNAME} && \
     useradd --uid ${UID} --gid ${GID} -m -s /bin/bash ${USERNAME} && \
     mkdir -p /workspace && chown ${USERNAME}:${USERNAME} /workspace
+
+# Install entireio/cli
+RUN set -eux; \
+    curl -Lo /tmp/entire.tar.gz \
+        "https://github.com/entireio/cli/releases/download/v${ENTIRE_VERSION}/entire_linux_amd64.tar.gz"; \
+    tar -C /tmp -xzf /tmp/entire.tar.gz entire; \
+    mv /tmp/entire /usr/local/bin/entire; \
+    rm /tmp/entire.tar.gz; \
+    entire --version
 
 WORKDIR /workspace
 USER ${USERNAME}
