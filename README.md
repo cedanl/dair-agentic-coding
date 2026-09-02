@@ -56,4 +56,4 @@ Claude is nu klaar om te helpen. Typ je opdracht en druk op Enter.
 
 ## Hulp nodig?
 
-Spreek een begeleider aan of stel je vraag hardop — dat is precies waar deze sessie over gaat.
+Spreek een begeleider aan of stel je vraag hardop, dat is precies waar deze sessie over gaat.
