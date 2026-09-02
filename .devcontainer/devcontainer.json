@@ -4,12 +4,22 @@
     "dockerfile": "Dockerfile"
   },
   "remoteUser": "dev",
+  "containerEnv": {
+    "ANTHROPIC_FOUNDRY_API_KEY": "${localEnv:ANTHROPIC_FOUNDRY_API_KEY}",
+    "ANTHROPIC_FOUNDRY_RESOURCE": "${localEnv:ANTHROPIC_FOUNDRY_RESOURCE}",
+    "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
+  },
   "postCreateCommand": "bash .devcontainer/welcome.sh",
   "customizations": {
     "vscode": {
       "settings": {
-        "terminal.integrated.defaultProfile.linux": "bash"
-      }
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "chat.editing.autoAccept": true,
+        "claudeCode.allowDangerouslySkipPermissions": true
+      },
+      "extensions": [
+        "anthropic.claude-code"
+      ]
     }
   }
 }
