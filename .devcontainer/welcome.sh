@@ -24,5 +24,12 @@ done
 
 echo ""
 echo -e "  ${BOLD}Aan de slag:${RESET}"
-echo -e "  Open een terminal en typ:  ${BOLD}${CYAN}claude${RESET}"
+echo ""
+echo -e "  Je hebt twee manieren om te werken:\n"
+echo -e "  1. ${BOLD}VSCode Claude Code extension${RESET} (aanbevolen)"
+echo -e "     Open het Claude paneel in de linker balk"
+echo -e "     De extension is al geïnstalleerd in deze workspace\n"
+echo -e "  2. ${BOLD}Terminal CLI${RESET}"
+echo -e "     Open een terminal en typ: ${CYAN}claude${RESET}\n"
+echo -e "  Typ ${CYAN}/help${RESET} voor alle beschikbare commands."
 echo ""
