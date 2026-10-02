@@ -1,8 +1,6 @@
 {
   "name": "DAIR Agentic Coding",
-  "build": {
-    "dockerfile": "Dockerfile"
-  },
+  "image": "ghcr.io/cedanl/dair-agentic-coding:latest",
   "remoteUser": "dev",
   "postCreateCommand": "bash .devcontainer/welcome.sh",
   "customizations": {
