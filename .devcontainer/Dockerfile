@@ -73,7 +73,7 @@ ENV PATH="/home/${USERNAME}/.local/bin:/usr/local/bin:/usr/bin:/sbin:/bin"
 ENV CLAUDE_CODE_USE_FOUNDRY=1 \
     ANTHROPIC_DEFAULT_OPUS_MODEL=claude-opus-4-6 \
     ANTHROPIC_DEFAULT_SONNET_MODEL=claude-sonnet-4-6 \
-    ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-haiku-4-5-20251001
+    ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-haiku-4-5
 
 # Install Claude Code CLI
 RUN curl -fsSL https://claude.ai/install.sh | bash
