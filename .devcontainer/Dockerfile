@@ -4,6 +4,7 @@ FROM debian:bookworm-slim
 # This is the single place to update tool versions.
 # To upgrade a tool: change the value and rebuild.
 ARG ENTIRE_VERSION="0.8.0"
+ARG UV_VERSION="0.12.22"
 # ─────────────────────────────────────────────────────────────────────────────
 
 RUN apt-get update && \
@@ -12,6 +13,8 @@ RUN apt-get update && \
         curl \
         ca-certificates \
         unzip \
+        python3 \
+        python3-venv \
         locales && \
     sed -i 's/^# *en_US.UTF-8/en_US.UTF-8/' /etc/locale.gen && \
     locale-gen && \
@@ -53,6 +56,14 @@ RUN set -eux; \
     rm /tmp/entire.tar.gz; \
     entire --version
 
+# Install uv
+RUN curl -LsSf "https://astral.sh/uv/${UV_VERSION}/install.sh" | \
+        env UV_INSTALL_DIR=/usr/local/bin UV_NO_MODIFY_PATH=1 sh && \
+    uv --version
+
+COPY onboard.sh /usr/local/bin/dair-onboard
+RUN chmod 755 /usr/local/bin/dair-onboard
+
 WORKDIR /workspace
 USER ${USERNAME}
 
@@ -66,5 +77,7 @@ ENV CLAUDE_CODE_USE_FOUNDRY=1 \
 
 # Install Claude Code CLI
 RUN curl -fsSL https://claude.ai/install.sh | bash
+
+RUN echo '[[ $- == *i* ]] && { dair-onboard --if-needed || true; }' >> ~/.bashrc
 
 CMD ["bash"]

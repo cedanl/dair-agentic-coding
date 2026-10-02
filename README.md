@@ -38,6 +38,8 @@ Klik in de menubalk op **Terminal → New Terminal**.
 
 ![Stap 4 — Terminal openen](docs/images/04-vscode-terminal.png)
 
+De eerste keer vraagt de terminal om de **workshop-key**. Die krijg je van de begeleider. Plak hem en druk op **Enter** (je ziet tijdens het plakken niets verschijnen, dat is normaal). Opnieuw instellen kan altijd met `dair-onboard`.
+
 ---
 
 ### Stap 5 — Start Claude
