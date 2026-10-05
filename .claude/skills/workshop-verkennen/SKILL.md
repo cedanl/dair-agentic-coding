@@ -1,6 +1,6 @@
 ---
 name: workshop-verkennen
-description: Gebruik bij ronde 1 van de CEDA-workshop "Agentic data science in het onderwijs", of wanneer iemand een 1CHO-inschrijvingenbestand (CSV met puntkomma) wil verkennen voor er een dashboard komt — profileren van data en codebook, kleine groepen signaleren, definities vastleggen en twee of drie views schetsen. LET OP — het dashboard zelf bouwen hoort bij `workshop-dashboard`; reflectie na afloop bij `workshop-reflectie`.
+description: Gebruik bij ronde 1 van de CEDA-workshop "Agentic data science in het onderwijs", of wanneer iemand een 1CHO-inschrijvingenbestand (CSV met puntkomma) wil verkennen voor er een dashboard komt — profileren van data en codebook, kleine groepen signaleren, definities vastleggen en twee of drie views schetsen. LET OP — het dashboard zelf bouwen hoort bij `workshop-dashboard`.
 allowed-tools: Read Grep Glob Write Bash
 metadata:
   workshop: ceda-rad-dair

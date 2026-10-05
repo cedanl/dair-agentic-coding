@@ -1,6 +1,6 @@
 ---
 name: workshop-dashboard
-description: Gebruik bij ronde 2 van de CEDA-workshop "Agentic data science in het onderwijs", of wanneer iemand uit een eerder profiel en schets (data-profiel.md en schets.md) een dashboard wil bouwen over studiesucces in 1CHO-data — met grafiek, vergelijking en filter, privacy-drempel, eerlijke framing, bron en toegankelijkheid. LET OP — de data eerst verkennen hoort bij `workshop-verkennen`; reflectie bij `workshop-reflectie`.
+description: Gebruik bij ronde 2 van de CEDA-workshop "Agentic data science in het onderwijs", of wanneer iemand uit een eerder profiel en schets (data-profiel.md en schets.md) een dashboard wil bouwen over studiesucces in 1CHO-data — met grafiek, vergelijking en filter, privacy-drempel, eerlijke framing, bron en toegankelijkheid. LET OP — de data eerst verkennen hoort bij `workshop-verkennen`.
 allowed-tools: Read Grep Glob Write Edit Bash
 metadata:
   workshop: ceda-rad-dair
