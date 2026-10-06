@@ -71,8 +71,8 @@ ENV PATH="/home/${USERNAME}/.local/bin:/usr/local/bin:/usr/bin:/sbin:/bin"
 
 # Claude / Anthropic Foundry
 ENV CLAUDE_CODE_USE_FOUNDRY=1 \
-    ANTHROPIC_DEFAULT_OPUS_MODEL=claude-opus-4-6 \
-    ANTHROPIC_DEFAULT_SONNET_MODEL=claude-sonnet-4-6 \
+    ANTHROPIC_DEFAULT_OPUS_MODEL=claude-opus-5-5 \
+    ANTHROPIC_DEFAULT_SONNET_MODEL=claude-sonnet-5-5 \
     ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-haiku-4-5
 
 # Install Claude Code CLI
