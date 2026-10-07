@@ -30,7 +30,7 @@ De Codespace start automatisch op. Dit duurt ongeveer één minuut.
 
 ---
 
-### Stap 4 — Open een terminal
+### Stap 4 — Voer de workshop-key in (via de terminal)
 
 Klik in de menubalk op **Terminal → New Terminal**.
 
@@ -42,17 +42,19 @@ De eerste keer vraagt de terminal om de **workshop-key**. Die krijg je van de be
 
 ---
 
-### Stap 5 — Start Claude
+### Stap 5 — Open het Claude-paneel
 
-Typ in de terminal het volgende commando en druk op **Enter**:
+Klik op het **oranje Claude-icoon** rechtsboven in de editor. Het Claude-paneel opent aan de rechterkant. Je hoeft niets in de terminal te typen.
 
-```
-claude
-```
+![Stap 5 — Claude-knop](docs/images/05-claude-knop.png)
 
-![Stap 5 — Claude gestart](docs/images/05-claude-gestart.png)
+---
 
-Claude is nu klaar om te helpen. Typ je opdracht en druk op Enter.
+### Stap 6 — Geef Claude een opdracht
+
+Typ je opdracht in het vak onderaan het paneel en druk op **Enter**. Met `/` zie je alle beschikbare commando's en skills, zoals `/workshop-verkennen` en `/workshop-dashboard`.
+
+![Stap 6 — Claude-paneel](docs/images/06-claude-paneel.png)
 
 ---
 

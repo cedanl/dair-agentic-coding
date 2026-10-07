@@ -6,10 +6,10 @@ const REPO_URL = 'https://github.com/cedanl/dair-agentic-coding';
 const OUT_DIR = path.join(__dirname, '..', 'docs', 'images');
 fs.mkdirSync(OUT_DIR, { recursive: true });
 
-async function highlight(page, locator, { step, label, color = '#E53E3E', position = 'top' }) {
+async function highlight(page, locator, { step, label, color = '#E53E3E', position = 'top', align = 'left' }) {
   const box = await locator.boundingBox();
   if (!box) { console.warn(`  ⚠ element niet gevonden: stap ${step}`); return; }
-  await page.evaluate(({ box, step, label, color, position }) => {
+  await page.evaluate(({ box, step, label, color, position, align }) => {
     const pad = 5;
     const wrap = document.createElement('div');
     wrap.style.cssText = `
@@ -24,7 +24,7 @@ async function highlight(page, locator, { step, label, color = '#E53E3E', positi
     badge.style.cssText = `
       position: absolute;
       ${isTop ? 'bottom: calc(100% + 8px)' : 'top: calc(100% + 8px)'};
-      left: 0;
+      ${align === 'right' ? 'right: 0' : 'left: 0'};
       background: ${color}; color: #fff;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       font-size: 13px; font-weight: 700; padding: 4px 12px;
@@ -34,7 +34,7 @@ async function highlight(page, locator, { step, label, color = '#E53E3E', positi
     badge.textContent = `${step}  ${label}`;
     wrap.appendChild(badge);
     document.body.appendChild(wrap);
-  }, { box, step, label, color, position });
+  }, { box, step, label, color, position, align });
 }
 
 async function shot(page, name) {
@@ -293,72 +293,75 @@ async function stap4(browser) {
   await page.close();
 }
 
-// ── Stap 5: claude typen ──────────────────────────────────────────────────────
-async function stap5(browser) {
-  console.log('Stap 5: claude commando');
-  const page = await browser.newPage();
-  await page.setViewportSize({ width: 1280, height: 860 });
-  await page.setContent(`<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+// ── Gedeelde VS Code-schil voor stap 6 en 7 ──────────────────────────────────
+function vscodeShell({ editorToolbar = '', rightPanel = '' }) {
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body { background:#1e1e1e; font-family:"Segoe UI",-apple-system,sans-serif; width:1280px; height:860px; overflow:hidden; }
     .titlebar { background:#3c3c3c; height:30px; display:flex; align-items:center; justify-content:center; color:#ccc; font-size:12px; }
-    .menubar { background:#3c3c3c; height:30px; display:flex; align-items:center; padding:0 8px; border-bottom:1px solid #252526; }
-    .menu-item { color:#ccc; font-size:13px; padding:4px 10px; border-radius:4px; }
-    .layout { display:flex; height:calc(860px - 60px - 22px); }
+    .layout { display:flex; height:calc(860px - 30px - 22px); }
     .activitybar { width:48px; background:#333; border-right:1px solid #252526; }
-    .editor-area { flex:1; display:flex; flex-direction:column; }
-    .tabs { background:#2d2d2d; height:36px; display:flex; align-items:center; border-bottom:1px solid #252526; }
+    .editor-area { flex:1; display:flex; flex-direction:column; min-width:0; }
+    .tabs { background:#2d2d2d; height:36px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #252526; padding-right:12px; }
     .tab { padding:0 16px; height:100%; display:flex; align-items:center; color:white; font-size:13px; border-top:1px solid #007acc; background:#1e1e1e; }
+    .toolbar { display:flex; gap:10px; align-items:center; }
+    .tool { color:#ccc; font-size:15px; width:26px; height:26px; display:flex; align-items:center; justify-content:center; border-radius:4px; }
+    .claude-icon { color:#d97757; font-size:18px; }
     .editor { flex:1; background:#1e1e1e; padding:24px; color:#d4d4d4; font-family:Consolas,monospace; font-size:14px; line-height:1.6; }
-    .terminal-panel { height:360px; background:#1e1e1e; border-top:1px solid #3c3c3c; display:flex; flex-direction:column; }
-    .terminal-bar { background:#2d2d2d; height:35px; display:flex; align-items:center; padding:0 12px; border-bottom:1px solid #252526; }
-    .terminal-bar span { color:white; font-size:13px; border-bottom:1px solid white; padding-bottom:2px; }
-    .terminal-body { flex:1; padding:14px 18px; font-family:Consolas,"Courier New",monospace; font-size:14px; line-height:1.7; }
-    .prompt { color:#4ec9b0; }
-    .cmd { color:#fff; font-weight:bold; }
+    .side { width:420px; background:#252526; border-left:1px solid #3c3c3c; display:flex; flex-direction:column; }
     .statusbar { background:#007acc; height:22px; display:flex; align-items:center; padding:0 12px; color:#fff; font-size:12px; gap:16px; }
-    .claude-output { margin-top:16px; border-top:1px solid #333; padding-top:14px; }
-    .claude-header { color:#ce9178; font-size:15px; font-weight:bold; margin-bottom:10px; }
-    .claude-tip { color:#888; font-size:13px; }
-    .claude-tip em { color:#ce9178; font-style:normal; }
-    .cursor { display:inline-block; width:8px; height:16px; background:#ccc; vertical-align:middle; animation:blink 1s step-end infinite; }
-    @keyframes blink { 50%{opacity:0} }
   </style></head><body>
     <div class="titlebar">dair-agentic-coding — Codespace — Visual Studio Code</div>
-    <div class="menubar">
-      <div class="menu-item">File</div><div class="menu-item">Edit</div>
-      <div class="menu-item">Terminal</div><div class="menu-item">Help</div>
-    </div>
     <div class="layout">
       <div class="activitybar"></div>
       <div class="editor-area">
-        <div class="tabs"><div class="tab">README.md</div></div>
+        <div class="tabs"><div class="tab">README.md</div><div class="toolbar">${editorToolbar}</div></div>
         <div class="editor"><span style="color:#6a9955"># DAIR — Agentic Coding Sessie</span></div>
-        <div class="terminal-panel">
-          <div class="terminal-bar"><span>bash</span></div>
-          <div class="terminal-body" id="terminal">
-            <span class="prompt">dev@codespace:/workspace$</span> <span class="cmd" id="cmd">claude</span><br>
-            <div class="claude-output" id="output">
-              <div class="claude-header">◆ Claude Code</div>
-              <div style="color:#ccc; font-size:14px; margin-bottom:8px;">Klaar om te helpen. Wat wil je bouwen?</div>
-              <div class="claude-tip">Tip: typ je opdracht en druk op <em>Enter</em> — bijv. "Maak een script dat mijn data analyseert"</div>
-              <br>
-              <span class="prompt">&gt;</span> <span class="cursor"></span>
-            </div>
-          </div>
+      </div>
+      ${rightPanel}
+    </div>
+    <div class="statusbar"><span>⎇ main</span><span>Codespaces: dair-agentic-coding</span></div>
+  </body></html>`;
+}
+
+// ── Stap 5: Claude Code paneel openen via de knop rechtsboven ────────────────
+async function stap5(browser) {
+  console.log('Stap 5: Claude Code knop');
+  const page = await browser.newPage();
+  await page.setViewportSize({ width: 1280, height: 860 });
+  await page.setContent(vscodeShell({
+    editorToolbar: `<span class="tool">▷</span><span class="tool claude-icon" id="claude-btn">✻</span><span class="tool">⋯</span>`,
+  }));
+  await page.waitForTimeout(300);
+  await highlight(page, page.locator('#claude-btn'), { step: '⑤ Klik op', label: 'het Claude-icoon (oranje) rechtsboven', color: '#E53E3E', position: 'bottom', align: 'right' });
+  await shot(page, '05-claude-knop');
+  await page.close();
+}
+
+// ── Stap 6: Claude Code paneel gebruiken ─────────────────────────────────────
+async function stap6(browser) {
+  console.log('Stap 6: Claude Code paneel');
+  const page = await browser.newPage();
+  await page.setViewportSize({ width: 1280, height: 860 });
+  await page.setContent(vscodeShell({
+    editorToolbar: `<span class="tool">▷</span><span class="tool claude-icon">✻</span><span class="tool">⋯</span>`,
+    rightPanel: `<div class="side">
+      <div style="padding:10px 14px;border-bottom:1px solid #3c3c3c;color:#ccc;font-size:13px;font-weight:600">Claude Code</div>
+      <div style="flex:1;padding:16px;color:#ccc;font-size:13px;line-height:1.6">
+        <div style="color:#d97757;font-weight:600;margin-bottom:6px">✻ Claude</div>
+        Hoi! Waar kan ik mee helpen?
+      </div>
+      <div style="padding:12px">
+        <div id="prompt-box" style="border:1px solid #007acc;border-radius:8px;background:#1e1e1e;padding:10px 12px;min-height:84px;color:#8c8c8c;font-size:13px;display:flex;flex-direction:column;justify-content:space-between">
+          <span>Typ hier je opdracht… (/ voor commando's)</span>
+          <span style="align-self:flex-end;color:#d97757;font-size:16px">➤</span>
         </div>
       </div>
-    </div>
-    <div class="statusbar">
-      <span>⎇ main</span><span>Codespaces: dair-agentic-coding</span>
-    </div>
-  </body></html>`);
+    </div>`,
+  }));
   await page.waitForTimeout(300);
-
-  const cmd = page.locator('#cmd');
-  const output = page.locator('#output');
-  await highlight(page, cmd, { step: '⑤ Typ "claude"', label: 'en druk op Enter', color: '#2EA043', position: 'top' });
-  await shot(page, '05-claude-gestart');
+  await highlight(page, page.locator('#prompt-box'), { step: '⑥ Typ hier', label: 'je opdracht en druk op Enter', color: '#2EA043', position: 'top' });
+  await shot(page, '06-claude-paneel');
   await page.close();
 }
 
@@ -371,6 +374,7 @@ async function stap5(browser) {
     await stap3(browser);
     await stap4(browser);
     await stap5(browser);
+    await stap6(browser);
     console.log('\n✅ Alle screenshots klaar in docs/images/');
   } finally {
     await browser.close();
