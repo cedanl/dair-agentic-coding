@@ -3,6 +3,7 @@
 
   feedback.py questions                 vragenlijst (JSON) van de server
   feedback.py submit '{"nuttig":"5"}'   antwoorden versturen (of JSON via stdin)
+  feedback.py form                      invulformulier in de terminal, zonder Claude
 
 Configuratie (omgevingsvariabelen):
   VOXPOP_FEEDBACK_TOKEN   workshop-token van de begeleider (of in ~/.config/dair/feedback-token)
@@ -68,9 +69,75 @@ def request(method: str, path: str, body: dict | None = None, headers: dict | No
     raise AssertionError("unreachable")
 
 
+def send(answers: dict) -> bool:
+    status, out = request("POST", "/feedback/api/submit",
+                          {"workshop": WORKSHOP, "participant": participant_id(), "answers": answers},
+                          {"X-Workshop-Token": token()})
+    if status == 201:
+        print(f"Verstuurd (id {out.get('id')}). Bedankt!")
+        return True
+    messages = {
+        401: "token ongeldig. Vraag de begeleider om het juiste token.",
+        429: "je hebt net al feedback gestuurd; probeer het over een paar minuten opnieuw.",
+        503: "feedback staat op de server (nog) uit of de database is niet bereikbaar.",
+    }
+    fail(messages.get(status) or f"HTTP {status}: {out.get('error', 'onbekende fout')}")
+    return False
+
+
+def ask(question: dict) -> str:
+    """Eén vraag stellen; leeg antwoord = overslaan. Herhaalt bij een ongeldige keuze."""
+    print(f"\n{question['text']}")
+    options = question.get("options")
+    if question["type"] == "scale":
+        low, high = question["labels"]
+        print(f"  {question['options'][0]} = {low}, {question['options'][-1]} = {high}")
+    elif options:
+        for i, option in enumerate(options, 1):
+            print(f"  {i}) {option}")
+    while True:
+        raw = input("> ").strip()
+        if not raw:
+            return ""
+        if question["type"] == "text":
+            return raw
+        if question["type"] == "scale" and raw in options:
+            return raw
+        if question["type"] == "choice" and raw.isdigit() and 1 <= int(raw) <= len(options):
+            return options[int(raw) - 1]
+        if raw in options:
+            return raw
+        print("  Ongeldige keuze, probeer opnieuw (Enter = overslaan).")
+
+
+def form() -> None:
+    token()  # eerst controleren, zodat een ontbrekend token niet pas na het invullen blijkt
+    status, questions = request("GET", "/feedback/api/questions")
+    if status != 200:
+        fail(f"vragen ophalen mislukt (HTTP {status})")
+    print("Review van de sessie. Enter slaat een vraag over; je review is anoniem.")
+    try:
+        answers = {q["id"]: v for q in questions if (v := ask(q))}
+        if not answers:
+            fail("geen enkele vraag beantwoord; er is niets verstuurd.")
+        print("\nJe review:")
+        for q in questions:
+            if q["id"] in answers:
+                print(f"  - {q['text']} {answers[q['id']]}")
+        if input("\nVersturen? [j/N] ").strip().lower() not in ("j", "ja", "y", "yes"):
+            fail("niet verstuurd.")
+    except (EOFError, KeyboardInterrupt):
+        print()
+        fail("afgebroken; er is niets verstuurd.")
+    send(answers)
+
+
 def main(argv: list[str]) -> None:
-    if len(argv) < 2 or argv[1] not in ("questions", "submit"):
-        fail(__doc__.strip().splitlines()[0] + "\nGebruik: feedback.py questions | submit [JSON]", 2)
+    if len(argv) < 2 or argv[1] not in ("questions", "submit", "form"):
+        fail("Gebruik: feedback.py questions | submit [JSON] | form", 2)
+    if argv[1] == "form":
+        form()
+        return
     if argv[1] == "questions":
         status, out = request("GET", "/feedback/api/questions")
         if status != 200:
@@ -83,19 +150,7 @@ def main(argv: list[str]) -> None:
         answers = json.loads(raw)
     except ValueError:
         fail("antwoorden zijn geen geldige JSON")
-    status, out = request("POST", "/feedback/api/submit",
-                          {"workshop": WORKSHOP, "participant": participant_id(), "answers": answers},
-                          {"X-Workshop-Token": token()})
-    if status == 201:
-        print(f"Verstuurd (id {out.get('id')}). Bedankt!")
-    elif status == 401:
-        fail("token ongeldig. Vraag de begeleider om het juiste token.")
-    elif status == 429:
-        fail("je hebt net al feedback gestuurd; probeer het over een paar minuten opnieuw.")
-    elif status == 503:
-        fail("feedback staat op de server (nog) uit of de database is niet bereikbaar.")
-    else:
-        fail(f"HTTP {status}: {out.get('error', 'onbekende fout')}")
+    send(answers)
 
 
 if __name__ == "__main__":

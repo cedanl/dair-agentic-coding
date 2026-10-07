@@ -56,6 +56,18 @@ Claude is nu klaar om te helpen. Typ je opdracht en druk op Enter.
 
 ---
 
+## Review geven
+
+Aan het einde van de sessie: typ in Claude `/review-reflect`, of vul het formulier zonder Claude in:
+
+```
+python3 scripts/feedback.py form
+```
+
+De review is anoniem en gaat naar de begeleiders. Enter slaat een vraag over.
+
+---
+
 ## Hulp nodig?
 
 Spreek een begeleider aan of stel je vraag hardop, dat is precies waar deze sessie over gaat.
