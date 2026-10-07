@@ -41,3 +41,7 @@ naar de voxpop-database van de begeleiders. Houd het kort: ongeveer twee minuten
 5. **Meld het resultaat.** Bij "geen workshop-token" of een 401: laat de deelnemer de begeleider om het
    token vragen en toon het commando uit de foutmelding; vraag het token niet in de chat. Bij 429: dezelfde
    review is net al verstuurd. Probeer niet te omzeilen.
+   **Niet bereikbaar** (time-out): vanuit Codespaces wordt SDP soms geblokkeerd. Draai dan
+   `python3 scripts/feedback.py link` en laat de deelnemer die link in de eigen browser openen om het
+   webformulier in te vullen. Toon de link aan de deelnemer; de antwoorden die al verzameld zijn kunnen
+   daar opnieuw worden ingevuld.
