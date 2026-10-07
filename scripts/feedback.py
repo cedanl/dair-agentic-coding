@@ -7,7 +7,7 @@
 
 Configuratie (omgevingsvariabelen):
   VOXPOP_FEEDBACK_TOKEN   workshop-token van de begeleider (of in ~/.config/dair/feedback-token)
-  VOXPOP_URL              default https://voxpop.test.sdp.surf.nl
+  VOXPOP_URL              default https://voxpop.playground.sdp.surf.nl
   VOXPOP_WORKSHOP         workshop-id, default dair
 
 De deelnemer is anoniem: er wordt een willekeurig id gebruikt dat in
@@ -22,7 +22,7 @@ import urllib.request
 from pathlib import Path
 
 CONFIG_DIR = Path.home() / ".config" / "dair"
-URL = os.environ.get("VOXPOP_URL", "https://voxpop.test.sdp.surf.nl").rstrip("/")
+URL = os.environ.get("VOXPOP_URL", "https://voxpop.playground.sdp.surf.nl").rstrip("/")
 WORKSHOP = os.environ.get("VOXPOP_WORKSHOP", "dair")
 
 
