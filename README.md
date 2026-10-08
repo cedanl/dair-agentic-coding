@@ -52,7 +52,7 @@ Klik op het **oranje Claude-icoon** rechtsboven in de editor. Het Claude-paneel 
 
 ### Stap 6 — Geef Claude een opdracht
 
-Typ je opdracht in het vak onderaan het paneel en druk op **Enter**. Met `/` zie je alle beschikbare commando's en skills, zoals `/workshop-verkennen` en `/workshop-dashboard`.
+Typ je opdracht in het vak onderaan het paneel en druk op **Enter**. Met `/` zie je alle beschikbare commando's en skills, zoals `/verkennen_data` en `/bouwen_dashboard`. De demodata (fictieve studenten) staat in `data/demodata_1cho.csv`.
 
 ![Stap 6 — Claude-paneel](docs/images/06-claude-paneel.png)
 

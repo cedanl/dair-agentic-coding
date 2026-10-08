@@ -1,6 +1,6 @@
 ---
-name: workshop-dashboard
-description: Gebruik bij ronde 2 van de CEDA-workshop "Agentic data science in het onderwijs", of wanneer iemand uit een eerder profiel en schets (data-profiel.md en schets.md) een dashboard wil bouwen over studiesucces in 1CHO-data — met grafiek, vergelijking en filter, privacy-drempel, eerlijke framing, bron en toegankelijkheid. LET OP — de data eerst verkennen hoort bij `workshop-verkennen`.
+name: bouwen_dashboard
+description: Gebruik wanneer iemand uit een eerder profiel en schets (data-profiel.md en schets.md) een dashboard wil bouwen over studiesucces in 1CHO-data, zoals in ronde 2 van de CEDA-workshop "Agentic data science in het onderwijs" — met grafiek, vergelijking en filter, privacy-drempel, eerlijke framing, bron en toegankelijkheid. LET OP — de data eerst verkennen hoort bij `verkennen_data`.
 allowed-tools: Read Grep Glob Write Edit Bash
 metadata:
   workshop: ceda-rad-dair
@@ -8,15 +8,15 @@ metadata:
   versie: "0.1.0"
 ---
 
-# Workshop: dashboard bouwen (ronde 2)
+# Dashboard bouwen
 
 Bouwt uit `schets.md` een werkend én verantwoord dashboard dat de casusvraag beantwoordt. Het
 verantwoorden zit er **in verweven**: er is geen aparte stap achteraf.
 
 ## Invoer
 
-- `data-profiel.md` en `schets.md` uit `workshop-verkennen`. Ontbreken ze, draai dan eerst die skill.
-- `data/synthetisch_1cho.csv`.
+- `data-profiel.md` en `schets.md` uit `verkennen_data`. Ontbreken ze, draai dan eerst die skill.
+- `data/demodata_1cho.csv`.
 - De casusvraag (staat bovenaan het profiel).
 
 ## Stack
@@ -45,7 +45,7 @@ Start met `streamlit run app.py`. Gebruik `width="stretch"` in plaats van `use_c
 | Waarneembaarheid | Sluit cohorten uit waarvan de observatietermijn niet volledig is en zeg dat op het dashboard. |
 | Eerlijke framing | Geen woorden als "slechter" of "risicogroep" over groepen mensen; benoem opleidingen, geen kenmerken van personen als oorzaak. Een verband is geen oorzaak. |
 | Toegankelijkheid | Kleurenblind-veilig palet (niet alleen rood/groen), contrast minimaal 4,5:1, elke grafiek met een tekstuele samenvatting als alt-tekst, labels direct op de staven waar het past. |
-| Bron en uitleg | Bronvermelding (synthetische 1CHO-data, de definities), peildatum en n per groep zichtbaar. De data heeft geen peildatum: gebruik het laatste `inschrijvingsjaar` in de data, tenzij anders opgegeven. |
+| Bron en uitleg | Bronvermelding (1CHO-demodata, de definities), peildatum en n per groep zichtbaar. De data heeft geen peildatum: gebruik het laatste `inschrijvingsjaar` in de data, tenzij anders opgegeven. |
 
 ## Werkwijze
 
@@ -62,6 +62,8 @@ Start met `streamlit run app.py`. Gebruik `width="stretch"` in plaats van `use_c
 - Onderdrukte groepen laat je weg uit de grafiek en noem je in de tekstuele samenvatting. Controleer
   het kleurcontrast echt (4,5:1) en neem niet aan dat een palet voldoet.
 - Geen interactie of extra tab "voor de zekerheid": houd het bij wat de casus nodig heeft.
-- Vermeld op het dashboard dat de data synthetisch is.
+- Vermeld op het dashboard dat het demodata is.
+- Gebruik in elke tekst, ook de samenvatting onder een grafiek, dezelfde leesbare labels als in de grafiek
+  zelf (dus niet de ruwe waarde "B Bedrijfskunde" als de grafiek "Bedrijfskunde" toont).
 - Volg de huisstijl van het eigen team of Npuls als de deelnemer die opgeeft; zo niet, kies een rustig
   standaardthema met voldoende contrast.

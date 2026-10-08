@@ -1,6 +1,6 @@
 ---
-name: workshop-verkennen
-description: Gebruik bij ronde 1 van de CEDA-workshop "Agentic data science in het onderwijs", of wanneer iemand een 1CHO-inschrijvingenbestand (CSV met puntkomma) wil verkennen voor er een dashboard komt — profileren van data en codebook, kleine groepen signaleren, definities vastleggen en twee of drie views schetsen. LET OP — het dashboard zelf bouwen hoort bij `workshop-dashboard`.
+name: verkennen_data
+description: Gebruik wanneer iemand een 1CHO-inschrijvingenbestand (CSV met puntkomma) wil verkennen voor er een dashboard komt, zoals in ronde 1 van de CEDA-workshop "Agentic data science in het onderwijs" — profileren van data en codebook, kleine groepen signaleren, definities vastleggen en twee of drie views schetsen. LET OP — het dashboard zelf bouwen hoort bij `bouwen_dashboard`.
 allowed-tools: Read Grep Glob Write Bash
 metadata:
   workshop: ceda-rad-dair
@@ -8,7 +8,7 @@ metadata:
   versie: "0.1.0"
 ---
 
-# Workshop: data verkennen (ronde 1)
+# Data verkennen
 
 Maakt van een ruw 1CHO-bestand **begrip**: wat zit erin, wat mag je ermee zeggen en wat mag je
 niet laten zien. De uitkomst is twee bestanden die ronde 2 als invoer gebruikt, zodat elke stap na
@@ -19,7 +19,7 @@ code zien (of zet 'm in een bestand) zodat de navigator mee kan lezen.
 
 ## Invoer
 
-- `data/synthetisch_1cho.csv` — puntkomma-gescheiden, één rij per student per inschrijvingsjaar.
+- `data/demodata_1cho.csv` — puntkomma-gescheiden, één rij per student per inschrijvingsjaar.
   Heeft de deelnemer een ander pad opgegeven, gebruik dat.
 - De casusvraag (A, B of C). Weet je die niet: vraag hem, en herhaal 'm in `data-profiel.md`.
 
@@ -82,7 +82,7 @@ hypothese), de uitsplitsing, het type grafiek en waarom dat type past. Kies bij 
 groepen staafdiagrammen met een gemeenschappelijke nul-as; gebruik lijnen alleen voor tijd.
 
 Eindig met één regel *Wat dit dashboard niet kan zeggen* (bijvoorbeeld: geen oorzaak, alleen
-verband; alleen synthetische data).
+verband; alleen demodata).
 
 ## Uitvoer
 
@@ -98,4 +98,4 @@ vraag die de data nog open laat.
 
 - Verzin geen kolomnamen: lees ze uit de header.
 - Noem een verschil tussen groepen geen "effect" of "oorzaak".
-- De data is synthetisch: zeg dat in `data-profiel.md`.
+- Het is demodata: zeg dat in `data-profiel.md`.
