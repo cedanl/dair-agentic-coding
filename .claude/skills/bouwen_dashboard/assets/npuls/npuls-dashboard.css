@@ -1,0 +1,106 @@
+/* Npuls-huisstijl voor een Streamlit-dashboard.
+   Waarden komen uit vormgever-npuls-huisstijl/references/design-tokens.json.
+   Kleurparen volgen allowed_combinations en halen 4,5:1 (kleine tekst) of 3:1 (grote tekst, >= 24px). */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+  --npuls-oranje: #DD784B;
+  --npuls-zwart: #000000;
+  --npuls-roze: #F4D9DC;
+  --npuls-blauw: #3D68EC;
+  --npuls-geel: #F4D74B;
+  --npuls-groen: #00AF81;
+  --npuls-wit: #FFFFFF;
+  --npuls-licht-groen: #CCEEE6;
+  --npuls-licht-blauw: #D6E2FD;
+  --npuls-licht-roze: #FAEAEA;
+  --npuls-licht-oranje: #FFE4D8;
+  --npuls-licht-geel: #FCF5D4;
+  --npuls-grijs-200: #DCDCE0;
+  --npuls-font: 'General Sans', 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --npuls-font-intro: Georgia, 'Times New Roman', serif; /* Cooper Light is een projectasset en wordt hier niet geladen */
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 32px;
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+html, body, .stApp, [class*="css"], button, input, textarea, select {
+  font-family: var(--npuls-font) !important;
+}
+.stApp { background: var(--npuls-wit); color: var(--npuls-zwart); }
+header[data-testid="stHeader"] { background: transparent; }
+footer { visibility: hidden; }
+.block-container { padding-top: 2.5rem; max-width: 1180px; }
+
+/* Typografie */
+h1, h2, h3 { font-weight: 600; color: var(--npuls-zwart); letter-spacing: -0.01em; }
+h1 { font-size: 2.75rem; line-height: 1.1; }
+h2, h3 { font-size: 1.5rem; }
+.npuls-label {
+  font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--npuls-zwart); margin: 0 0 8px;
+}
+.npuls-intro { font-family: var(--npuls-font-intro); font-weight: 400; font-size: 1.375rem; line-height: 1.4; color: var(--npuls-zwart); margin: 12px 0 0; max-width: 640px; }
+
+/* Hero: roze vlak, grote blauwe kop (3,6:1 is genoeg voor grote tekst), vormen als decoratie */
+.npuls-hero {
+  display: flex; align-items: center; justify-content: space-between; gap: 32px;
+  background: var(--npuls-roze); border-radius: var(--radius-xl); padding: 40px 48px; margin-bottom: 24px;
+  overflow: hidden;
+}
+.npuls-hero h1 { color: var(--npuls-blauw); margin: 0; font-size: 3rem; font-weight: 700; }
+.npuls-hero-vorm { flex: 0 0 auto; width: 190px; height: 190px; }
+.npuls-hero-vorm svg { width: 100%; height: 100%; }
+@media (max-width: 700px) { .npuls-hero { flex-direction: column; align-items: flex-start; padding: 28px; } .npuls-hero-vorm { width: 120px; height: 120px; } }
+
+/* Kaarten */
+.npuls-kaart { border-radius: var(--radius-lg); padding: 24px; margin-bottom: 16px; color: var(--npuls-zwart); }
+.npuls-kaart.blauw { background: var(--npuls-licht-blauw); }
+.npuls-kaart.geel { background: var(--npuls-licht-geel); border-left: 6px solid var(--npuls-geel); }
+.npuls-kaart h3 { margin: 0 0 8px; font-size: 1.25rem; }
+.npuls-kaart ol { margin: 8px 0 0 20px; padding: 0; }
+.npuls-kaart li { margin-bottom: 6px; }
+.npuls-demo {
+  background: var(--npuls-geel); color: var(--npuls-zwart); border-radius: 9999px;
+  padding: 10px 20px; display: inline-block; font-weight: 600; margin: 4px 0 16px;
+}
+[data-testid="stVerticalBlockBorderWrapper"] {
+  border-radius: var(--radius-lg) !important; border: 1px solid var(--npuls-grijs-200) !important;
+  box-shadow: var(--shadow-md); background: var(--npuls-wit);
+}
+
+/* Zijbalk: roze met zwarte tekst (zwart op roze 15,8:1; blauw op roze haalt maar 3,6:1) */
+[data-testid="stSidebar"] { background: var(--npuls-roze); }
+[data-testid="stSidebar"] * { color: var(--npuls-zwart); }
+[data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 { font-size: 1.125rem; font-weight: 700; }
+
+/* Knoppen: geel met zwarte tekst, pill (zwart op geel 14,7:1) */
+.stButton > button, [data-testid="stFileUploader"] button, [data-testid="stBaseButton-secondary"] {
+  background: var(--npuls-geel); color: var(--npuls-zwart) !important; border: none; border-radius: 9999px;
+  font-weight: 600; padding: 8px 24px; transition: box-shadow 0.15s;
+}
+.stButton > button:hover, [data-testid="stFileUploader"] button:hover { box-shadow: var(--shadow-md); background: var(--npuls-geel); color: var(--npuls-zwart); }
+.stButton > button:focus-visible, [data-testid="stFileUploader"] button:focus-visible { outline: 3px solid var(--npuls-blauw); outline-offset: 2px; }
+
+/* Uploadvak */
+[data-testid="stFileUploaderDropzone"] {
+  background: var(--npuls-licht-blauw); border: 2px dashed var(--npuls-blauw); border-radius: var(--radius-lg); padding: 28px;
+}
+[data-testid="stFileUploaderDropzone"] * { color: var(--npuls-zwart); }
+
+/* Invoer */
+[data-baseweb="select"] > div { border-radius: var(--radius-md); background: var(--npuls-wit); }
+[data-testid="stCheckbox"] label span { color: var(--npuls-zwart); }
+
+/* Meldingen: statuskleuren uit het palet, fouten zijn oranje, nooit rood */
+[data-testid="stAlert"] { border-radius: var(--radius-md); color: var(--npuls-zwart); border-left: 6px solid; }
+[data-testid="stAlert"] * { color: var(--npuls-zwart) !important; }
+[data-testid="stAlertContainer"]:has([data-testid="stAlertContentSuccess"]),
+div[data-baseweb="notification"][kind="positive"] { background: var(--npuls-licht-groen); border-color: var(--npuls-groen); }
+div[data-baseweb="notification"][kind="negative"] { background: var(--npuls-licht-oranje); border-color: var(--npuls-oranje); }
+div[data-baseweb="notification"][kind="info"] { background: var(--npuls-licht-blauw); border-color: var(--npuls-blauw); }
+div[data-baseweb="notification"][kind="warning"] { background: var(--npuls-licht-geel); border-color: var(--npuls-geel); }
+
+/* Bijschrift onder grafieken: de samenvatting in tekst */
+[data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] * { color: #5C5C66 !important; opacity: 1 !important; font-size: 0.9375rem; }

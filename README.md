@@ -52,9 +52,27 @@ Klik op het **oranje Claude-icoon** rechtsboven in de editor. Het Claude-paneel 
 
 ### Stap 6 — Geef Claude een opdracht
 
-Typ je opdracht in het vak onderaan het paneel en druk op **Enter**. Met `/` zie je alle beschikbare commando's en skills, zoals `/workshop-verkennen` en `/workshop-dashboard`.
+Typ je opdracht in het vak onderaan het paneel en druk op **Enter**. Met `/` zie je alle beschikbare commando's en skills. Hieronder staat welke skills je in deze sessie gebruikt.
 
 ![Stap 6 — Claude-paneel](docs/images/06-claude-paneel.png)
+
+---
+
+## De skills
+
+Een skill is een werkwijze die Claude volgt. Je start er een met `/` en de naam. In deze sessie gebruik je er drie, achter elkaar:
+
+| Stap | Skill | Wat Claude doet | Wat je krijgt |
+|---|---|---|---|
+| 1 | `/verkennen_data` | Leert samen met jou de data kennen: wat de kolommen kunnen betekenen, welke definities en privacyregels gelden, en welke ideeën er bij jouw vraag passen | `uitvoer/data-profiel.html` |
+| 2 | `/schets_dashboard` | Schetst twee of drie grafieken (views) op papier, nog zonder code | `uitvoer/schets.html` |
+| 3 | `/bouwen_dashboard` | Bouwt het dashboard, met een uploadscherm als eerste scherm | Een dashboard dat je zelf opent |
+
+**Hoe het werkt.** Claude stelt je eerst een paar vragen in één bericht, elk met een standaardantwoord. Antwoord "ok" of corrigeer wat niet klopt: jij beslist over de inhoud, Claude voert uit. De uitkomsten (HTML) komen in de map `uitvoer/`; open ze in je browser.
+
+**De data.** De demodata (fictieve studenten) staat in `data/demodata_1cho.csv`. Heb je uitleg bij de data (een codebook, een omschrijving van de kolommen, een definitie), geef die dan aan Claude wanneer `verkennen_data` daarom vraagt. Heb je dat niet, dan leidt Claude de betekenis af uit de kolomnamen en vraagt het jou om te bevestigen. De skills zelf kennen geen 1CHO en werken ook met andere data. Het dashboard laadt zelf geen data: je uploadt het bestand op het eerste scherm. In Codespaces download je het eerst (rechtsklik op het bestand in de verkenner, *Downloaden*) en upload je het daarna.
+
+Aan het einde van de sessie sluit je af met `/review-reflect` (zie hieronder).
 
 ---
 
