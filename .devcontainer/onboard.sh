@@ -9,7 +9,22 @@ has_key() {
     node -e 'process.exit(require(process.argv[1]).env?.ANTHROPIC_FOUNDRY_API_KEY ? 0 : 1)' "$settings"
 }
 
+# De image-standaard wint van een oude of verkeerd getypte resource in settings.json
+sync_resource() {
+  [[ -n "${ANTHROPIC_FOUNDRY_RESOURCE:-}" && -f "$settings" ]] || return 0
+  node -e '
+const fs = require("fs");
+const f = process.argv[1];
+const s = JSON.parse(fs.readFileSync(f, "utf8"));
+if (s.env?.ANTHROPIC_FOUNDRY_RESOURCE && s.env.ANTHROPIC_FOUNDRY_RESOURCE !== process.env.ANTHROPIC_FOUNDRY_RESOURCE) {
+  s.env.ANTHROPIC_FOUNDRY_RESOURCE = process.env.ANTHROPIC_FOUNDRY_RESOURCE;
+  fs.writeFileSync(f, JSON.stringify(s, null, 2) + "\n");
+}
+' "$settings"
+}
+
 if [[ "${1:-}" == "--if-needed" ]] && { [[ -n "${ANTHROPIC_FOUNDRY_API_KEY:-}" ]] || has_key; }; then
+  sync_resource
   exit 0
 fi
 
