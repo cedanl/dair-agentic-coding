@@ -34,15 +34,21 @@ uit voorbeelddata of demodata: de conclusie hoort bij de echte data, als de tool
 ## Eerst sparren
 
 De gebruiker kent de lezers van het dashboard en het domein beter dan jij, en blijft de
-regisseur ook al doe jij het werk. Stel **één vraag per bericht** en wacht op het antwoord:
+regisseur ook al doe jij het werk.
 
-1. *Voor wie is dit dashboard en welke beslissing moet het helpen nemen?*
-2. *Wat zou jij als eerste willen zien?* Wat de gebruiker noemt, wordt een view, ook als jij een
-   andere had gekozen. Zeg het kort als je een bezwaar hebt en laat de gebruiker beslissen.
+Houd het ritme hoog. **Stel alle vragen die je nodig hebt in één bericht**, genummerd, en geef bij elke
+vraag een **standaardantwoord** ("Ik ga uit van X, tenzij je iets anders zegt"). Antwoordt de gebruiker
+"ok", dan gelden de standaarden. Vraag niets wat al in het gesprek staat, en vraag niet naar ervaring:
+pas je uitleg aan op hoe de gebruiker praat. Stel alleen een vraag als het antwoord het werk echt verandert
+en je het niet kunt aannemen. Alles wat je aanneemt, zeg je hardop en leg je vast, zodat het zichtbaar is
+en de gebruiker het kan corrigeren.
 
-Geef bij elke keuze (welke views, welke volgorde, welk grafiektype) **twee of drie opties met één
-aanbeveling**. Zet in de schets een kopje *Keuzes van de gebruiker* met wat de gebruiker besloot en
-waarom, zodat zichtbaar is wie wat bepaalde.
+Lees voor wie het dashboard is en welke beslissing het helpt nemen uit het gesprek of het profiel; vraag
+het alleen als het daar niet staat. Doe daarna in **één bericht** een voorstel: twee of drie views met
+grafiektype en volgorde als standaard, plus alle open punten, elk met een standaardantwoord. Wat de
+gebruiker als eerste wil zien, wordt een view, ook als jij een andere had gekozen: zeg een bezwaar
+kort en laat de gebruiker beslissen. Zet in de schets een kopje *Keuzes van de gebruiker* met wat de
+gebruiker besloot en wat een aanname is.
 
 ## Stappen
 
@@ -76,8 +82,16 @@ HTML-opmaak: semantische kopjes, per view een `<section>` met een kleine definit
 enige onderscheid, leesbaar op een smal scherm. Eén inline `<style>`, geen scripts. Teken geen
 nagebootste grafieken met verzonnen waarden: een leeg kader met een tekstbeschrijving is genoeg.
 
-Eindig met een korte samenvatting in het gesprek en vraag welke view als eerste gebouwd wordt: dat
-is de keuze van de gebruiker.
+Zet in de schets een kopje *Nog open vragen* met alles wat nog bevestigd moet worden: vragen uit het
+profiel die openstaan, maten die je zelf nieuw voorstelt, en keuzes die je als aanname deed. Laat niets
+onuitgesproken: wat daar niet staat, denkt de gebruiker dat al beslist is.
+
+Eindig met een korte samenvatting in het gesprek. Zeg met welke view je begint en geef daar een
+stellige standaard voor, bijvoorbeeld *"Ik begin met view 1, tenzij je iets anders wilt."* Kies
+standaard de view die de vraag het meest direct beantwoordt, tenzij de gebruiker al een volgorde noemde.
+De gebruiker houdt de keuze maar hoeft niets te beantwoorden. Vraag dus niet *"welke view eerst?"*
+als je al een aanbeveling hebt. Noem de open vragen apart, zodat ze niet in de samenvatting
+verdwijnen.
 
 ## Let op
 

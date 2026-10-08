@@ -26,22 +26,32 @@ code zien (of zet 'm in een bestand) zodat de gebruiker mee kan lezen.
 
 ## Eerst afspreken en sparren
 
-De gebruiker heeft kennis die jij niet hebt en blijft de regisseur, ook al doe jij het werk. Begin
-met een korte ronde, **één vraag per bericht**, en wacht op het antwoord:
+De gebruiker heeft kennis die jij niet hebt en blijft de regisseur, ook al doe jij het werk.
 
-1. **Welke data is dit, en mag ik die lezen?** Dit bepaalt hoe je werkt (zie *Datagebruik*).
-2. **Welke metainfo heb je?** Een codebook, kolomomschrijvingen, definities van maten, drempels. Vraag
-   om een pad of laat de gebruiker het plakken. Zonder metainfo leid je betekenissen af uit de
-   kolomnamen en markeer je ze als aanname.
-3. **Wat weet je al van deze data of van dit onderwerp?** Pas daar je uitleg op aan: korter en
-   technischer bij een expert, meer uitleg bij iemand die het nieuw vindt.
-4. **Wat wil je weten, en hoe zou jij het aanvliegen? Wat denk je dat erachter zit?** Wat de gebruiker
-   zegt, komt **eerst** in het profiel, onder *Jouw aanpak*, in de eigen woorden van de gebruiker.
+Houd het ritme hoog. **Stel alle vragen die je nodig hebt in één bericht**, genummerd, en geef bij elke
+vraag een **standaardantwoord** ("Ik ga uit van X, tenzij je iets anders zegt"). Antwoordt de gebruiker
+"ok", dan gelden de standaarden. Vraag niets wat al in het gesprek staat, en vraag niet naar ervaring:
+pas je uitleg aan op hoe de gebruiker praat. Stel alleen een vraag als het antwoord het werk echt verandert
+en je het niet kunt aannemen. Alles wat je aanneemt, zeg je hardop en leg je vast, zodat het zichtbaar is
+en de gebruiker het kan corrigeren.
+
+De vragen, alleen voor zover het gesprek ze niet al beantwoordt:
+
+1. **Welke data is dit, en mag ik die lezen?** Standaard: wat de gebruiker al zei; bij twijfel de
+   voorzichtigste keuze (zie *Datagebruik*). Dit is een van de twee vragen die altijd een expliciet
+   antwoord nodig hebben.
+2. **Welke metainfo heb je?** Een codebook, kolomomschrijvingen, definities, drempels. Standaard: geen;
+   je leidt betekenissen af uit de kolomnamen en markeert ze als aanname.
+3. **Welke definities en drempels gelden?** Zet de definitie van elke maat die de gebruiker noemt en de
+   privacydrempels in één tabel, met een voorstel als standaard en twee alternatieven. Eén antwoord
+   volstaat. De definitie van de kernmaat is de tweede vraag die altijd een expliciet antwoord nodig heeft:
+   kies hem nooit stilzwijgend.
+4. **Wat denk je dat achter de vraag zit?** Optioneel; "weet ik niet" is een goed antwoord. Wat de
+   gebruiker zegt, komt **eerst** in het profiel, onder *Jouw aanpak*, in de eigen woorden van de gebruiker.
    Jouw ideeën komen daarna.
 
-Geef bij elke keuze waar het profiel van afhangt (definitie, uitsplitsing, drempel) **twee of drie
-opties met één aanbeveling**, en laat de gebruiker kiezen. Beslis zelf niets wat inhoudelijk is.
-Leg de keuzes vast in een kopje *Keuzes van de gebruiker*, zodat zichtbaar is wie wat besloot.
+Leg alle keuzes en aannames vast in het profiel onder *Keuzes van de gebruiker*, met bij elke aanname
+dat ze nog niet bevestigd is, zodat zichtbaar is wie wat besloot.
 
 ## Datagebruik
 

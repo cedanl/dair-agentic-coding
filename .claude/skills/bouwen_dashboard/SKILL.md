@@ -16,26 +16,30 @@ gelden, komt uit het profiel en van de gebruiker. Staat iets daarvan niet in het
 
 ## Eerst sparren
 
-De gebruiker bepaalt wat er gebouwd wordt, ook al schrijf jij de code. Stel **één vraag per
-bericht** en wacht op het antwoord:
+De gebruiker bepaalt wat er gebouwd wordt, ook al schrijf jij de code.
 
-1. *Wat is je ervaring met dashboards of Python?* Pas daar je uitleg op aan: meer uitleg en
-   kleinere stappen bij iemand die het nieuw vindt, kort en technisch bij een ervaren gebruiker.
-2. *Wie gebruikt het dashboard straks met de echte data, en wat moet diegene er zelf mee kunnen
-   doen?* Dit bepaalt filters en de uploadflow.
-3. *Hoe groot is het echte bestand waar dit dashboard straks mee draait?* Een echt bestand kan
-   honderden MB en ruim 100 kolommen hebben, terwijl de voorbeelddata maar enkele MB is. Vraag naar
-   rijen of MB, en of het dashboard lokaal of in een gedeelde omgeving draait. Vang het op in het
-   ontwerp (zie *Grote bestanden*) en zeg het eerlijk als de grootte een grens raakt. Neem de grootte
-   van de voorbeelddata niet over: die hoeft niet groot te zijn.
-4. *Welke huisstijl wil je gebruiken?* Een eigen stijl, de bijgeleverde voorbeeldstijl (Npuls), of
-   een rustig standaardthema. Zie *Huisstijl*.
+Houd het ritme hoog. **Stel alle vragen die je nodig hebt in één bericht**, genummerd, en geef bij elke
+vraag een **standaardantwoord** ("Ik ga uit van X, tenzij je iets anders zegt"). Antwoordt de gebruiker
+"ok", dan gelden de standaarden. Vraag niets wat al in het gesprek staat, en vraag niet naar ervaring:
+pas je uitleg aan op hoe de gebruiker praat. Stel alleen een vraag als het antwoord het werk echt verandert
+en je het niet kunt aannemen. Alles wat je aanneemt, zeg je hardop en leg je vast, zodat het zichtbaar is
+en de gebruiker het kan corrigeren.
 
-Geef bij elke ontwerpkeuze (volgorde van de views, filters, titels, kleuren) **twee of drie opties
-met één aanbeveling** en laat de gebruiker kiezen. Bouw een view eerst, laat de gebruiker kijken
-en vraag *wat zou je anders willen?* voor je de volgende bouwt. Vraag de gebruiker ook om zelf
-de privacy-drempel en de definities in het dashboard te controleren: die beoordeling is van
-de gebruiker, niet van jou. Vat aan het eind samen wat de gebruiker besloot.
+Dit neem je standaard aan en noem je in één bericht, zodat de gebruiker kan corrigeren:
+
+- **Ervaring met dashboards of Python:** afgeleid uit het gesprek. Meer uitleg en kleinere stappen bij iemand
+  die het nieuw vindt, kort en technisch bij een ervaren gebruiker.
+- **Wie het dashboard gebruikt en wat diegene ermee kan:** afgeleid uit de vraag en de schets (een lezer
+  zonder tijd krijgt weinig knoppen en duidelijke titels).
+- **Bestandsgrootte:** vraag er alleen naar als het gesprek geen aanwijzing geeft, en ga anders uit van
+  een groot bestand (honderden MB, ruim 100 kolommen) en bouw daarop (zie *Grote bestanden*). Zeg het
+  eerlijk als de grootte een grens raakt. De voorbeelddata hoeft niet groot te zijn.
+- **Huisstijl:** standaard een rustig standaardthema. Een eigen stijl of de voorbeeldstijl (Npuls) alleen
+  als de gebruiker dat zegt. Zie *Huisstijl*.
+
+Vraag de gebruiker na de eerste view *wat zou je anders willen?* voor je de volgende bouwt, en vraag
+hem zelf de privacy-drempel en de definities in het dashboard te controleren: die beoordeling is van de
+gebruiker, niet van jou. Vat aan het eind samen wat de gebruiker besloot en wat een aanname was.
 
 ## Datagebruik
 
@@ -65,6 +69,7 @@ dashboard daarom zo dat het zonder jou op andere data te draaien is:
   zoals GitHub Codespaces kiest de bestandsdialoog van de browser een bestand van de eigen computer,
   niet uit de omgeving. Laat de gebruiker het bestand dan eerst downloaden en dan uploaden.
 - De vraag die het dashboard beantwoordt (staat bovenaan de schets).
+- Het kopje *Nog open vragen* in de schets. Die vragen moeten beantwoord zijn voor je bouwt (zie *Werkwijze*).
 
 ## Stack
 
@@ -234,7 +239,15 @@ de intro valt terug op Georgia.
 
 ## Werkwijze
 
-1. Lees `uitvoer/schets.html`, kies met de gebruiker welke view het eerst komt, bouw die.
+0. **Los de open punten op voor je bouwt.** Lees het kopje *Nog open vragen* in `uitvoer/schets.html`,
+   en let op maten die de schets nieuw voorstelt en nog niet in het profiel staan. Vraag ze
+   in één bericht, elk met een standaardantwoord, en leg elk antwoord vast bij *Keuzes van de gebruiker* in
+   de schets. Kan de gebruiker een vraag niet beantwoorden, doe dan een aanname, zeg die hardop en toon
+   haar op het dashboard onder *Zo lees je dit*. Bouw een view pas als alles wat hij nodig heeft is
+   beantwoord of als aanname vastgelegd. Een punt dat alleen een latere view raakt, mag blijven staan.
+1. Lees `uitvoer/schets.html` en begin met de view die de schets als eerste noemt, tenzij de gebruiker
+   iets anders wil. Zeg dat in één zin ("Ik begin met view 1, tenzij je iets anders wilt") en vraag het
+   niet als open vraag. Bouw die view.
 2. Test headless met `streamlit.testing.v1.AppTest`: geen exception, de periodekeuze stopt bij de
    laatste waarneembare periode, en een filter naar een kleine groep geeft "te weinig personen".
    Dat zegt meer dan alleen kijken of de server start. `AppTest` kan geen bestand uploaden: test het
