@@ -1,6 +1,6 @@
 ---
 name: bouwen_dashboard
-description: Gebruik wanneer iemand uit een profiel en een schets (uitvoer/data-profiel.html en uitvoer/schets.html) een dashboard wil bouwen dat draait op data die de gebruiker zelf uploadt — zonder vragenronde vooraf: de keuzes komen uit de schets. Eerst een uploadscherm als eerste scherm en daarna grafiek, vergelijking en filter, met privacy-drempel, eerlijke framing, bron en toegankelijkheid, en een afronding met stijlcheck en bewaren in git. LET OP — de data eerst verkennen hoort bij `verkennen_data` en de views schetsen bij `schets_dashboard`.
+description: Gebruik wanneer iemand uit een profiel en een schets (uitvoer/data-profiel.html en uitvoer/schets.html) een dashboard wil bouwen dat draait op data die de gebruiker zelf uploadt — zonder vragenronde vooraf: de keuzes komen uit de schets. Eerst een uploadscherm als eerste scherm en daarna grafiek, vergelijking en filter, met privacy-drempel, eerlijke framing, bron en toegankelijkheid, en een afronding met stijlcheck; bewaren in git alleen als de gebruiker erom vraagt. LET OP — de data eerst verkennen hoort bij `verkennen_data` en de views schetsen bij `schets_dashboard`.
 allowed-tools: Read Grep Glob Write Edit Bash Skill
 metadata:
   versie: "0.4.0"
@@ -266,7 +266,7 @@ de intro valt terug op Georgia.
 
 ## Afronden
 
-Het dashboard is af als de code is nagekeken en bewaard. Doe deze stappen achter elkaar als alle views
+Het dashboard is af als de code is nagekeken. Doe deze stappen achter elkaar als alle views
 staan, zonder per stap toestemming te vragen. Meld per stap in één regel wat eruit kwam.
 
 1. **Waarden uit de voorbeelddata.** Kopieer `assets/controleer_voorbeeldwaarden.py` naar de werkmap en
@@ -279,17 +279,24 @@ staan, zonder per stap toestemming te vragen. Meld per stap in één regel wat e
 3. **Vereenvoudigen.** Draai de skill `simplify-ceda` op dezelfde bestanden. Lukt het installeren van
    de plugin niet, sla de stap dan over en meld dat.
 4. **Opnieuw testen.** Draai de tests uit *Werkwijze* opnieuw: de vorige stappen hebben code veranderd.
-5. **Bewaren.** Draai de skill `ship`: commit de code van het dashboard en push naar de repo van de
-   gebruiker.
-   - Commit geen `uitvoer/`, geen `.venv/` en geen databestanden die nog niet in de repo stonden.
-   - In de eigen repo van de gebruiker mag de commit op `main`.
-   - In een Codespace regelt `GITHUB_TOKEN` de toegang tot de repo: laat die staan, ook waar `ship`
-     aanraadt hem te unsetten.
-   - Weigert de push omdat de gebruiker geen schrijfrechten heeft, dan staat de werkmap niet in een
-     eigen repo. Omzeil dat niet en vraag geen token. Het werk is dan lokaal gecommit: zeg dat, en
-     verwijs naar stap 1 van de README (een eigen kopie maken met *Use this template*).
+5. **Bewaren aanbieden.** Commit en push niets uit jezelf. Sluit af met één regel: *"Wil je dit bewaren in
+   je eigen GitHub? Zeg dan 'bewaar'."*
 
 Ontbreekt een van deze skills, sla die stap dan over en meld het.
+
+## Bewaren, alleen op verzoek
+
+Commit en push alleen als de gebruiker erom vraagt, en nooit zonder bevestiging.
+
+1. **Laat zien wat er gebeurt.** Noem de bestanden die meegaan (de code van het dashboard; geen
+   `uitvoer/`, geen `.venv/` en geen databestanden die nog niet in de repo stonden) en de repo waar ze
+   heen gaan. Heeft de gebruiker geen schrijfrechten op die repo, zeg dan dat GitHub een kopie (fork) in
+   het eigen account van de gebruiker maakt, en dat die kopie **openbaar** is als de oorspronkelijke repo
+   openbaar is. Vraag om akkoord.
+2. **Na akkoord:** draai de skill `ship` om te committen en te pushen. In een Codespace regelt
+   `GITHUB_TOKEN` de toegang tot de repo: laat die staan, ook waar `ship` aanraadt hem te unsetten.
+3. **Weigert de push:** omzeil dat niet en vraag geen token. Zeg dat het werk lokaal gecommit is en geef
+   de klikroute om de bestanden te downloaden: rechtsklik op het bestand in de verkenner en *Download*.
 
 ## Let op
 
