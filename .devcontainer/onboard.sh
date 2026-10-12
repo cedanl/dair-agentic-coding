@@ -61,6 +61,20 @@ fi
 echo "✔ Key ontvangen (${#key} tekens): $masked"
 echo "✔ Resource: $resource"
 
+# Alleen 401/403 telt als foute key; bij netwerkproblemen slaan we de key toch op
+code="$(printf 'x-api-key: %s\napi-key: %s\n' "$key" "$key" | curl -s -o /dev/null -m 30 -w '%{http_code}' \
+  "https://$resource.services.ai.azure.com/anthropic/v1/messages" -H @- \
+  -H "anthropic-version: 2023-06-01" -H "content-type: application/json" \
+  -d "{\"model\":\"${ANTHROPIC_MODEL:-claude-opus-5-5}\",\"max_tokens\":1,\"messages\":[{\"role\":\"user\",\"content\":\"hoi\"}]}" || true)"
+case "$code" in
+  200) echo "✔ Key werkt" ;;
+  401|403)
+    echo "✘ Key geweigerd (HTTP $code). De key is niet opgeslagen. Controleer of je alles hebt geplakt en probeer opnieuw: dair-onboard"
+    exit 1
+    ;;
+  *) echo "⚠ Kon de key niet controleren (HTTP $code). Hij is wel opgeslagen; hangt het Claude-paneel straks, draai dan dair-onboard opnieuw." ;;
+esac
+
 mkdir -p "$HOME/.claude"
 KEY="$key" RESOURCE="$resource" node -e '
 const fs = require("fs");
