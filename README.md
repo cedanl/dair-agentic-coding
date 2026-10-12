@@ -40,6 +40,8 @@ Klik in de menubalk op **Terminal → New Terminal**.
 
 De eerste keer vraagt de terminal om de **workshop-key**. Die krijg je van de begeleider. Plak hem en druk op **Enter** (je ziet tijdens het plakken niets verschijnen, dat is normaal). Opnieuw instellen kan altijd met `dair-onboard`.
 
+> **Foute key geplakt?** Dan blijft het Claude-paneel hangen, zonder foutmelding. Typ `dair-onboard` in de terminal, plak de juiste key, en laad daarna het venster opnieuw: `Ctrl+Shift+P` (Mac: `Cmd+Shift+P`), kies **Developer: Reload Window**.
+
 ---
 
 ### Stap 5 — Open het Claude-paneel
