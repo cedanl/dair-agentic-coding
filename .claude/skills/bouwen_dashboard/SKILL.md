@@ -34,7 +34,7 @@ een groot bestand, in de Npuls-huisstijl, tenzij je iets anders zegt."* Dit neem
 - **Huisstijl:** de Npuls-huisstijl, via de skill `vormgever-npuls-huisstijl`. Een eigen stijl of een
   rustig standaardthema alleen als de gebruiker dat zegt. Zie *Huisstijl*.
 
-Stel **hooguit drie vragen**, en alleen over iets dat de view blokkeert die je nu bouwt. Stel ze één voor
+Stel **hooguit drie vragen**, en alleen over iets dat het bouwen van een view blokkeert. Stel ze één voor
 één: één vraag per bericht, met een standaardantwoord ("Ik ga uit van X, tenzij je iets anders zegt").
 Alles wat je aanneemt, zeg je hardop en leg je vast, zodat de gebruiker het kan corrigeren.
 
@@ -83,7 +83,8 @@ volg dan die keuze. Installeer wat nodig is met uv in een virtuele omgeving
 kolomnamen per rol, de lijst met verplichte kolommen, het scheidingsteken en de drempels in één
 configuratie (`configuratie.py`), afgeleid van het profiel, niet verspreid door de code. Begin `app.py`
 met `st.set_page_config(page_title=..., layout="wide")` en zet het thema in `.streamlit/config.toml`.
-Start met `streamlit run app.py`. Gebruik `width="stretch"` in plaats van `use_container_width`.
+Start tijdens het bouwen met `streamlit run app.py` in de venv; hoe de gebruiker het opent staat onder
+*Hoe de gebruiker het opent*. Gebruik `width="stretch"` in plaats van `use_container_width`.
 
 Zet de code in een map `dashboard/` in de werkmap, niet in `uitvoer/` (dat staat in `.gitignore` en is
 voor gegenereerde HTML). Die map bevat `app.py`, `berekeningen.py`, `configuratie.py`,
@@ -211,8 +212,8 @@ onderscheid.
 De bron van deze stijl is de skill `vormgever-npuls-huisstijl`. Het lettertype is Plus Jakarta Sans, de
 digitale vervanger van General Sans; gebruik nooit Inter of een ander vervangend lettertype. De regels
 daaruit die je altijd controleert: minstens drie primaire kleuren zichtbaar, `npuls-zwart` alleen voor
-tekst, alleen kleurparen uit `allowed_combinations`, fouten oranje en nooit rood. De bestanden in
-`assets/npuls/` zijn de uitwerking voor dit dashboard (uploadscherm, hero, kaarten):
+tekst, alleen kleurparen uit `allowed_combinations`, fouten oranje en nooit rood. Het stijlblad in
+`assets/npuls/` is de uitwerking voor dit dashboard (uploadscherm, hero, kaarten):
 
 - `npuls-dashboard.css`: lettertype, hero, kaarten, pill-knoppen, uploadvak, zijbalk, meldingen en
   grafiekkaarten. Laad het met `st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)`.
