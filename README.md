@@ -68,7 +68,9 @@ Een skill is een werkwijze die Claude volgt. Je start er een met `/` en de naam.
 | 2 | `/schets_dashboard` | Schetst twee of drie grafieken (views) op papier, nog zonder code | `uitvoer/schets.html` |
 | 3 | `/bouwen_dashboard` | Bouwt het dashboard, met een uploadscherm als eerste scherm, en test het daarna | Een dashboard dat je zelf opent |
 
-**Hoe het werkt.** Claude stelt je vragen één voor één, elk met een standaardantwoord, of doet een voorstel. Antwoord "ok" of corrigeer wat niet klopt: jij beslist over de inhoud, Claude voert uit. De uitkomsten (HTML) komen in de map `uitvoer/`. Open ze met een rechtsklik op het bestand en **Show Preview**.
+**Hoe het werkt.** Claude stelt je vragen één voor één, elk met een standaardantwoord, of doet een voorstel. Antwoord "ok" of corrigeer wat niet klopt: jij beslist over de inhoud, Claude voert uit. De uitkomsten (HTML) komen in de map `uitvoer/`. Zie hieronder hoe je ze opent.
+
+**Een HTML-bestand openen in Codespaces.** Klik met de rechtermuisknop op het bestand in de verkenner en kies **Show Preview**. De pagina opent in een nieuw tabblad van je browser; vraagt GitHub om door te gaan, klik dan op *Continue*. Zie je in plaats daarvan *This content is blocked*, dan opent de preview nog binnen VS Code: druk op `Ctrl+Shift+P` (Mac: `Cmd+Shift+P`) en kies **Live Preview: Show Preview (External Browser)**. Staat *Show Preview* er niet tussen, installeer dan de extensie **Live Preview** van Microsoft (`ms-vscode.live-server`) via het Extensions-paneel (`Ctrl+Shift+X`).
 
 **Andere skills.** De drie skills verwijzen naar skills die CEDA ook in eigen projecten gebruikt en die in deze repo staan: `grafiekkeuze` (welke grafiek past), `vormgever-npuls-huisstijl` (de Npuls-stijl) en `ship` (bewaren in git). Je hoeft ze niet zelf te starten. `check-style` en `simplify-ceda` (de code nakijken) zijn optioneel en kosten veel tijd: wil je dat Claude je code nakijkt, typ ze dan zelf.
 
