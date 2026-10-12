@@ -1,6 +1,7 @@
 ---
 name: review-reflect
 description: Sluit de DAIR agentic-coding sessie af met een korte review. Interviewt de deelnemer over de sessie (nut, tempo, wat geleerd, wat beter) en stuurt de antwoorden naar voxpop. Gebruik aan het einde van de sessie, of wanneer iemand "review", "feedback geven", "reflectie" of "afronden" zegt.
+disable-model-invocation: true
 ---
 
 # Review & reflectie

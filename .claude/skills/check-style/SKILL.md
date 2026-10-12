@@ -1,6 +1,7 @@
 ---
 name: check-style
 description: Check code against CEDA R or Python style standards. Use when reviewing code, after writing code, or when the user asks to check style/conventions.
+disable-model-invocation: true
 ---
 
 # Check CEDA Style Standards

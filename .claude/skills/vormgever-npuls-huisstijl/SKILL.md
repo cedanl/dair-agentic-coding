@@ -1,6 +1,7 @@
 ---
 name: vormgever-npuls-huisstijl
 description: "Pas de volledige Npuls huisstijl toe op digitale uitingen zoals webapps, dashboards, componenten, landingspagina's, software-interfaces, documenten, posters, social posts of andere visuele assets. Gebruik deze skill altijd wanneer iemand iets wil ontwerpen, bouwen of restylen in Npuls-stijl — ook als ze het woord 'huisstijl' niet noemen. Triggers zijn onder andere: \"maak dit Npuls\", \"ontwerp een Npuls-pagina\", \"stijl dit als Npuls\", \"maak een component/dashboard/app/interface\", of wanneer iemand code aanlevert die Npuls-uitstraling moet krijgen. Levert werkende HTML/CSS/React code op, of een restyled versie van bestaande code — afhankelijk van de vraag."
+disable-model-invocation: true
 ---
 
 # Vormgever Npuls Huisstijl

@@ -1,6 +1,7 @@
 ---
 name: simplify-ceda
 description: Review changed code for reuse, quality, and efficiency against CEDA standards. Fix any issues found. Use after writing or editing code in cedanl repositories.
+disable-model-invocation: true
 ---
 
 # Simplify: Code Review and Cleanup

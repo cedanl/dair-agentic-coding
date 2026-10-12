@@ -60,17 +60,17 @@ Typ je opdracht in het vak onderaan het paneel en druk op **Enter**. Met `/` zie
 
 ## De skills
 
-Een skill is een werkwijze die Claude volgt. Je start er een met `/` en de naam. In deze sessie gebruik je er drie, achter elkaar:
+Een skill is een werkwijze die Claude volgt. Je start er een met `/` en de naam. Skills starten alleen als je ze zelf typt; tijdens gewoon chatten springen ze niet vanzelf aan. In deze sessie gebruik je er drie, achter elkaar:
 
 | Stap | Skill | Wat Claude doet | Wat je krijgt |
 |---|---|---|---|
 | 1 | `/verkennen_data` | Leert samen met jou de data kennen: wat de kolommen kunnen betekenen, hoe het staat met de datakwaliteit en de verdelingen, welke definities en privacyregels gelden, en welke ideeën er bij jouw vraag passen | `uitvoer/data-profiel.html` |
 | 2 | `/schets_dashboard` | Schetst twee of drie grafieken (views) op papier, nog zonder code | `uitvoer/schets.html` |
-| 3 | `/bouwen_dashboard` | Bouwt het dashboard, met een uploadscherm als eerste scherm, en kijkt daarna de code na | Een dashboard dat je zelf opent |
+| 3 | `/bouwen_dashboard` | Bouwt het dashboard, met een uploadscherm als eerste scherm, en test het daarna | Een dashboard dat je zelf opent |
 
 **Hoe het werkt.** Claude stelt je vragen één voor één, elk met een standaardantwoord, of doet een voorstel. Antwoord "ok" of corrigeer wat niet klopt: jij beslist over de inhoud, Claude voert uit. De uitkomsten (HTML) komen in de map `uitvoer/`. Open ze met een rechtsklik op het bestand en **Show Preview**.
 
-**Andere skills.** De drie skills verwijzen naar skills die CEDA ook in eigen projecten gebruikt en die in deze repo staan: `grafiekkeuze` (welke grafiek past), `vormgever-npuls-huisstijl` (de Npuls-stijl), `check-style` en `simplify-ceda` (de code nakijken) en `ship` (bewaren in git). Je hoeft ze niet zelf te starten.
+**Andere skills.** De drie skills verwijzen naar skills die CEDA ook in eigen projecten gebruikt en die in deze repo staan: `grafiekkeuze` (welke grafiek past), `vormgever-npuls-huisstijl` (de Npuls-stijl) en `ship` (bewaren in git). Je hoeft ze niet zelf te starten. `check-style` en `simplify-ceda` (de code nakijken) zijn optioneel en kosten veel tijd: wil je dat Claude je code nakijkt, typ ze dan zelf.
 
 **Bewaren.** Claude slaat niets op in GitHub zonder dat je erom vraagt. Wil je je werk bewaren in je eigen GitHub-account, zeg dan "bewaar". Claude laat eerst zien wat er wordt opgeslagen en waar, en wacht op je akkoord. Lukt het opslaan niet, dan kun je de bestanden downloaden (rechtsklik op het bestand, *Download*).
 
@@ -82,21 +82,9 @@ Aan het einde van de sessie sluit je af met `/review-reflect` (zie hieronder).
 
 ## Review geven
 
-Aan het einde van de sessie, kies de route die voor jou werkt:
+Aan het einde van de sessie geef je je review **in Claude**: typ `/review-reflect`. Er opent een vragenlijst die je invult.
 
-1. **Webformulier (aanbevolen).** Draai dit in de terminal en open de link in je browser:
-
-   ```
-   python3 scripts/feedback.py link
-   ```
-
-   Je kunt ook de link gebruiken die de begeleider deelt.
-2. **In Claude:** typ `/review-reflect`.
-3. **In de terminal, zonder Claude:** `python3 scripts/feedback.py form`
-
-Routes 2 en 3 sturen vanuit je Codespace rechtstreeks naar voxpop. Dat lukt niet altijd (soms time-out); gebruik dan route 1.
-
-De review is anoniem en gaat naar de begeleiders. Enter slaat een vraag over.
+De review is anoniem en gaat naar de begeleiders. Je kunt een vraag overslaan.
 
 ---
 

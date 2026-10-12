@@ -1,6 +1,7 @@
 ---
 name: grafiekkeuze
 description: Use when choosing/recommending a chart or graph type to present data, or generating chart code. Triggers like "welke grafiek/diagram", "hoe visualiseer/presenteer ik deze data", "maak een grafiek/visualisatie voor", "is dit de juiste grafiek", "what chart should I use", "how to visualize this data". NL + EN.
+disable-model-invocation: true
 ---
 
 # Grafiekkeuze (TRIPS-beslisboom)
