@@ -1,17 +1,17 @@
 ---
 name: verkennen_data
-description: Gebruik wanneer iemand een tabelbestand (CSV) wil verkennen voor er een dashboard of analyse komt — eerst afspreken welke data er gebruikt mag worden en sparren over de expertise en aanpak van de gebruiker, dan begrijpen wat de kolommen kunnen betekenen, definities vastleggen en casusgerichte ideeën en aanpakken bedenken voor de vraag van de gebruiker, met een HTML-profiel als uitkomst. De metainfo (codebook, definities, uitleg) komt van de gebruiker. LET OP — de views schetsen hoort bij `schets_dashboard` en het dashboard bouwen bij `bouwen_dashboard`.
+description: Gebruik wanneer iemand een tabelbestand (CSV) wil verkennen voor er een dashboard of analyse komt — eerst afspreken welke data er gebruikt mag worden en sparren over de expertise en aanpak van de gebruiker, dan begrijpen wat de kolommen kunnen betekenen, de datakwaliteit en verdelingen controleren, definities vastleggen en casusgerichte ideeën en aanpakken bedenken voor de vraag van de gebruiker, met een HTML-profiel als uitkomst. De metainfo (codebook, definities, uitleg) komt van de gebruiker. LET OP — de views schetsen hoort bij `schets_dashboard` en het dashboard bouwen bij `bouwen_dashboard`.
 allowed-tools: Read Grep Glob Write Bash
 metadata:
-  versie: "0.4.0"
+  versie: "0.5.0"
 ---
 
 # Data verkennen
 
 Maakt van een ruw tabelbestand **begrip**: wat zou elke kolom kunnen betekenen, wat mag je ermee
 zeggen, wat mag je niet laten zien en hoe kun je de vraag aanvliegen. De uitkomst is een
-HTML-profiel dat vooral **conceptueel** is. Je schrijft geen dashboard, schetst geen views en
-trekt geen conclusie.
+HTML-profiel dat vooral **conceptueel** is, met een controle van de datakwaliteit en de verdelingen
+als onderbouwing. Je schrijft geen dashboard, schetst geen views en trekt geen conclusie.
 
 Deze skill kent **geen domein**. Alles wat iets over de data zegt, komt van de gebruiker: een
 codebook, uitleg bij de kolommen, definities van maten, drempels voor kleine groepen. Heeft de
@@ -46,7 +46,10 @@ De vragen, alleen voor zover het gesprek ze niet al beantwoordt:
    privacydrempels in één tabel, met een voorstel als standaard en twee alternatieven. Eén antwoord
    volstaat. De definitie van de kernmaat is de tweede vraag die altijd een expliciet antwoord nodig heeft:
    kies hem nooit stilzwijgend.
-4. **Wat denk je dat achter de vraag zit?** Optioneel; "weet ik niet" is een goed antwoord. Wat de
+4. **Wat is één rij?** Een persoon, een gebeurtenis, een jaar per persoon. Standaard: jouw voorstel op
+   basis van de kolomnamen, met de kolommen die samen de sleutel vormen. Het script controleert of die
+   sleutel uniek is.
+5. **Wat denk je dat achter de vraag zit?** Optioneel; "weet ik niet" is een goed antwoord. Wat de
    gebruiker zegt, komt **eerst** in het profiel, onder *Jouw aanpak*, in de eigen woorden van de gebruiker.
    Jouw ideeën komen daarna.
 
@@ -89,7 +92,11 @@ aanpassing op kunnen draaien. Lees kolomnamen uit de header en verzin ze niet.
 
 Loop de kolommen langs en geef per kolom, in **gewone taal**:
 
-- **Rol**: identificatie, tijd, categorie (kan uitsplitsen), maat (getal) of vrije tekst
+- **Rol**: identificatie, tijd, categorie (kan uitsplitsen), maat (getal) of vrije tekst. Begin de rol
+  met een van die woorden: het script rekent geen verdeling uit voor een identificatie of categorie,
+  ook niet als de waarden getallen zijn (een code of postcode is geen maat).
+- **Type**, alleen als je het zeker weet: getal, datum of tekst. Laat je het weg, dan stelt het script
+  een type voor.
 - **Wat het zou kunnen betekenen**, als aanname ("waarschijnlijk het jaar waarin...") en wat je
   nog niet zeker weet. Gebruik de metainfo als die er is; vraag bij twijfel de gebruiker, die kent het
   domein vaak beter.
@@ -98,10 +105,31 @@ Loop de kolommen langs en geef per kolom, in **gewone taal**:
   bevatten (nooit tonen).
 
 Schrijf dit weg als `begrip.json` (zie *Uitvoer*), niet als vaste tekst in het script. Het script
-rekent alleen de structuur uit: aantal rijen en kolommen, unieke en ontbrekende waarden per kolom,
+rekent de structuur uit: aantal rijen en kolommen, unieke en ontbrekende waarden per kolom,
 de kolommen met één waarde (die kunnen niet uitsplitsen) en de groepsgroottes.
 
-### 2. Leg de definities vast
+### 2. Controleer de kwaliteit en de verdelingen
+
+Het script rekent dit uit en zet het in het profiel onder *Datakwaliteit* en *Verdelingen*. Loop de
+uitkomst met de gebruiker langs en leg uit wat elk punt betekent voor de vraag:
+
+- **Sleutel**: is de sleutel uniek? Zo niet, dan telt een telling van rijen iets anders dan een telling
+  van personen of eenheden. Leg vast wat het dashboard telt.
+- **Dubbele rijen**: exacte kopieën. Vraag de gebruiker of die erin horen.
+- **Typen**: per kolom het voorgestelde type (getal of datum) en hoeveel ingevulde waarden daar niet in
+  passen. Zulke waarden zijn vaak een code voor "onbekend": vraag wat ze betekenen.
+- **Ontbrekende waarden per groep** (met `--uitsplitsing`): ontbreekt een kolom in de ene groep veel
+  vaker dan in de andere, dan is een vergelijking tussen groepen op die kolom scheef.
+- **Verdelingen**: per getalkolom het aantal, de kwartielen, de laagste en hoogste waarde en het aantal
+  uitschieters. Een laagste of hoogste waarde die minder dan de celdrempel aan rijen heeft, toont het
+  script niet: dat getal wijst één rij aan. Vraag bij een onwaarschijnlijke waarde of uitschieter of
+  het een fout is of echt.
+
+Dit beschrijft het bestand dat is ingelezen. Op echte data draait de gebruiker het script opnieuw; neem
+geen getal uit deze controle over in een definitie of in de tekst van `begrip.json`. Wil de gebruiker
+een verdeling als grafiek zien, kies die dan met de skill `grafiekkeuze`.
+
+### 3. Leg de definities vast
 
 Schrijf de definities van de maten die de gebruiker wil gebruiken **letterlijk** in het profiel
 onder het kopje *Definities*, met de kolommen waarop ze rusten. Neem ze uit de metainfo van de
@@ -112,7 +140,7 @@ Beschrijf per maat welke groepen of perioden **nog niet waarneembaar** kunnen zi
 observatietermijn zit dan nog niet in de data. Zeg dat als **regel** ("een periode telt pas mee als
 de volgende periode in de data zit"), zodat het dashboard het zelf kan toepassen op elke data.
 
-### 3. Bedenk casusgerichte ideeën en aanpakken
+### 4. Bedenk casusgerichte ideeën en aanpakken
 
 Alleen als er een vraag is. Denk mee over **deze vraag**, niet over data in het algemeen. Begin met
 *Jouw aanpak* en voeg daarna jouw eigen ideeën toe, als ideeën en niet als bevindingen. Baseer ze op
@@ -144,7 +172,7 @@ Werk daarna twee of drie **mogelijke aanpakken** uit. Per aanpak:
 Dit is een voorzet voor `schets_dashboard`, dat er de views van maakt. Laat de gebruiker kiezen welke
 ideeën de moeite waard zijn en schrap wat niet past. Noem geen uitkomst.
 
-### 4. Leg de privacyregels vast
+### 5. Leg de privacyregels vast
 
 Beschrijf de regels, niet de aantallen. Vraag de gebruiker welke drempels gelden, en stel anders
 deze gangbare voorbeeldwaarden voor:
@@ -164,16 +192,19 @@ deze gangbare voorbeeldwaarden voor:
 Drie bestanden:
 
 - `uitvoer/data-profiel.html`: eerst *Datagebruik*, *Jouw aanpak* en *Keuzes van de gebruiker*, dan het
-  begrip per kolom, de definities, de casusideeën en aanpakken voor de vraag en de privacyregels, en als bijlage de
-  structuur van de data. Eén bestand zonder externe afhankelijkheden.
-- `begrip.json`: je eigen tekst, met de velden `datagebruik`, `jouw_aanpak`, `keuzes`, `kolommen`
-  (`{naam: {"rol", "betekenis", "let_op"}}`), `definities` (`[{"naam", "definitie"}]`) en
+  begrip per kolom, de definities, de casusideeën en aanpakken voor de vraag, de privacyregels, de datakwaliteit
+  en de verdelingen, en als bijlage de structuur van de data. Eén bestand zonder externe afhankelijkheden.
+- `begrip.json`: je eigen tekst, met de velden `datagebruik`, `jouw_aanpak`, `keuzes`, `eenheid_rij`
+  (wat één rij is, in gewone taal), `sleutel` (lijst met kolomnamen), `kolommen`
+  (`{naam: {"rol", "betekenis", "let_op", "type"}}`, `type` is optioneel), `definities` (`[{"naam", "definitie"}]`) en
   `casus_ideeen` (`{"relevante_kolommen": [{"kolom", "waarom"}], "afgeleide_maten": [{"naam", "definitie"}],
   "hypotheses": [{"vraag", "alternatieve_verklaring"}], "vergelijkingen": [], "valkuilen": [],
   "ontbrekende_data": [], "vragen": []}`) en `casus_aanpak` (`[{"idee", "maat", "uitsplitsing", "kan_niet"}]`).
 - `verken.py`: staat in `assets/` van deze skill. Kopieer het naar de werkmap en draai het:
-  `python verken.py bestand.csv --begrip begrip.json`. Het leest het bestand en `begrip.json` en schrijft
-  het profiel. Gebruik `--demo` alleen bij demodata. Het script bevat geen waarden uit de data en geen
+  `python verken.py bestand.csv --begrip begrip.json --uitsplitsing kolom`. Het leest het bestand en
+  `begrip.json` en schrijft het profiel. Geef met `--uitsplitsing` (herhaalbaar) de kolommen waarop de
+  gebruiker wil uitsplitsen; de sleutel komt uit `begrip.json` of uit `--sleutel`. Gebruik `--demo`
+  alleen bij demodata. Het script bevat geen waarden uit de data en geen
   conclusies, zodat de gebruiker het later zonder AI op andere data kan draaien.
 
 Alle gegenereerde HTML hoort in `uitvoer/` (maak de map aan als die ontbreekt), nooit naast de invoer.

@@ -1,9 +1,9 @@
 ---
 name: schets_dashboard
 description: Gebruik wanneer iemand uit een dataprofiel (uitvoer/data-profiel.html) twee of drie views voor een dashboard wil schetsen — eerst sparren over wie het dashboard gebruikt en wat de gebruiker als eerste wil zien, dan per view de vraag, de uitsplitsing, het grafiektype en wat het niet kan zeggen, als HTML-schets zonder code. LET OP — de data verkennen hoort bij `verkennen_data` en het dashboard bouwen bij `bouwen_dashboard`.
-allowed-tools: Read Grep Glob Write
+allowed-tools: Read Grep Glob Write Skill
 metadata:
-  versie: "0.2.0"
+  versie: "0.3.0"
 ---
 
 # Dashboard schetsen
@@ -53,17 +53,16 @@ gebruiker besloot en wat een aanname is.
 ## Stappen
 
 1. **Lees het profiel**: welke uitsplitsingen kunnen (meer dan één waarde), welke maten hebben een
-   definitie, welke regels gelden voor waarneembaarheid en privacy, en welke aanpakken
-   `verkennen_data` voor de vraag voorstelde. Begin bij *Jouw aanpak* van de gebruiker, daarna de
+   definitie, wat één rij is en of de sleutel uniek is (dat bepaalt of een view rijen of eenheden telt),
+   welke kolommen per groep ongelijk ontbreken, welke regels gelden voor waarneembaarheid en privacy, en
+   welke aanpakken `verkennen_data` voor de vraag voorstelde. Begin bij *Jouw aanpak* van de gebruiker, daarna de
    aanpakken van `verkennen_data`.
 2. **Kies twee of drie views** die samen de vraag beantwoorden. Laat uitsplitsingen weg die het
    profiel niet draagt.
-3. **Kies het grafiektype** met een vaste volgorde: eerst verhaal, publiek en doel, dan de
-   datastructuur (de TRIPS-beslisboom). Noem het pad in één regel (*"vergelijken, lange labels ->
-   horizontaal staafdiagram"*). Vergelijkingen tussen groepen krijgen staafdiagrammen met een
-   gemeenschappelijke nul-as; lijnen zijn alleen voor tijd; een cirkeldiagram alleen voor deel-van-geheel
-   in één periode en bij hooguit 5-7 delen; een extra groepering wordt een facet, geen derde dimensie in
-   één grafiek.
+3. **Kies het grafiektype** met de skill `grafiekkeuze` (de TRIPS-beslisboom). Neem daaruit alleen de
+   keuze en het pad in één regel (*"vergelijken, lange labels -> horizontaal staafdiagram"*), geen code:
+   de schets blijft zonder code. Ontbreekt de skill, houd dan aan: groepen vergelijken met staven op een
+   gemeenschappelijke nul-as, tijd met een lijn.
 4. **Schrijf per view**: de vraag of hypothese, de maat (met verwijzing naar de definitie in het
    profiel), de uitsplitsing, het grafiektype met waarom, en welke groepen of perioden wegvallen
    door de privacydrempel of omdat ze nog niet waarneembaar zijn.

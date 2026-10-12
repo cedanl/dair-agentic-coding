@@ -1,9 +1,9 @@
 ---
 name: bouwen_dashboard
-description: Gebruik wanneer iemand uit een profiel en een schets (uitvoer/data-profiel.html en uitvoer/schets.html) een dashboard wil bouwen dat draait op data die de gebruiker zelf uploadt — eerst sparren over ervaring, gebruikers, bestandsgrootte en huisstijl, dan een uploadscherm als eerste scherm en daarna grafiek, vergelijking en filter, met privacy-drempel, eerlijke framing, bron en toegankelijkheid. LET OP — de data eerst verkennen hoort bij `verkennen_data` en de views schetsen bij `schets_dashboard`.
-allowed-tools: Read Grep Glob Write Edit Bash
+description: Gebruik wanneer iemand uit een profiel en een schets (uitvoer/data-profiel.html en uitvoer/schets.html) een dashboard wil bouwen dat draait op data die de gebruiker zelf uploadt — eerst sparren over ervaring, gebruikers, bestandsgrootte en huisstijl, dan een uploadscherm als eerste scherm en daarna grafiek, vergelijking en filter, met privacy-drempel, eerlijke framing, bron en toegankelijkheid, en een afronding met stijlcheck en bewaren in git. LET OP — de data eerst verkennen hoort bij `verkennen_data` en de views schetsen bij `schets_dashboard`.
+allowed-tools: Read Grep Glob Write Edit Bash Skill
 metadata:
-  versie: "0.3.0"
+  versie: "0.4.0"
 ---
 
 # Dashboard bouwen
@@ -81,6 +81,10 @@ kolomnamen per rol, de lijst met verplichte kolommen, het scheidingsteken en de 
 configuratie (`configuratie.py`), afgeleid van het profiel, niet verspreid door de code. Begin `app.py`
 met `st.set_page_config(page_title=..., layout="wide")` en zet het thema in `.streamlit/config.toml`.
 Start met `streamlit run app.py`. Gebruik `width="stretch"` in plaats van `use_container_width`.
+
+Deze platte opzet (drie bestanden naast elkaar, geen pakket) is een bewuste keuze: het dashboard moet
+klein en leesbaar blijven. Bouw er geen `src/`-indeling of `pyproject.toml` omheen, tenzij de gebruiker
+daarom vraagt.
 
 ## Wat het dashboard minimaal heeft
 
@@ -160,6 +164,7 @@ Test de upload alleen met voorbeelddata waar de gebruiker mee akkoord is, bijvoo
 | Check | Wat jij doet |
 |---|---|
 | Privacy | Toon geen groep onder de drempel (voorbeeldwaarden: 30 personen per groep, 5 per percentage-cel; de echte waarden staan in `uitvoer/data-profiel.html`). Toon in plaats daarvan "te weinig personen" en pas secundaire onderdrukking toe. Bouw de drempel als parameter in `configuratie.py`, niet hardcoded in elke grafiek. |
+| Eenheid | Tel wat het profiel als eenheid van de rij noemt. Is de sleutel niet uniek, tel dan unieke sleutels en geen rijen, en zeg op het dashboard wat er geteld wordt. |
 | Waarneembaarheid | Sluit perioden uit waarvan de observatietermijn niet volledig is (zie de regel in het profiel) en zeg dat op het dashboard. |
 | Eerlijke framing | Geen woorden als "slechter" of "risicogroep" over groepen mensen; benoem de groep of eenheid, geen kenmerken van personen als oorzaak. Een verband is geen oorzaak. |
 | Toegankelijkheid | Kleurenblind-veilig palet (niet alleen rood/groen), contrast minimaal 4,5:1, elke grafiek met een tekstuele samenvatting als alt-tekst, labels direct op de staven waar het past. |
@@ -167,17 +172,15 @@ Test de upload alleen met voorbeelddata waar de gebruiker mee akkoord is, bijvoo
 
 ## Grafiekkeuze
 
-Kies de grafiek in een vaste volgorde: eerst verhaal, publiek en doel, dan de datastructuur (de
-TRIPS-beslisboom). Noem het pad kort bij je keuze (*"vergelijken tussen groepen, lange labels
--> horizontaal staafdiagram"*).
+Kies elke grafiek met de skill `grafiekkeuze` (de TRIPS-beslisboom) en noem het pad kort bij je keuze
+(*"vergelijken tussen groepen, lange labels -> horizontaal staafdiagram"*). De schets noemt per view al
+een grafiektype: volg dat, tenzij de data het niet draagt. Ontbreekt de skill, houd dan aan: groepen
+vergelijken met staven op een gemeenschappelijke nul-as, tijd met een lijn of kolommen.
 
-- Vergelijken tussen groepen: staafdiagram, horizontaal bij lange labels. Over tijd: lijn of kolommen.
-- Cirkeldiagram alleen voor deel-van-geheel in één periode, en niet bij meer dan 5-7 delen.
-- Een extra groepering wordt een facet, geen derde dimensie in één grafiek.
-- Plotly in Streamlit: `st.plotly_chart(fig, width="stretch", theme=None)`. Streamlit zet anders zijn
-  eigen kleuren over die van de huisstijl heen. Zonder het Streamlit-thema ontbreken de automatische
-  marges: zet `automargin=True` op beide assen en `ticklabelstandoff` op de y-as, anders overlappen de
-  labels de staven.
+In Streamlit teken je de grafiek met `st.plotly_chart(fig, width="stretch", theme=None)`, ook waar een
+sjabloon uit `grafiekkeuze` `use_container_width` gebruikt. Streamlit zet anders zijn eigen kleuren over
+die van de huisstijl heen. Zonder het Streamlit-thema ontbreken de automatische marges: zet
+`automargin=True` op beide assen en `ticklabelstandoff` op de y-as, anders overlappen de labels de staven.
 
 ## Huisstijl
 
@@ -193,10 +196,10 @@ onderscheid.
 
 ### Voorbeeldstijl: Npuls
 
-Deze stijl volgt de tokens van de Npuls-huisstijl: kleur is de persoonlijkheid, dus minstens drie
-primaire kleuren zichtbaar, alleen toegestane kleurparen, Plus Jakarta Sans als lettertype (nooit
-Inter) en royale afronding. Gebruik hem alleen als de gebruiker bij Npuls hoort of er uitdrukkelijk om
-vraagt. De bestanden in `assets/npuls/`:
+De bron van deze stijl is de skill `npuls-huisstijl`: kleuren, toegestane kleurparen, vormen en
+lettertypes staan daar. Lees die eerst. Gebruik de stijl alleen als de gebruiker bij Npuls hoort of er
+uitdrukkelijk om vraagt. De bestanden in `assets/npuls/` zijn de uitwerking voor dit dashboard
+(uploadscherm, hero, kaarten):
 
 - `npuls-dashboard.css`: lettertype, hero, kaarten, pill-knoppen, uploadvak, zijbalk, meldingen en
   grafiekkaarten. Laad het met `st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)`.
@@ -255,7 +258,35 @@ de intro valt terug op Georgia.
    screenshots zelf voor je zegt dat het er goed uitziet. Meld eerlijk wat je niet kon controleren,
    bijvoorbeeld hoe het er in de browser uitziet of de alt-tekst bij een schermlezer aankomt
    (Plotly in Streamlit heeft geen echte alt-tekst: zet de samenvatting in een `st.caption`).
-3. Vat samen: welke keuzes zijn gemaakt, welke checks zijn toegepast, wat blijft open.
+3. Rond af (zie *Afronden*).
+4. Vat samen: welke keuzes zijn gemaakt, welke checks zijn toegepast, wat blijft open.
+
+## Afronden
+
+Het dashboard is af als de code is nagekeken en bewaard. Doe deze stappen achter elkaar als alle views
+staan, zonder per stap toestemming te vragen. Meld per stap in één regel wat eruit kwam.
+
+1. **Waarden uit de voorbeelddata.** Kopieer `assets/controleer_voorbeeldwaarden.py` naar de werkmap en
+   draai het op de voorbeelddata en de Python-bestanden van het dashboard
+   (`python controleer_voorbeeldwaarden.py voorbeeld.csv app.py berekeningen.py configuratie.py`). Haal
+   elke treffer uit de code, of leg uit waarom het geen datawaarde is. Sla dit over bij gevoelige data.
+2. **Stijl.** Draai de skill `check-style` op `app.py`, `berekeningen.py` en `configuratie.py`.
+   Bevindingen over de pakketstructuur (`src/`, `pyproject.toml`, entrypoint) noem je in één regel en
+   los je niet op: de platte opzet is een bewuste keuze. pandas bij het inlezen van de upload blijft.
+3. **Vereenvoudigen.** Draai de skill `simplify-ceda` op dezelfde bestanden. Lukt het installeren van
+   de plugin niet, sla de stap dan over en meld dat.
+4. **Opnieuw testen.** Draai de tests uit *Werkwijze* opnieuw: de vorige stappen hebben code veranderd.
+5. **Bewaren.** Draai de skill `ship`: commit de code van het dashboard en push naar de repo van de
+   gebruiker.
+   - Commit geen `uitvoer/`, geen `.venv/` en geen databestanden die nog niet in de repo stonden.
+   - In de eigen repo van de gebruiker mag de commit op `main`.
+   - In een Codespace regelt `GITHUB_TOKEN` de toegang tot de repo: laat die staan, ook waar `ship`
+     aanraadt hem te unsetten.
+   - Weigert de push omdat de gebruiker geen schrijfrechten heeft, dan staat de werkmap niet in een
+     eigen repo. Omzeil dat niet en vraag geen token. Het werk is dan lokaal gecommit: zeg dat, en
+     verwijs naar stap 1 van de README (een eigen kopie maken met *Use this template*).
+
+Ontbreekt een van deze skills, sla die stap dan over en meld het.
 
 ## Let op
 

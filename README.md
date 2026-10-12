@@ -6,9 +6,17 @@ Welkom bij de agentic coding sessie. Je hebt geen lokale installatie nodig — a
 
 ## Aan de slag
 
+### Vooraf — Maak je eigen kopie
+
+Klik rechtsboven op deze pagina op de groene knop **Use this template** en kies **Create a new repository**. Kies je eigen account als eigenaar, geef de kopie een naam en klik op **Create repository**. Je mag de kopie op *Private* zetten.
+
+De stappen hieronder doe je in je eigen kopie. Wat je bouwt, bewaar je dan in je eigen GitHub-account.
+
+---
+
 ### Stap 1 — Klik op de groene "Code" knop
 
-Zoek de groene knop rechtsboven in deze pagina en klik erop.
+Zoek in je eigen kopie de groene knop rechtsboven en klik erop.
 
 ![Stap 1 — Code knop](docs/images/01-repo-pagina.png)
 
@@ -64,11 +72,13 @@ Een skill is een werkwijze die Claude volgt. Je start er een met `/` en de naam.
 
 | Stap | Skill | Wat Claude doet | Wat je krijgt |
 |---|---|---|---|
-| 1 | `/verkennen_data` | Leert samen met jou de data kennen: wat de kolommen kunnen betekenen, welke definities en privacyregels gelden, en welke ideeën er bij jouw vraag passen | `uitvoer/data-profiel.html` |
+| 1 | `/verkennen_data` | Leert samen met jou de data kennen: wat de kolommen kunnen betekenen, hoe het staat met de datakwaliteit en de verdelingen, welke definities en privacyregels gelden, en welke ideeën er bij jouw vraag passen | `uitvoer/data-profiel.html` |
 | 2 | `/schets_dashboard` | Schetst twee of drie grafieken (views) op papier, nog zonder code | `uitvoer/schets.html` |
-| 3 | `/bouwen_dashboard` | Bouwt het dashboard, met een uploadscherm als eerste scherm | Een dashboard dat je zelf opent |
+| 3 | `/bouwen_dashboard` | Bouwt het dashboard, met een uploadscherm als eerste scherm. Kijkt daarna de code na en bewaart die in je eigen kopie | Een dashboard dat je zelf opent, en de code in je eigen GitHub-account |
 
 **Hoe het werkt.** Claude stelt je eerst een paar vragen in één bericht, elk met een standaardantwoord. Antwoord "ok" of corrigeer wat niet klopt: jij beslist over de inhoud, Claude voert uit. De uitkomsten (HTML) komen in de map `uitvoer/`; open ze in je browser.
+
+**Andere skills.** De drie skills verwijzen naar skills die CEDA ook in eigen projecten gebruikt en die in deze repo staan: `grafiekkeuze` (welke grafiek past), `npuls-huisstijl` (de Npuls-stijl), `check-style` en `simplify-ceda` (de code nakijken) en `ship` (bewaren in git). Je hoeft ze niet zelf te starten.
 
 **De data.** De demodata (fictieve studenten) staat in `data/demodata_1cho.csv`. Heb je uitleg bij de data (een codebook, een omschrijving van de kolommen, een definitie), geef die dan aan Claude wanneer `verkennen_data` daarom vraagt. Heb je dat niet, dan leidt Claude de betekenis af uit de kolomnamen en vraagt het jou om te bevestigen. De skills zelf kennen geen 1CHO en werken ook met andere data. Het dashboard laadt zelf geen data: je uploadt het bestand op het eerste scherm. In Codespaces download je het eerst (rechtsklik op het bestand in de verkenner, *Downloaden*) en upload je het daarna.
 
