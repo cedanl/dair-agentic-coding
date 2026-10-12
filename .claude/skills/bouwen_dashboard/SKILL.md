@@ -1,6 +1,6 @@
 ---
 name: bouwen_dashboard
-description: Gebruik wanneer iemand uit een profiel en een schets (uitvoer/data-profiel.html en uitvoer/schets.html) een dashboard wil bouwen dat draait op data die de gebruiker zelf uploadt — zonder vragenronde vooraf: de keuzes komen uit de schets. Eerst een uploadscherm als eerste scherm en daarna grafiek, vergelijking en filter, met privacy-drempel, eerlijke framing, bron en toegankelijkheid, en een afronding met stijlcheck; bewaren in git alleen als de gebruiker erom vraagt. LET OP — de data eerst verkennen hoort bij `verkennen_data` en de views schetsen bij `schets_dashboard`.
+description: Gebruik wanneer iemand uit een profiel en een schets (uitvoer/data-profiel.html en uitvoer/schets.html) een dashboard wil bouwen dat draait op data die de gebruiker zelf uploadt — zonder vragenronde vooraf: de keuzes komen uit de schets. Eerst een uploadscherm als eerste scherm en daarna grafiek, vergelijking en filter, met privacy-drempel, eerlijke framing, bron en toegankelijkheid, en een afronding met tests en waardencheck; bewaren in git alleen als de gebruiker erom vraagt. LET OP — de data eerst verkennen hoort bij `verkennen_data` en de views schetsen bij `schets_dashboard`.
 disable-model-invocation: true
 allowed-tools: Read Grep Glob Write Edit Bash
 metadata:
@@ -325,9 +325,9 @@ de intro valt terug op Georgia.
    in hetzelfde proces maakt, vertekent het geheugen.
 6. **Leg uit hoe de gebruiker het opent** (zie *Hoe de gebruiker het opent*) en test dat het commando
    werkt.
-7. **Rond af (zie *Afronden*).** Dit hoort bij het bouwen: bewaar de tests, draai `check-style` en
-   `simplify-ceda` en test opnieuw. Vraag er geen toestemming voor en zeg niet dat het dashboard klaar is
-   voor het is gedaan.
+7. **Rond af (zie *Afronden*).** Dit hoort bij het bouwen: bewaar de tests, doe de waardencheck en de
+   snelle stijlcheck en test opnieuw. Vraag er geen toestemming voor en zeg niet dat het dashboard
+   klaar is voor het is gedaan. `check-style` en `simplify-ceda` draai je niet zelf (zie *Afronden*).
 8. Vat samen: welke keuzes zijn gemaakt, welke checks zijn toegepast, wat blijft open, en hoe de
    gebruiker het dashboard opent.
 
@@ -350,12 +350,12 @@ De gebruiker kent `streamlit run` niet en weet niet waar het dashboard opent. Le
 
 ## Afronden
 
-Afronden is onderdeel van bouwen: het dashboard is pas af als de code is nagekeken en de tests zijn
-bewaard. Doe deze stappen achter elkaar als alle views staan, zonder per stap toestemming te vragen.
-Meld per stap in één regel wat eruit kwam.
+Afronden is onderdeel van bouwen: het dashboard is af als de tests zijn bewaard en slagen en de
+waardencheck is gedaan. Doe deze stappen achter elkaar als alle views staan, zonder per stap
+toestemming te vragen. Meld per stap in één regel wat eruit kwam.
 
 1. **Tests bewaren.** Zet de tests uit *Werkwijze* in `dashboard/tests/test_dashboard.py` (pytest), zodat
-   ze na de stappen hieronder en later opnieuw te draaien zijn:
+   ze later opnieuw te draaien zijn:
    `uv run --no-project --with-requirements requirements.txt --with pytest pytest tests`. De tests
    rekenen de aantallen onafhankelijk na, controleren de drempels en de secundaire onderdrukking,
    meten dat het uploadscherm eerst komt en dat het dashboard alle views toont.
@@ -363,30 +363,27 @@ Meld per stap in één regel wat eruit kwam.
    draai het op de voorbeelddata en de Python-bestanden van het dashboard
    (`python controleer_voorbeeldwaarden.py voorbeeld.csv app.py berekeningen.py configuratie.py`). Haal
    elke treffer uit de code, of leg uit waarom het geen datawaarde is. Sla dit over bij gevoelige data.
-3. **Stijl: `check-style`.** Lees `.claude/skills/check-style/SKILL.md` en volg die op `app.py`,
-   `berekeningen.py` en `configuratie.py` (zie *Hulpskills lees je zelf*). Draai ook `ruff check` en
-   `ruff format` met `dashboard/ruff.toml` (regelbreedte 100, regels E, F, I, N, W, UP). Los de
-   bevindingen op: functienamen met een werkwoord, type hints, docstrings in Google-stijl, Polars in
-   plaats van pandas, en geen kale `except Exception`. Bevindingen over de pakketstructuur (`src/`,
-   `pyproject.toml`, `app/main.py`) noem je in één regel en los je niet op: de platte opzet is een
-   bewuste keuze.
-4. **Vereenvoudigen: `simplify-ceda`.** Lees `.claude/skills/simplify-ceda/SKILL.md` en volg die op
-   dezelfde bestanden: hergebruik, kwaliteit en efficiëntie. Pas de bevindingen toe. De plugin
-   `code-simplifier` installeer je niet zelf: staat hij er niet, voer de drie beoordelingen dan zelf
-   uit en meld dat.
-5. **Opnieuw testen.** Draai de tests opnieuw, en kijk de schermen opnieuw in de browser als de
-   vorige stappen de weergave of het inlezen hebben veranderd: de stappen veranderen code.
-6. **Bewaren aanbieden.** Commit en push niets uit jezelf. Sluit af met één regel: *"Wil je dit bewaren in
+3. **Snelle stijlcheck.** Draai `uvx ruff check .` en `uvx ruff format .` met `dashboard/ruff.toml`
+   (regelbreedte 100, regels E, F, I, N, W, UP). Dat kost seconden. Houd je aan de CEDA-regels bij
+   het schrijven: functienamen met een werkwoord, type hints, Polars in plaats van pandas, en geen kale
+   `except Exception`.
+4. **Opnieuw testen.** Draai de tests opnieuw, en kijk de schermen opnieuw in de browser als de
+   vorige stappen de weergave of het inlezen hebben veranderd.
+5. **Bewaren aanbieden.** Commit en push niets uit jezelf. Sluit af met één regel: *"Wil je dit bewaren in
    je eigen GitHub? Zeg dan 'bewaar'."*
 
-Ontbreekt een van deze skillbestanden, sla die stap dan over en meld het.
+**Optioneel, niet standaard.** `check-style` en `simplify-ceda` kosten veel tijd (drie review-agents,
+een plugin en opnieuw testen) en horen niet bij de workshopronde. Draai ze niet zelf. Noem ze alleen aan
+het eind in één zin: *"Wil je dat ik de code nakijk? Typ dan `/check-style` of `/simplify-ceda`."*
+
+Ontbreekt een van de skillbestanden die je leest, sla die stap dan over en meld het.
 
 ## Hulpskills lees je zelf
 
 Alle skills in deze repo starten alleen als de gebruiker ze zelf typt (`/naam`): ze hebben
 `disable-model-invocation: true`, zodat ze niet vanzelf aanspringen tijdens gewoon chatten. Daardoor
 kun je ze ook niet met de Skill-tool aanroepen. De hulpskills `grafiekkeuze`,
-`vormgever-npuls-huisstijl`, `check-style`, `simplify-ceda` en `ship` lees je daarom als bestand
+`vormgever-npuls-huisstijl` en `ship` lees je daarom als bestand
 (`.claude/skills/<naam>/SKILL.md`) en je volgt wat daarin staat, als onderdeel van deze skill. De
 gebruiker heeft `bouwen_dashboard` zelf gestart; dat is de toestemming.
 
