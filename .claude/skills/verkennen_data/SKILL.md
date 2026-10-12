@@ -2,9 +2,9 @@
 name: verkennen_data
 description: Gebruik wanneer iemand een tabelbestand (CSV) wil verkennen voor er een dashboard of analyse komt — eerst afspreken welke data er gebruikt mag worden en sparren over de expertise en aanpak van de gebruiker, dan begrijpen wat de kolommen kunnen betekenen, de datakwaliteit en verdelingen controleren, definities vastleggen en casusgerichte ideeën en aanpakken bedenken voor de vraag van de gebruiker, met een HTML-profiel als uitkomst. De metainfo (codebook, definities, uitleg) komt van de gebruiker. LET OP — de views schetsen hoort bij `schets_dashboard` en het dashboard bouwen bij `bouwen_dashboard`.
 disable-model-invocation: true
-allowed-tools: Read Grep Glob Write Bash
+allowed-tools: Read Grep Glob Write Bash AskUserQuestion
 metadata:
-  versie: "0.5.0"
+  versie: "0.6.0"
 ---
 
 # Data verkennen
@@ -29,29 +29,36 @@ code zien (of zet 'm in een bestand) zodat de gebruiker mee kan lezen.
 
 De gebruiker heeft kennis die jij niet hebt en blijft de regisseur, ook al doe jij het werk.
 
-Houd het ritme hoog. **Stel de vragen één voor één**: één vraag per bericht, met een
-**standaardantwoord** ("Ik ga uit van X, tenzij je iets anders zegt"), en wacht op het antwoord voor je de
-volgende stelt. Zeg bij de eerste vraag hoeveel vragen er komen. Antwoordt de gebruiker "ok", dan geldt
-de standaard van die vraag. Vraag niets wat al in het gesprek staat, en vraag niet naar ervaring:
+Houd het ritme hoog. **Stel keuzevragen met de AskUserQuestion-tool**: elke optie met een korte
+uitleg wat het voor het werk betekent, de **standaard** als eerste optie met "(Aanbevolen)" erachter.
+De tool biedt zelf "Other" voor een eigen antwoord. Vragen die niet elkaar beïnvloeden bundel je in één
+aanroep (maximaal 4); een vraag waarvan het antwoord een volgende verandert, stel je los. Een vraag
+waarop de gebruiker in eigen woorden antwoordt, stel je gewoon in het gesprek. Zeg bij de eerste vraag
+hoeveel vragen er komen. Is de tool niet beschikbaar, stel de vraag dan in het gesprek met een
+standaardantwoord ("Ik ga uit van X, tenzij je iets anders zegt"). Vraag niets wat al in het gesprek staat, en vraag niet naar ervaring:
 pas je uitleg aan op hoe de gebruiker praat. Stel alleen een vraag als het antwoord het werk echt verandert
 en je het niet kunt aannemen. Alles wat je aanneemt, zeg je hardop en leg je vast, zodat het zichtbaar is
 en de gebruiker het kan corrigeren.
 
 Drie vragen, in deze volgorde, alleen voor zover het gesprek ze niet al beantwoordt:
 
-1. **De data: mag ik die lezen, en heb je er uitleg bij?** Standaard voor het lezen: wat de gebruiker al
+1. **De data: mag ik die lezen, en heb je er uitleg bij?** Opties: de drie keuzes uit *Datagebruik*.
+   Standaard voor het lezen: wat de gebruiker al
    zei; bij twijfel de voorzichtigste keuze (zie *Datagebruik*). Dit deel heeft altijd een expliciet
    antwoord nodig. Standaard voor de uitleg (codebook, kolomomschrijvingen, definities, drempels): geen;
    je leidt betekenissen af uit de kolomnamen en markeert ze als aanname.
 2. **Wat wil je weten, en waarop wil je uitsplitsen?** Vraag er ook bij wat de gebruiker denkt dat
-   erachter zit; dat is optioneel en "weet ik niet" is een goed antwoord. Wat de gebruiker zegt, komt
+   erachter zit; dat is optioneel en "weet ik niet" is een goed antwoord. De vraag zelf stel je in
+   het gesprek. Mag je de kolomnamen al lezen, bied de uitsplitsingen dan als meerkeuze aan (`multiSelect`,
+   de meest voor de hand liggende kolommen, maximaal 4). Wat de gebruiker zegt, komt
    **eerst** in het profiel, onder *Jouw aanpak*, in de eigen woorden van de gebruiker. Jouw ideeën komen
    daarna.
 3. **Klopt dit voorstel?** Eén bericht met een korte lijst: de definitie van de kernmaat die bij de vraag
    past (met één alternatief als de vraag op twee manieren te lezen is), de privacydrempels, en wat één
    rij is (een persoon, een gebeurtenis, een jaar per persoon) met de kolommen die samen de sleutel
-   vormen. Het script controleert of die sleutel uniek is. De gebruiker bevestigt met "ok" of corrigeert:
-   kies de kernmaat nooit stilzwijgend.
+   vormen. Het script controleert of die sleutel uniek is. Zet het voorstel als lijst in het bericht en
+   vraag dan met de tool: *Klopt dit?* met de opties *Ja* (aanbevolen), *Ander alternatief voor de kernmaat*
+   (alleen als je er een noemde) en *Iets aanpassen*. Kies de kernmaat nooit stilzwijgend.
 
 Leg alle keuzes en aannames vast in de tabel *In het kort* van het profiel: één rij per onderwerp, de
 keuze in een paar woorden en de status (*bevestigd* of *aanname*), zodat zichtbaar is wie wat besloot.
