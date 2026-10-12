@@ -74,7 +74,12 @@ gebruiker besloot en wat een aanname is.
 Eén bestand: `uitvoer/schets.html` (maak de map `uitvoer/` aan als die ontbreekt; alle gegenereerde HTML
 hoort daar). Eén bestand zonder externe afhankelijkheden, met bovenaan de vraag en de keuze onder
 *Datagebruik*, en daarna één blok per view. Staat in het profiel dat het demodata is, zet dat er
-dan ook bij. De gebruiker opent het in de browser.
+dan ook bij.
+
+Geef geen commando om het bestand te openen: `open` en `xdg-open` werken niet in een container of
+cloudomgeving. Noem het pad en de klikroute: in VS Code of Codespaces rechtsklik op het bestand en
+*Show Preview*, of als die keuze er niet is *Download* en het gedownloade bestand openen; op een eigen
+computer dubbelklikken op het bestand.
 
 HTML-opmaak: semantische kopjes, per view een `<section>` met een kleine definitielijst
 (`<dl>`: vraag, maat, uitsplitsing, grafiektype, valt weg), contrast minimaal 4,5:1, geen kleur als

@@ -35,7 +35,15 @@ pas je uitleg aan op hoe de gebruiker praat. Stel alleen een vraag als het antwo
 en je het niet kunt aannemen. Alles wat je aanneemt, zeg je hardop en leg je vast, zodat het zichtbaar is
 en de gebruiker het kan corrigeren.
 
-De vragen, alleen voor zover het gesprek ze niet al beantwoordt:
+**Bij demodata, synthetische of openbare data** (de gebruiker of de documentatie bij het bestand zegt
+dat het zulke data is) stel je één vraag: *wat wil je weten?* Geef als standaard een voorbeeldvraag die
+bij de kolomnamen past en twee of drie uitsplitsingen. Alles uit de lijst hieronder kies je zelf en zet
+je in hetzelfde bericht als korte lijst aannames, één regel per aanname, zonder tabel en zonder
+alternatieven: dat het demodata is en je de rijen leest, dat er geen metainfo is, de drempels, en wat
+één rij is. Zegt de gebruiker "ok", dan werk je met de voorbeeldvraag. Kies de kernmaat zodra de vraag
+er is, noem de definitie in één zin en ga door; de gebruiker corrigeert bij het doorlopen van het profiel.
+
+**Bij alle andere data** stel je de vragen hieronder, alleen voor zover het gesprek ze niet al beantwoordt:
 
 1. **Welke data is dit, en mag ik die lezen?** Standaard: wat de gebruiker al zei; bij twijfel de
    voorzichtigste keuze (zie *Datagebruik*). Dit is een van de twee vragen die altijd een expliciet
@@ -209,7 +217,12 @@ Drie bestanden:
 
 Alle gegenereerde HTML hoort in `uitvoer/` (maak de map aan als die ontbreekt), nooit naast de invoer.
 Zet `uitvoer/` in `.gitignore`: een profiel dat later op echte data is gedraaid mag niet per ongeluk in
-git belanden. Zeg erbij dat de gebruiker het bestand opent in de browser.
+git belanden.
+
+Geef geen commando om het bestand te openen: `open` en `xdg-open` werken niet in een container of
+cloudomgeving. Noem het pad en de klikroute: in VS Code of Codespaces rechtsklik op het bestand en
+*Show Preview*, of als die keuze er niet is *Download* en het gedownloade bestand openen; op een eigen
+computer dubbelklikken op het bestand.
 
 HTML-opmaak: semantische kopjes en `<table>` met `<caption>` en `<th scope>`, contrast minimaal
 4,5:1, geen kleur als enige onderscheid, leesbaar op een smal scherm. Eén inline `<style>`, geen
