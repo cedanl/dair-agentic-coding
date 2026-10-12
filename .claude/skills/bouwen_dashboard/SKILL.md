@@ -1,6 +1,7 @@
 ---
 name: bouwen_dashboard
-description: Gebruik wanneer iemand uit een profiel en een schets (uitvoer/data-profiel.html en uitvoer/schets.html) een dashboard wil bouwen dat los van de voorbeelddata op andere data kan draaien — zonder vragenronde vooraf: de keuzes komen uit de schets. Eerst een schijn-uploadscherm waarop het databestand al klaarstaat (de gebruiker klikt op Doorgaan) en daarna grafiek, vergelijking en filter, met privacy-drempel, eerlijke framing, bron en toegankelijkheid, en een afronding met tests en waardencheck; bewaren in git alleen als de gebruiker erom vraagt. LET OP — de data eerst verkennen hoort bij `verkennen_data` en de views schetsen bij `schets_dashboard`.
+description: >-
+  Gebruik wanneer iemand uit een profiel en een schets (uitvoer/data-profiel.html en uitvoer/schets.html) een dashboard wil bouwen dat los van de voorbeelddata op andere data kan draaien — zonder vragenronde vooraf: de keuzes komen uit de schets. Eerst een schijn-uploadscherm waarop het databestand al klaarstaat (de gebruiker klikt op Doorgaan) en daarna grafiek, vergelijking en filter, met privacy-drempel, eerlijke framing, bron en toegankelijkheid, en een afronding met tests en waardencheck; bewaren in git alleen als de gebruiker erom vraagt. LET OP — de data eerst verkennen hoort bij `verkennen_data` en de views schetsen bij `schets_dashboard`.
 disable-model-invocation: true
 allowed-tools: Read Grep Glob Write Edit Bash
 metadata:
