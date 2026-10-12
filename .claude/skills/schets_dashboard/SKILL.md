@@ -1,6 +1,6 @@
 ---
 name: schets_dashboard
-description: Gebruik wanneer iemand uit een dataprofiel (uitvoer/data-profiel.html) twee of drie views voor een dashboard wil schetsen — eerst sparren over wie het dashboard gebruikt en wat de gebruiker als eerste wil zien, dan per view de vraag, de uitsplitsing, het grafiektype en wat het niet kan zeggen, als HTML-schets zonder code. LET OP — de data verkennen hoort bij `verkennen_data` en het dashboard bouwen bij `bouwen_dashboard`.
+description: Gebruik wanneer iemand uit een dataprofiel (uitvoer/data-profiel.html) twee of drie views voor een dashboard wil schetsen — eerst een voorstel waar de gebruiker op reageert, dan per view de vraag, de uitsplitsing, het grafiektype en wat het niet kan zeggen, als HTML-schets zonder code. LET OP — de data verkennen hoort bij `verkennen_data` en het dashboard bouwen bij `bouwen_dashboard`.
 allowed-tools: Read Grep Glob Write Skill
 metadata:
   versie: "0.3.0"
@@ -31,22 +31,23 @@ uit voorbeelddata of demodata: de conclusie hoort bij de echte data, als de tool
 - De vraag die het dashboard moet beantwoorden. Vraag de gebruiker die in eigen woorden als hij niet
   gegeven is, en noteer hem bovenaan de schets. Verzin hem niet.
 
-## Eerst sparren
+## Eerst een voorstel
 
 De gebruiker kent de lezers van het dashboard en het domein beter dan jij, en blijft de
 regisseur ook al doe jij het werk.
 
-Houd het ritme hoog. **Stel alle vragen die je nodig hebt in één bericht**, genummerd, en geef bij elke
-vraag een **standaardantwoord** ("Ik ga uit van X, tenzij je iets anders zegt"). Antwoordt de gebruiker
-"ok", dan gelden de standaarden. Vraag niets wat al in het gesprek staat, en vraag niet naar ervaring:
-pas je uitleg aan op hoe de gebruiker praat. Stel alleen een vraag als het antwoord het werk echt verandert
-en je het niet kunt aannemen. Alles wat je aanneemt, zeg je hardop en leg je vast, zodat het zichtbaar is
-en de gebruiker het kan corrigeren.
+Begin zonder vragenronde. Lees voor wie het dashboard is en welke beslissing het helpt nemen uit het
+gesprek of het profiel; staat het daar niet, neem dan iets aan en zeg dat. Doe in **één bericht** een
+voorstel: twee of drie views met grafiektype en volgorde, en daaronder je aannames, één regel per
+aanname. Het voorstel is de vraag: antwoordt de gebruiker "ok", dan schrijf je de schets, en anders pas
+je het voorstel aan. Vraag niets wat al in het gesprek of het profiel staat, en vraag niet naar ervaring:
+pas je uitleg aan op hoe de gebruiker praat.
 
-Lees voor wie het dashboard is en welke beslissing het helpt nemen uit het gesprek of het profiel; vraag
-het alleen als het daar niet staat. Doe daarna in **één bericht** een voorstel: twee of drie views met
-grafiektype en volgorde als standaard, plus alle open punten, elk met een standaardantwoord. Wat de
-gebruiker als eerste wil zien, wordt een view, ook als jij een andere had gekozen: zeg een bezwaar
+Stel **hooguit drie vragen**, en alleen als het antwoord een view verandert en je het niet kunt aannemen.
+Stel ze na het voorstel, één voor één: één vraag per bericht, met een standaardantwoord ("Ik ga uit van
+X, tenzij je iets anders zegt"). Al het andere is een aanname die je hardop zegt en vastlegt.
+
+Wat de gebruiker als eerste wil zien, wordt een view, ook als jij een andere had gekozen: zeg een bezwaar
 kort en laat de gebruiker beslissen. Zet in de schets een kopje *Keuzes van de gebruiker* met wat de
 gebruiker besloot en wat een aanname is.
 
@@ -86,9 +87,11 @@ HTML-opmaak: semantische kopjes, per view een `<section>` met een kleine definit
 enige onderscheid, leesbaar op een smal scherm. Eén inline `<style>`, geen scripts. Teken geen
 nagebootste grafieken met verzonnen waarden: een leeg kader met een tekstbeschrijving is genoeg.
 
-Zet in de schets een kopje *Nog open vragen* met alles wat nog bevestigd moet worden: vragen uit het
-profiel die openstaan, maten die je zelf nieuw voorstelt, en keuzes die je als aanname deed. Laat niets
-onuitgesproken: wat daar niet staat, denkt de gebruiker dat al beslist is.
+Zet in de schets een kopje *Nog open vragen* met hooguit drie punten: alleen wat een view verandert en
+wat de gebruiker nog niet beantwoordde. Al het andere dat niet bevestigd is (open punten uit het profiel,
+maten die je zelf nieuw voorstelt, keuzes die je zelf deed) staat als aanname met de gekozen waarde onder
+*Keuzes van de gebruiker*, zodat de gebruiker het kan corrigeren. Laat niets onuitgesproken: wat nergens
+staat, denkt de gebruiker dat al beslist is.
 
 Eindig met een korte samenvatting in het gesprek. Zeg met welke view je begint en geef daar een
 stellige standaard voor, bijvoorbeeld *"Ik begin met view 1, tenzij je iets anders wilt."* Kies

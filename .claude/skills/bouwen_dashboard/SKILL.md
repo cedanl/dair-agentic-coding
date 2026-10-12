@@ -1,6 +1,6 @@
 ---
 name: bouwen_dashboard
-description: Gebruik wanneer iemand uit een profiel en een schets (uitvoer/data-profiel.html en uitvoer/schets.html) een dashboard wil bouwen dat draait op data die de gebruiker zelf uploadt — eerst sparren over ervaring, gebruikers, bestandsgrootte en huisstijl, dan een uploadscherm als eerste scherm en daarna grafiek, vergelijking en filter, met privacy-drempel, eerlijke framing, bron en toegankelijkheid, en een afronding met stijlcheck en bewaren in git. LET OP — de data eerst verkennen hoort bij `verkennen_data` en de views schetsen bij `schets_dashboard`.
+description: Gebruik wanneer iemand uit een profiel en een schets (uitvoer/data-profiel.html en uitvoer/schets.html) een dashboard wil bouwen dat draait op data die de gebruiker zelf uploadt — zonder vragenronde vooraf: de keuzes komen uit de schets. Eerst een uploadscherm als eerste scherm en daarna grafiek, vergelijking en filter, met privacy-drempel, eerlijke framing, bron en toegankelijkheid, en een afronding met stijlcheck en bewaren in git. LET OP — de data eerst verkennen hoort bij `verkennen_data` en de views schetsen bij `schets_dashboard`.
 allowed-tools: Read Grep Glob Write Edit Bash Skill
 metadata:
   versie: "0.4.0"
@@ -18,24 +18,25 @@ gelden, komt uit het profiel en van de gebruiker. Staat iets daarvan niet in het
 
 De gebruiker bepaalt wat er gebouwd wordt, ook al schrijf jij de code.
 
-Houd het ritme hoog. **Stel alle vragen die je nodig hebt in één bericht**, genummerd, en geef bij elke
-vraag een **standaardantwoord** ("Ik ga uit van X, tenzij je iets anders zegt"). Antwoordt de gebruiker
-"ok", dan gelden de standaarden. Vraag niets wat al in het gesprek staat, en vraag niet naar ervaring:
-pas je uitleg aan op hoe de gebruiker praat. Stel alleen een vraag als het antwoord het werk echt verandert
-en je het niet kunt aannemen. Alles wat je aanneemt, zeg je hardop en leg je vast, zodat het zichtbaar is
-en de gebruiker het kan corrigeren.
+Begin zonder vragenronde. Wat in het profiel en in de schets onder *Keuzes van de gebruiker* staat, is
+beslist: vraag het niet opnieuw. Vraag niet naar ervaring: pas je uitleg aan op hoe de gebruiker praat,
+met meer uitleg en kleinere stappen bij iemand die het nieuw vindt en kort en technisch bij een ervaren
+gebruiker.
 
-Dit neem je standaard aan en noem je in één bericht, zodat de gebruiker kan corrigeren:
+Noem je eigen aannames samen in **één regel** en begin daarna met bouwen, bijvoorbeeld *"Ik bouw voor
+een groot bestand, in een rustig standaardthema, tenzij je iets anders zegt."* Dit neem je aan:
 
-- **Ervaring met dashboards of Python:** afgeleid uit het gesprek. Meer uitleg en kleinere stappen bij iemand
-  die het nieuw vindt, kort en technisch bij een ervaren gebruiker.
-- **Wie het dashboard gebruikt en wat diegene ermee kan:** afgeleid uit de vraag en de schets (een lezer
-  zonder tijd krijgt weinig knoppen en duidelijke titels).
-- **Bestandsgrootte:** vraag er alleen naar als het gesprek geen aanwijzing geeft, en ga anders uit van
-  een groot bestand (honderden MB, ruim 100 kolommen) en bouw daarop (zie *Grote bestanden*). Zeg het
-  eerlijk als de grootte een grens raakt. De voorbeelddata hoeft niet groot te zijn.
-- **Huisstijl:** standaard een rustig standaardthema. Een eigen stijl of de voorbeeldstijl (Npuls) alleen
-  als de gebruiker dat zegt. Zie *Huisstijl*.
+- **Wie het dashboard gebruikt:** afgeleid uit de vraag en de schets (een lezer zonder tijd krijgt weinig
+  knoppen en duidelijke titels).
+- **Bestandsgrootte:** een groot bestand (honderden MB, ruim 100 kolommen), tenzij het gesprek iets anders
+  zegt. Bouw daarop (zie *Grote bestanden*) en zeg het eerlijk als de grootte een grens raakt. De
+  voorbeelddata hoeft niet groot te zijn.
+- **Huisstijl:** een rustig standaardthema. Een eigen stijl of de voorbeeldstijl (Npuls) alleen als de
+  gebruiker dat zegt. Zie *Huisstijl*.
+
+Stel **hooguit drie vragen**, en alleen over iets dat de view blokkeert die je nu bouwt. Stel ze één voor
+één: één vraag per bericht, met een standaardantwoord ("Ik ga uit van X, tenzij je iets anders zegt").
+Alles wat je aanneemt, zeg je hardop en leg je vast, zodat de gebruiker het kan corrigeren.
 
 Vraag de gebruiker na de eerste view *wat zou je anders willen?* voor je de volgende bouwt, en vraag
 hem zelf de privacy-drempel en de definities in het dashboard te controleren: die beoordeling is van de
@@ -69,7 +70,7 @@ dashboard daarom zo dat het zonder jou op andere data te draaien is:
   zoals GitHub Codespaces kiest de bestandsdialoog van de browser een bestand van de eigen computer,
   niet uit de omgeving. Laat de gebruiker het bestand dan eerst downloaden en dan uploaden.
 - De vraag die het dashboard beantwoordt (staat bovenaan de schets).
-- Het kopje *Nog open vragen* in de schets. Die vragen moeten beantwoord zijn voor je bouwt (zie *Werkwijze*).
+- De kopjes *Keuzes van de gebruiker* en *Nog open vragen* in de schets (zie *Werkwijze*).
 
 ## Stack
 
@@ -243,12 +244,13 @@ de intro valt terug op Georgia.
 
 ## Werkwijze
 
-0. **Los de open punten op voor je bouwt.** Lees het kopje *Nog open vragen* in `uitvoer/schets.html`,
-   en let op maten die de schets nieuw voorstelt en nog niet in het profiel staan. Vraag ze
-   in één bericht, elk met een standaardantwoord, en leg elk antwoord vast bij *Keuzes van de gebruiker* in
-   de schets. Kan de gebruiker een vraag niet beantwoorden, doe dan een aanname, zeg die hardop en toon
-   haar op het dashboard onder *Zo lees je dit*. Bouw een view pas als alles wat hij nodig heeft is
-   beantwoord of als aanname vastgelegd. Een punt dat alleen een latere view raakt, mag blijven staan.
+0. **Lees de keuzes en de open punten.** Lees *Keuzes van de gebruiker* en *Nog open vragen* in
+   `uitvoer/schets.html`, en let op maten die de schets nieuw voorstelt en nog niet in het profiel staan.
+   Wat bij de keuzes staat, vraag je niet opnieuw. Vraag alleen een open punt dat de eerste view
+   blokkeert, één vraag per bericht met een standaardantwoord, en leg het antwoord vast bij *Keuzes van
+   de gebruiker* in de schets. Elk ander open punt wordt een aanname: zeg die hardop, leg haar vast en
+   toon haar op het dashboard onder *Zo lees je dit*. Blokkeert een punt een latere view, vraag het dan
+   op het moment dat je die view bouwt.
 1. Lees `uitvoer/schets.html` en begin met de view die de schets als eerste noemt, tenzij de gebruiker
    iets anders wil. Zeg dat in één zin ("Ik begin met view 1, tenzij je iets anders wilt") en vraag het
    niet als open vraag. Bouw die view.
