@@ -1,9 +1,9 @@
 ---
 name: schets_dashboard
-description: Gebruik wanneer iemand uit een dataprofiel (uitvoer/data-profiel.html) twee of drie views voor een dashboard wil schetsen — eerst sparren over wie het dashboard gebruikt en wat de gebruiker als eerste wil zien, dan per view de vraag, de uitsplitsing, het grafiektype en wat het niet kan zeggen, als HTML-schets zonder code. LET OP — de data verkennen hoort bij `verkennen_data` en het dashboard bouwen bij `bouwen_dashboard`.
-allowed-tools: Read Grep Glob Write
+description: Gebruik wanneer iemand uit een dataprofiel (uitvoer/data-profiel.html) twee of drie views voor een dashboard wil schetsen — eerst een voorstel waar de gebruiker op reageert, dan per view de vraag, de uitsplitsing, het grafiektype en wat het niet kan zeggen, als HTML-schets zonder code. LET OP — de data verkennen hoort bij `verkennen_data` en het dashboard bouwen bij `bouwen_dashboard`.
+allowed-tools: Read Grep Glob Write Skill
 metadata:
-  versie: "0.2.0"
+  versie: "0.3.0"
 ---
 
 # Dashboard schetsen
@@ -31,39 +31,39 @@ uit voorbeelddata of demodata: de conclusie hoort bij de echte data, als de tool
 - De vraag die het dashboard moet beantwoorden. Vraag de gebruiker die in eigen woorden als hij niet
   gegeven is, en noteer hem bovenaan de schets. Verzin hem niet.
 
-## Eerst sparren
+## Eerst een voorstel
 
 De gebruiker kent de lezers van het dashboard en het domein beter dan jij, en blijft de
 regisseur ook al doe jij het werk.
 
-Houd het ritme hoog. **Stel alle vragen die je nodig hebt in één bericht**, genummerd, en geef bij elke
-vraag een **standaardantwoord** ("Ik ga uit van X, tenzij je iets anders zegt"). Antwoordt de gebruiker
-"ok", dan gelden de standaarden. Vraag niets wat al in het gesprek staat, en vraag niet naar ervaring:
-pas je uitleg aan op hoe de gebruiker praat. Stel alleen een vraag als het antwoord het werk echt verandert
-en je het niet kunt aannemen. Alles wat je aanneemt, zeg je hardop en leg je vast, zodat het zichtbaar is
-en de gebruiker het kan corrigeren.
+Begin zonder vragenronde. Lees voor wie het dashboard is en welke beslissing het helpt nemen uit het
+gesprek of het profiel; staat het daar niet, neem dan iets aan en zeg dat. Doe in **één bericht** een
+voorstel: twee of drie views met grafiektype en volgorde, en daaronder je aannames, één regel per
+aanname. Het voorstel is de vraag: antwoordt de gebruiker "ok", dan schrijf je de schets, en anders pas
+je het voorstel aan. Vraag niets wat al in het gesprek of het profiel staat, en vraag niet naar ervaring:
+pas je uitleg aan op hoe de gebruiker praat.
 
-Lees voor wie het dashboard is en welke beslissing het helpt nemen uit het gesprek of het profiel; vraag
-het alleen als het daar niet staat. Doe daarna in **één bericht** een voorstel: twee of drie views met
-grafiektype en volgorde als standaard, plus alle open punten, elk met een standaardantwoord. Wat de
-gebruiker als eerste wil zien, wordt een view, ook als jij een andere had gekozen: zeg een bezwaar
+Stel **hooguit drie vragen**, en alleen als het antwoord een view verandert en je het niet kunt aannemen.
+Stel ze na het voorstel, één voor één: één vraag per bericht, met een standaardantwoord ("Ik ga uit van
+X, tenzij je iets anders zegt"). Al het andere is een aanname die je hardop zegt en vastlegt.
+
+Wat de gebruiker als eerste wil zien, wordt een view, ook als jij een andere had gekozen: zeg een bezwaar
 kort en laat de gebruiker beslissen. Zet in de schets een kopje *Keuzes van de gebruiker* met wat de
 gebruiker besloot en wat een aanname is.
 
 ## Stappen
 
-1. **Lees het profiel**: welke uitsplitsingen kunnen (meer dan één waarde), welke maten hebben een
-   definitie, welke regels gelden voor waarneembaarheid en privacy, en welke aanpakken
-   `verkennen_data` voor de vraag voorstelde. Begin bij *Jouw aanpak* van de gebruiker, daarna de
+1. **Lees het profiel** (*Datagebruik*, *Jouw aanpak* en de keuzes staan in de tabel *In het kort*): welke uitsplitsingen kunnen (meer dan één waarde), welke maten hebben een
+   definitie, wat één rij is en of de sleutel uniek is (dat bepaalt of een view rijen of eenheden telt),
+   welke kolommen per groep ongelijk ontbreken, welke regels gelden voor waarneembaarheid en privacy, en
+   welke aanpakken `verkennen_data` voor de vraag voorstelde. Begin bij *Jouw aanpak* van de gebruiker, daarna de
    aanpakken van `verkennen_data`.
 2. **Kies twee of drie views** die samen de vraag beantwoorden. Laat uitsplitsingen weg die het
    profiel niet draagt.
-3. **Kies het grafiektype** met een vaste volgorde: eerst verhaal, publiek en doel, dan de
-   datastructuur (de TRIPS-beslisboom). Noem het pad in één regel (*"vergelijken, lange labels ->
-   horizontaal staafdiagram"*). Vergelijkingen tussen groepen krijgen staafdiagrammen met een
-   gemeenschappelijke nul-as; lijnen zijn alleen voor tijd; een cirkeldiagram alleen voor deel-van-geheel
-   in één periode en bij hooguit 5-7 delen; een extra groepering wordt een facet, geen derde dimensie in
-   één grafiek.
+3. **Kies het grafiektype** met de skill `grafiekkeuze` (de TRIPS-beslisboom). Neem daaruit alleen de
+   keuze en het pad in één regel (*"vergelijken, lange labels -> horizontaal staafdiagram"*), geen code:
+   de schets blijft zonder code. Ontbreekt de skill, houd dan aan: groepen vergelijken met staven op een
+   gemeenschappelijke nul-as, tijd met een lijn.
 4. **Schrijf per view**: de vraag of hypothese, de maat (met verwijzing naar de definitie in het
    profiel), de uitsplitsing, het grafiektype met waarom, en welke groepen of perioden wegvallen
    door de privacydrempel of omdat ze nog niet waarneembaar zijn.
@@ -75,16 +75,26 @@ gebruiker besloot en wat een aanname is.
 Eén bestand: `uitvoer/schets.html` (maak de map `uitvoer/` aan als die ontbreekt; alle gegenereerde HTML
 hoort daar). Eén bestand zonder externe afhankelijkheden, met bovenaan de vraag en de keuze onder
 *Datagebruik*, en daarna één blok per view. Staat in het profiel dat het demodata is, zet dat er
-dan ook bij. De gebruiker opent het in de browser.
+dan ook bij.
 
-HTML-opmaak: semantische kopjes, per view een `<section>` met een kleine definitielijst
+Geef geen commando om het bestand te openen: `open` en `xdg-open` werken niet in een container of
+cloudomgeving. Noem het pad en de klikroute: in VS Code of Codespaces rechtsklik op het bestand en
+*Show Preview*, of als die keuze er niet is *Download* en het gedownloade bestand openen; op een eigen
+computer dubbelklikken op het bestand.
+
+HTML-opmaak: links een `<nav>` met een link naar elk kopje, dat meescrolt (`position: sticky`) en op een
+smal scherm bovenaan staat. *Keuzes van de gebruiker* is een tabel met onderwerp, keuze in een paar
+woorden en status (*bevestigd* of *aanname*); herhaal daar niet wat al bij een view staat. Verder
+semantische kopjes, per view een `<section>` met een kleine definitielijst
 (`<dl>`: vraag, maat, uitsplitsing, grafiektype, valt weg), contrast minimaal 4,5:1, geen kleur als
 enige onderscheid, leesbaar op een smal scherm. Eén inline `<style>`, geen scripts. Teken geen
 nagebootste grafieken met verzonnen waarden: een leeg kader met een tekstbeschrijving is genoeg.
 
-Zet in de schets een kopje *Nog open vragen* met alles wat nog bevestigd moet worden: vragen uit het
-profiel die openstaan, maten die je zelf nieuw voorstelt, en keuzes die je als aanname deed. Laat niets
-onuitgesproken: wat daar niet staat, denkt de gebruiker dat al beslist is.
+Zet in de schets een kopje *Nog open vragen* met hooguit drie punten: alleen wat een view verandert en
+wat de gebruiker nog niet beantwoordde. Al het andere dat niet bevestigd is (open punten uit het profiel,
+maten die je zelf nieuw voorstelt, keuzes die je zelf deed) staat als aanname met de gekozen waarde onder
+*Keuzes van de gebruiker*, zodat de gebruiker het kan corrigeren. Laat niets onuitgesproken: wat nergens
+staat, denkt de gebruiker dat al beslist is.
 
 Eindig met een korte samenvatting in het gesprek. Zeg met welke view je begint en geef daar een
 stellige standaard voor, bijvoorbeeld *"Ik begin met view 1, tenzij je iets anders wilt."* Kies

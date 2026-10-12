@@ -1,17 +1,17 @@
 ---
 name: verkennen_data
-description: Gebruik wanneer iemand een tabelbestand (CSV) wil verkennen voor er een dashboard of analyse komt — eerst afspreken welke data er gebruikt mag worden en sparren over de expertise en aanpak van de gebruiker, dan begrijpen wat de kolommen kunnen betekenen, definities vastleggen en casusgerichte ideeën en aanpakken bedenken voor de vraag van de gebruiker, met een HTML-profiel als uitkomst. De metainfo (codebook, definities, uitleg) komt van de gebruiker. LET OP — de views schetsen hoort bij `schets_dashboard` en het dashboard bouwen bij `bouwen_dashboard`.
+description: Gebruik wanneer iemand een tabelbestand (CSV) wil verkennen voor er een dashboard of analyse komt — eerst afspreken welke data er gebruikt mag worden en sparren over de expertise en aanpak van de gebruiker, dan begrijpen wat de kolommen kunnen betekenen, de datakwaliteit en verdelingen controleren, definities vastleggen en casusgerichte ideeën en aanpakken bedenken voor de vraag van de gebruiker, met een HTML-profiel als uitkomst. De metainfo (codebook, definities, uitleg) komt van de gebruiker. LET OP — de views schetsen hoort bij `schets_dashboard` en het dashboard bouwen bij `bouwen_dashboard`.
 allowed-tools: Read Grep Glob Write Bash
 metadata:
-  versie: "0.4.0"
+  versie: "0.5.0"
 ---
 
 # Data verkennen
 
 Maakt van een ruw tabelbestand **begrip**: wat zou elke kolom kunnen betekenen, wat mag je ermee
 zeggen, wat mag je niet laten zien en hoe kun je de vraag aanvliegen. De uitkomst is een
-HTML-profiel dat vooral **conceptueel** is. Je schrijft geen dashboard, schetst geen views en
-trekt geen conclusie.
+HTML-profiel dat vooral **conceptueel** is, met een controle van de datakwaliteit en de verdelingen
+als onderbouwing. Je schrijft geen dashboard, schetst geen views en trekt geen conclusie.
 
 Deze skill kent **geen domein**. Alles wat iets over de data zegt, komt van de gebruiker: een
 codebook, uitleg bij de kolommen, definities van maten, drempels voor kleine groepen. Heeft de
@@ -28,30 +28,34 @@ code zien (of zet 'm in een bestand) zodat de gebruiker mee kan lezen.
 
 De gebruiker heeft kennis die jij niet hebt en blijft de regisseur, ook al doe jij het werk.
 
-Houd het ritme hoog. **Stel alle vragen die je nodig hebt in één bericht**, genummerd, en geef bij elke
-vraag een **standaardantwoord** ("Ik ga uit van X, tenzij je iets anders zegt"). Antwoordt de gebruiker
-"ok", dan gelden de standaarden. Vraag niets wat al in het gesprek staat, en vraag niet naar ervaring:
+Houd het ritme hoog. **Stel de vragen één voor één**: één vraag per bericht, met een
+**standaardantwoord** ("Ik ga uit van X, tenzij je iets anders zegt"), en wacht op het antwoord voor je de
+volgende stelt. Zeg bij de eerste vraag hoeveel vragen er komen. Antwoordt de gebruiker "ok", dan geldt
+de standaard van die vraag. Vraag niets wat al in het gesprek staat, en vraag niet naar ervaring:
 pas je uitleg aan op hoe de gebruiker praat. Stel alleen een vraag als het antwoord het werk echt verandert
 en je het niet kunt aannemen. Alles wat je aanneemt, zeg je hardop en leg je vast, zodat het zichtbaar is
 en de gebruiker het kan corrigeren.
 
-De vragen, alleen voor zover het gesprek ze niet al beantwoordt:
+Drie vragen, in deze volgorde, alleen voor zover het gesprek ze niet al beantwoordt:
 
-1. **Welke data is dit, en mag ik die lezen?** Standaard: wat de gebruiker al zei; bij twijfel de
-   voorzichtigste keuze (zie *Datagebruik*). Dit is een van de twee vragen die altijd een expliciet
-   antwoord nodig hebben.
-2. **Welke metainfo heb je?** Een codebook, kolomomschrijvingen, definities, drempels. Standaard: geen;
+1. **De data: mag ik die lezen, en heb je er uitleg bij?** Standaard voor het lezen: wat de gebruiker al
+   zei; bij twijfel de voorzichtigste keuze (zie *Datagebruik*). Dit deel heeft altijd een expliciet
+   antwoord nodig. Standaard voor de uitleg (codebook, kolomomschrijvingen, definities, drempels): geen;
    je leidt betekenissen af uit de kolomnamen en markeert ze als aanname.
-3. **Welke definities en drempels gelden?** Zet de definitie van elke maat die de gebruiker noemt en de
-   privacydrempels in één tabel, met een voorstel als standaard en twee alternatieven. Eén antwoord
-   volstaat. De definitie van de kernmaat is de tweede vraag die altijd een expliciet antwoord nodig heeft:
-   kies hem nooit stilzwijgend.
-4. **Wat denk je dat achter de vraag zit?** Optioneel; "weet ik niet" is een goed antwoord. Wat de
-   gebruiker zegt, komt **eerst** in het profiel, onder *Jouw aanpak*, in de eigen woorden van de gebruiker.
-   Jouw ideeën komen daarna.
+2. **Wat wil je weten, en waarop wil je uitsplitsen?** Vraag er ook bij wat de gebruiker denkt dat
+   erachter zit; dat is optioneel en "weet ik niet" is een goed antwoord. Wat de gebruiker zegt, komt
+   **eerst** in het profiel, onder *Jouw aanpak*, in de eigen woorden van de gebruiker. Jouw ideeën komen
+   daarna.
+3. **Klopt dit voorstel?** Eén bericht met een korte lijst: de definitie van de kernmaat die bij de vraag
+   past (met één alternatief als de vraag op twee manieren te lezen is), de privacydrempels, en wat één
+   rij is (een persoon, een gebeurtenis, een jaar per persoon) met de kolommen die samen de sleutel
+   vormen. Het script controleert of die sleutel uniek is. De gebruiker bevestigt met "ok" of corrigeert:
+   kies de kernmaat nooit stilzwijgend.
 
-Leg alle keuzes en aannames vast in het profiel onder *Keuzes van de gebruiker*, met bij elke aanname
-dat ze nog niet bevestigd is, zodat zichtbaar is wie wat besloot.
+Leg alle keuzes en aannames vast in de tabel *In het kort* van het profiel: één rij per onderwerp, de
+keuze in een paar woorden en de status (*bevestigd* of *aanname*), zodat zichtbaar is wie wat besloot.
+Schrijf de uitleg niet in die tabel: die staat één keer, in het hoofdstuk waar de rij naar verwijst
+(de definitie bij *Definities*, de drempels bij *Privacy*, de eenheid van de rij bij *Datakwaliteit*).
 
 ## Datagebruik
 
@@ -89,7 +93,11 @@ aanpassing op kunnen draaien. Lees kolomnamen uit de header en verzin ze niet.
 
 Loop de kolommen langs en geef per kolom, in **gewone taal**:
 
-- **Rol**: identificatie, tijd, categorie (kan uitsplitsen), maat (getal) of vrije tekst
+- **Rol**: identificatie, tijd, categorie (kan uitsplitsen), maat (getal) of vrije tekst. Begin de rol
+  met een van die woorden: het script rekent geen verdeling uit voor een identificatie of categorie,
+  ook niet als de waarden getallen zijn (een code of postcode is geen maat).
+- **Type**, alleen als je het zeker weet: getal, datum of tekst. Laat je het weg, dan stelt het script
+  een type voor.
 - **Wat het zou kunnen betekenen**, als aanname ("waarschijnlijk het jaar waarin...") en wat je
   nog niet zeker weet. Gebruik de metainfo als die er is; vraag bij twijfel de gebruiker, die kent het
   domein vaak beter.
@@ -98,10 +106,38 @@ Loop de kolommen langs en geef per kolom, in **gewone taal**:
   bevatten (nooit tonen).
 
 Schrijf dit weg als `begrip.json` (zie *Uitvoer*), niet als vaste tekst in het script. Het script
-rekent alleen de structuur uit: aantal rijen en kolommen, unieke en ontbrekende waarden per kolom,
+rekent de structuur uit: aantal rijen en kolommen, unieke en ontbrekende waarden per kolom,
 de kolommen met één waarde (die kunnen niet uitsplitsen) en de groepsgroottes.
 
-### 2. Leg de definities vast
+### 2. Controleer de kwaliteit en de verdelingen
+
+Het script rekent dit uit en zet het in het profiel onder *Datakwaliteit* en *Verdelingen*, met tegels
+bovenaan (rijen, kolommen, lege cellen, dubbele rijen, sleutel), een balk per kolom met ontbrekende
+waarden, een histogram per getalkolom, de aandelen per waarde bij kolommen met weinig verschillende
+waarden en een tabel met de samenhang tussen getalkolommen. Loop de uitkomst met de gebruiker langs en
+leg uit wat elk punt betekent voor de vraag:
+
+- **Sleutel**: is de sleutel uniek? Zo niet, dan telt een telling van rijen iets anders dan een telling
+  van personen of eenheden. Leg vast wat het dashboard telt.
+- **Dubbele rijen**: exacte kopieën. Vraag de gebruiker of die erin horen.
+- **Typen**: per kolom het voorgestelde type (getal of datum) en hoeveel ingevulde waarden daar niet in
+  passen. Zulke waarden zijn vaak een code voor "onbekend": vraag wat ze betekenen.
+- **Ontbrekende waarden per groep** (met `--uitsplitsing`): ontbreekt een kolom in de ene groep veel
+  vaker dan in de andere, dan is een vergelijking tussen groepen op die kolom scheef.
+- **Verdelingen**: per getalkolom een histogram met de mediaan, de kwartielen en het aantal
+  uitschieters. Een staaf, laagste of hoogste waarde met minder rijen dan de celdrempel toont het
+  script niet: die wijst één rij aan. Vraag bij een scheve verdeling, een onwaarschijnlijke waarde of
+  een uitschieter of het een fout is of echt.
+- **Aandelen per waarde**: bij kolommen met weinig verschillende waarden. De namen van de waarden staan
+  er alleen bij `--demo`.
+- **Samenhang**: de correlatie tussen getalkolommen. Twee kolommen die bijna volledig samenhangen
+  meten vaak hetzelfde; een samenhang is geen oorzaak.
+
+Dit beschrijft het bestand dat is ingelezen. Op echte data draait de gebruiker het script opnieuw; neem
+geen getal uit deze controle over in een definitie of in de tekst van `begrip.json`. Wil de gebruiker
+een verdeling als grafiek zien, kies die dan met de skill `grafiekkeuze`.
+
+### 3. Leg de definities vast
 
 Schrijf de definities van de maten die de gebruiker wil gebruiken **letterlijk** in het profiel
 onder het kopje *Definities*, met de kolommen waarop ze rusten. Neem ze uit de metainfo van de
@@ -112,7 +148,7 @@ Beschrijf per maat welke groepen of perioden **nog niet waarneembaar** kunnen zi
 observatietermijn zit dan nog niet in de data. Zeg dat als **regel** ("een periode telt pas mee als
 de volgende periode in de data zit"), zodat het dashboard het zelf kan toepassen op elke data.
 
-### 3. Bedenk casusgerichte ideeën en aanpakken
+### 4. Bedenk casusgerichte ideeën en aanpakken
 
 Alleen als er een vraag is. Denk mee over **deze vraag**, niet over data in het algemeen. Begin met
 *Jouw aanpak* en voeg daarna jouw eigen ideeën toe, als ideeën en niet als bevindingen. Baseer ze op
@@ -144,7 +180,7 @@ Werk daarna twee of drie **mogelijke aanpakken** uit. Per aanpak:
 Dit is een voorzet voor `schets_dashboard`, dat er de views van maakt. Laat de gebruiker kiezen welke
 ideeën de moeite waard zijn en schrap wat niet past. Noem geen uitkomst.
 
-### 4. Leg de privacyregels vast
+### 5. Leg de privacyregels vast
 
 Beschrijf de regels, niet de aantallen. Vraag de gebruiker welke drempels gelden, en stel anders
 deze gangbare voorbeeldwaarden voor:
@@ -163,22 +199,34 @@ deze gangbare voorbeeldwaarden voor:
 
 Drie bestanden:
 
-- `uitvoer/data-profiel.html`: eerst *Datagebruik*, *Jouw aanpak* en *Keuzes van de gebruiker*, dan het
-  begrip per kolom, de definities, de casusideeën en aanpakken voor de vraag en de privacyregels, en als bijlage de
-  structuur van de data. Eén bestand zonder externe afhankelijkheden.
-- `begrip.json`: je eigen tekst, met de velden `datagebruik`, `jouw_aanpak`, `keuzes`, `kolommen`
-  (`{naam: {"rol", "betekenis", "let_op"}}`), `definities` (`[{"naam", "definitie"}]`) en
+- `uitvoer/data-profiel.html`: een menu links dat meescrolt, en de hoofdstukken *In het kort* (met
+  *Datagebruik*, *Jouw aanpak* en de keuzes als rijen van één tabel), *Kolommen*, *Definities*,
+  *Datakwaliteit*, *Verdelingen*, *Ideeën en aanpak*, *Privacy* en *Bijlage*. Eén bestand zonder externe
+  afhankelijkheden.
+- `begrip.json`: je eigen tekst, met de velden `datagebruik` en `jouw_aanpak` (elk één korte zin),
+  `keuzes` (`[{"onderwerp", "keuze", "status", "hoofdstuk"}]`; `status` is `bevestigd` of `aanname`,
+  `hoofdstuk` is optioneel en een van `kolommen`, `definities`, `kwaliteit`, `verdelingen`, `ideeen`,
+  `privacy`), `eenheid_rij`
+  (wat één rij is, in gewone taal), `sleutel` (lijst met kolomnamen), `kolommen`
+  (`{naam: {"rol", "betekenis", "let_op", "type"}}`, `type` is optioneel), `definities` (`[{"naam", "definitie"}]`) en
   `casus_ideeen` (`{"relevante_kolommen": [{"kolom", "waarom"}], "afgeleide_maten": [{"naam", "definitie"}],
   "hypotheses": [{"vraag", "alternatieve_verklaring"}], "vergelijkingen": [], "valkuilen": [],
   "ontbrekende_data": [], "vragen": []}`) en `casus_aanpak` (`[{"idee", "maat", "uitsplitsing", "kan_niet"}]`).
 - `verken.py`: staat in `assets/` van deze skill. Kopieer het naar de werkmap en draai het:
-  `python verken.py bestand.csv --begrip begrip.json`. Het leest het bestand en `begrip.json` en schrijft
-  het profiel. Gebruik `--demo` alleen bij demodata. Het script bevat geen waarden uit de data en geen
+  `python verken.py bestand.csv --begrip begrip.json --uitsplitsing kolom`. Het leest het bestand en
+  `begrip.json` en schrijft het profiel. Geef met `--uitsplitsing` (herhaalbaar) de kolommen waarop de
+  gebruiker wil uitsplitsen; de sleutel komt uit `begrip.json` of uit `--sleutel`. Gebruik `--demo`
+  alleen bij demodata. Het script bevat geen waarden uit de data en geen
   conclusies, zodat de gebruiker het later zonder AI op andere data kan draaien.
 
 Alle gegenereerde HTML hoort in `uitvoer/` (maak de map aan als die ontbreekt), nooit naast de invoer.
 Zet `uitvoer/` in `.gitignore`: een profiel dat later op echte data is gedraaid mag niet per ongeluk in
-git belanden. Zeg erbij dat de gebruiker het bestand opent in de browser.
+git belanden.
+
+Geef geen commando om het bestand te openen: `open` en `xdg-open` werken niet in een container of
+cloudomgeving. Noem het pad en de klikroute: in VS Code of Codespaces rechtsklik op het bestand en
+*Show Preview*, of als die keuze er niet is *Download* en het gedownloade bestand openen; op een eigen
+computer dubbelklikken op het bestand.
 
 HTML-opmaak: semantische kopjes en `<table>` met `<caption>` en `<th scope>`, contrast minimaal
 4,5:1, geen kleur als enige onderscheid, leesbaar op een smal scherm. Eén inline `<style>`, geen

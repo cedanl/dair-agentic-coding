@@ -1,9 +1,9 @@
 ---
 name: bouwen_dashboard
-description: Gebruik wanneer iemand uit een profiel en een schets (uitvoer/data-profiel.html en uitvoer/schets.html) een dashboard wil bouwen dat draait op data die de gebruiker zelf uploadt — eerst sparren over ervaring, gebruikers, bestandsgrootte en huisstijl, dan een uploadscherm als eerste scherm en daarna grafiek, vergelijking en filter, met privacy-drempel, eerlijke framing, bron en toegankelijkheid. LET OP — de data eerst verkennen hoort bij `verkennen_data` en de views schetsen bij `schets_dashboard`.
-allowed-tools: Read Grep Glob Write Edit Bash
+description: Gebruik wanneer iemand uit een profiel en een schets (uitvoer/data-profiel.html en uitvoer/schets.html) een dashboard wil bouwen dat draait op data die de gebruiker zelf uploadt — zonder vragenronde vooraf: de keuzes komen uit de schets. Eerst een uploadscherm als eerste scherm en daarna grafiek, vergelijking en filter, met privacy-drempel, eerlijke framing, bron en toegankelijkheid, en een afronding met stijlcheck; bewaren in git alleen als de gebruiker erom vraagt. LET OP — de data eerst verkennen hoort bij `verkennen_data` en de views schetsen bij `schets_dashboard`.
+allowed-tools: Read Grep Glob Write Edit Bash Skill
 metadata:
-  versie: "0.3.0"
+  versie: "0.4.0"
 ---
 
 # Dashboard bouwen
@@ -18,24 +18,25 @@ gelden, komt uit het profiel en van de gebruiker. Staat iets daarvan niet in het
 
 De gebruiker bepaalt wat er gebouwd wordt, ook al schrijf jij de code.
 
-Houd het ritme hoog. **Stel alle vragen die je nodig hebt in één bericht**, genummerd, en geef bij elke
-vraag een **standaardantwoord** ("Ik ga uit van X, tenzij je iets anders zegt"). Antwoordt de gebruiker
-"ok", dan gelden de standaarden. Vraag niets wat al in het gesprek staat, en vraag niet naar ervaring:
-pas je uitleg aan op hoe de gebruiker praat. Stel alleen een vraag als het antwoord het werk echt verandert
-en je het niet kunt aannemen. Alles wat je aanneemt, zeg je hardop en leg je vast, zodat het zichtbaar is
-en de gebruiker het kan corrigeren.
+Begin zonder vragenronde. Wat in het profiel en in de schets onder *Keuzes van de gebruiker* staat, is
+beslist: vraag het niet opnieuw. Vraag niet naar ervaring: pas je uitleg aan op hoe de gebruiker praat,
+met meer uitleg en kleinere stappen bij iemand die het nieuw vindt en kort en technisch bij een ervaren
+gebruiker.
 
-Dit neem je standaard aan en noem je in één bericht, zodat de gebruiker kan corrigeren:
+Noem je eigen aannames samen in **één regel** en begin daarna met bouwen, bijvoorbeeld *"Ik bouw voor
+een groot bestand, in een rustig standaardthema, tenzij je iets anders zegt."* Dit neem je aan:
 
-- **Ervaring met dashboards of Python:** afgeleid uit het gesprek. Meer uitleg en kleinere stappen bij iemand
-  die het nieuw vindt, kort en technisch bij een ervaren gebruiker.
-- **Wie het dashboard gebruikt en wat diegene ermee kan:** afgeleid uit de vraag en de schets (een lezer
-  zonder tijd krijgt weinig knoppen en duidelijke titels).
-- **Bestandsgrootte:** vraag er alleen naar als het gesprek geen aanwijzing geeft, en ga anders uit van
-  een groot bestand (honderden MB, ruim 100 kolommen) en bouw daarop (zie *Grote bestanden*). Zeg het
-  eerlijk als de grootte een grens raakt. De voorbeelddata hoeft niet groot te zijn.
-- **Huisstijl:** standaard een rustig standaardthema. Een eigen stijl of de voorbeeldstijl (Npuls) alleen
-  als de gebruiker dat zegt. Zie *Huisstijl*.
+- **Wie het dashboard gebruikt:** afgeleid uit de vraag en de schets (een lezer zonder tijd krijgt weinig
+  knoppen en duidelijke titels).
+- **Bestandsgrootte:** een groot bestand (honderden MB, ruim 100 kolommen), tenzij het gesprek iets anders
+  zegt. Bouw daarop (zie *Grote bestanden*) en zeg het eerlijk als de grootte een grens raakt. De
+  voorbeelddata hoeft niet groot te zijn.
+- **Huisstijl:** een rustig standaardthema. Een eigen stijl of de voorbeeldstijl (Npuls) alleen als de
+  gebruiker dat zegt. Zie *Huisstijl*.
+
+Stel **hooguit drie vragen**, en alleen over iets dat de view blokkeert die je nu bouwt. Stel ze één voor
+één: één vraag per bericht, met een standaardantwoord ("Ik ga uit van X, tenzij je iets anders zegt").
+Alles wat je aanneemt, zeg je hardop en leg je vast, zodat de gebruiker het kan corrigeren.
 
 Vraag de gebruiker na de eerste view *wat zou je anders willen?* voor je de volgende bouwt, en vraag
 hem zelf de privacy-drempel en de definities in het dashboard te controleren: die beoordeling is van de
@@ -69,7 +70,7 @@ dashboard daarom zo dat het zonder jou op andere data te draaien is:
   zoals GitHub Codespaces kiest de bestandsdialoog van de browser een bestand van de eigen computer,
   niet uit de omgeving. Laat de gebruiker het bestand dan eerst downloaden en dan uploaden.
 - De vraag die het dashboard beantwoordt (staat bovenaan de schets).
-- Het kopje *Nog open vragen* in de schets. Die vragen moeten beantwoord zijn voor je bouwt (zie *Werkwijze*).
+- De kopjes *Keuzes van de gebruiker* en *Nog open vragen* in de schets (zie *Werkwijze*).
 
 ## Stack
 
@@ -81,6 +82,10 @@ kolomnamen per rol, de lijst met verplichte kolommen, het scheidingsteken en de 
 configuratie (`configuratie.py`), afgeleid van het profiel, niet verspreid door de code. Begin `app.py`
 met `st.set_page_config(page_title=..., layout="wide")` en zet het thema in `.streamlit/config.toml`.
 Start met `streamlit run app.py`. Gebruik `width="stretch"` in plaats van `use_container_width`.
+
+Deze platte opzet (drie bestanden naast elkaar, geen pakket) is een bewuste keuze: het dashboard moet
+klein en leesbaar blijven. Bouw er geen `src/`-indeling of `pyproject.toml` omheen, tenzij de gebruiker
+daarom vraagt.
 
 ## Wat het dashboard minimaal heeft
 
@@ -160,6 +165,7 @@ Test de upload alleen met voorbeelddata waar de gebruiker mee akkoord is, bijvoo
 | Check | Wat jij doet |
 |---|---|
 | Privacy | Toon geen groep onder de drempel (voorbeeldwaarden: 30 personen per groep, 5 per percentage-cel; de echte waarden staan in `uitvoer/data-profiel.html`). Toon in plaats daarvan "te weinig personen" en pas secundaire onderdrukking toe. Bouw de drempel als parameter in `configuratie.py`, niet hardcoded in elke grafiek. |
+| Eenheid | Tel wat het profiel als eenheid van de rij noemt. Is de sleutel niet uniek, tel dan unieke sleutels en geen rijen, en zeg op het dashboard wat er geteld wordt. |
 | Waarneembaarheid | Sluit perioden uit waarvan de observatietermijn niet volledig is (zie de regel in het profiel) en zeg dat op het dashboard. |
 | Eerlijke framing | Geen woorden als "slechter" of "risicogroep" over groepen mensen; benoem de groep of eenheid, geen kenmerken van personen als oorzaak. Een verband is geen oorzaak. |
 | Toegankelijkheid | Kleurenblind-veilig palet (niet alleen rood/groen), contrast minimaal 4,5:1, elke grafiek met een tekstuele samenvatting als alt-tekst, labels direct op de staven waar het past. |
@@ -167,17 +173,15 @@ Test de upload alleen met voorbeelddata waar de gebruiker mee akkoord is, bijvoo
 
 ## Grafiekkeuze
 
-Kies de grafiek in een vaste volgorde: eerst verhaal, publiek en doel, dan de datastructuur (de
-TRIPS-beslisboom). Noem het pad kort bij je keuze (*"vergelijken tussen groepen, lange labels
--> horizontaal staafdiagram"*).
+Kies elke grafiek met de skill `grafiekkeuze` (de TRIPS-beslisboom) en noem het pad kort bij je keuze
+(*"vergelijken tussen groepen, lange labels -> horizontaal staafdiagram"*). De schets noemt per view al
+een grafiektype: volg dat, tenzij de data het niet draagt. Ontbreekt de skill, houd dan aan: groepen
+vergelijken met staven op een gemeenschappelijke nul-as, tijd met een lijn of kolommen.
 
-- Vergelijken tussen groepen: staafdiagram, horizontaal bij lange labels. Over tijd: lijn of kolommen.
-- Cirkeldiagram alleen voor deel-van-geheel in één periode, en niet bij meer dan 5-7 delen.
-- Een extra groepering wordt een facet, geen derde dimensie in één grafiek.
-- Plotly in Streamlit: `st.plotly_chart(fig, width="stretch", theme=None)`. Streamlit zet anders zijn
-  eigen kleuren over die van de huisstijl heen. Zonder het Streamlit-thema ontbreken de automatische
-  marges: zet `automargin=True` op beide assen en `ticklabelstandoff` op de y-as, anders overlappen de
-  labels de staven.
+In Streamlit teken je de grafiek met `st.plotly_chart(fig, width="stretch", theme=None)`, ook waar een
+sjabloon uit `grafiekkeuze` `use_container_width` gebruikt. Streamlit zet anders zijn eigen kleuren over
+die van de huisstijl heen. Zonder het Streamlit-thema ontbreken de automatische marges: zet
+`automargin=True` op beide assen en `ticklabelstandoff` op de y-as, anders overlappen de labels de staven.
 
 ## Huisstijl
 
@@ -193,10 +197,11 @@ onderscheid.
 
 ### Voorbeeldstijl: Npuls
 
-Deze stijl volgt de tokens van de Npuls-huisstijl: kleur is de persoonlijkheid, dus minstens drie
-primaire kleuren zichtbaar, alleen toegestane kleurparen, Plus Jakarta Sans als lettertype (nooit
-Inter) en royale afronding. Gebruik hem alleen als de gebruiker bij Npuls hoort of er uitdrukkelijk om
-vraagt. De bestanden in `assets/npuls/`:
+De bron van deze stijl is de skill `vormgever-npuls-huisstijl`: kleuren, toegestane kleurparen, vormen
+en lettertypes staan daar. Lees die eerst. Het lettertype is Plus Jakarta Sans, de digitale vervanger van
+General Sans; gebruik nooit Inter of een ander vervangend lettertype. Gebruik de stijl alleen als de
+gebruiker bij Npuls hoort of er uitdrukkelijk om vraagt. De bestanden in `assets/npuls/` zijn de uitwerking voor dit dashboard
+(uploadscherm, hero, kaarten):
 
 - `npuls-dashboard.css`: lettertype, hero, kaarten, pill-knoppen, uploadvak, zijbalk, meldingen en
   grafiekkaarten. Laad het met `st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)`.
@@ -239,12 +244,13 @@ de intro valt terug op Georgia.
 
 ## Werkwijze
 
-0. **Los de open punten op voor je bouwt.** Lees het kopje *Nog open vragen* in `uitvoer/schets.html`,
-   en let op maten die de schets nieuw voorstelt en nog niet in het profiel staan. Vraag ze
-   in één bericht, elk met een standaardantwoord, en leg elk antwoord vast bij *Keuzes van de gebruiker* in
-   de schets. Kan de gebruiker een vraag niet beantwoorden, doe dan een aanname, zeg die hardop en toon
-   haar op het dashboard onder *Zo lees je dit*. Bouw een view pas als alles wat hij nodig heeft is
-   beantwoord of als aanname vastgelegd. Een punt dat alleen een latere view raakt, mag blijven staan.
+0. **Lees de keuzes en de open punten.** Lees *Keuzes van de gebruiker* en *Nog open vragen* in
+   `uitvoer/schets.html`, en let op maten die de schets nieuw voorstelt en nog niet in het profiel staan.
+   Wat bij de keuzes staat, vraag je niet opnieuw. Vraag alleen een open punt dat de eerste view
+   blokkeert, één vraag per bericht met een standaardantwoord, en leg het antwoord vast bij *Keuzes van
+   de gebruiker* in de schets. Elk ander open punt wordt een aanname: zeg die hardop, leg haar vast en
+   toon haar op het dashboard onder *Zo lees je dit*. Blokkeert een punt een latere view, vraag het dan
+   op het moment dat je die view bouwt.
 1. Lees `uitvoer/schets.html` en begin met de view die de schets als eerste noemt, tenzij de gebruiker
    iets anders wil. Zeg dat in één zin ("Ik begin met view 1, tenzij je iets anders wilt") en vraag het
    niet als open vraag. Bouw die view.
@@ -255,7 +261,42 @@ de intro valt terug op Georgia.
    screenshots zelf voor je zegt dat het er goed uitziet. Meld eerlijk wat je niet kon controleren,
    bijvoorbeeld hoe het er in de browser uitziet of de alt-tekst bij een schermlezer aankomt
    (Plotly in Streamlit heeft geen echte alt-tekst: zet de samenvatting in een `st.caption`).
-3. Vat samen: welke keuzes zijn gemaakt, welke checks zijn toegepast, wat blijft open.
+3. Rond af (zie *Afronden*).
+4. Vat samen: welke keuzes zijn gemaakt, welke checks zijn toegepast, wat blijft open.
+
+## Afronden
+
+Het dashboard is af als de code is nagekeken. Doe deze stappen achter elkaar als alle views
+staan, zonder per stap toestemming te vragen. Meld per stap in één regel wat eruit kwam.
+
+1. **Waarden uit de voorbeelddata.** Kopieer `assets/controleer_voorbeeldwaarden.py` naar de werkmap en
+   draai het op de voorbeelddata en de Python-bestanden van het dashboard
+   (`python controleer_voorbeeldwaarden.py voorbeeld.csv app.py berekeningen.py configuratie.py`). Haal
+   elke treffer uit de code, of leg uit waarom het geen datawaarde is. Sla dit over bij gevoelige data.
+2. **Stijl.** Draai de skill `check-style` op `app.py`, `berekeningen.py` en `configuratie.py`.
+   Bevindingen over de pakketstructuur (`src/`, `pyproject.toml`, entrypoint) noem je in één regel en
+   los je niet op: de platte opzet is een bewuste keuze. pandas bij het inlezen van de upload blijft.
+3. **Vereenvoudigen.** Draai de skill `simplify-ceda` op dezelfde bestanden. Lukt het installeren van
+   de plugin niet, sla de stap dan over en meld dat.
+4. **Opnieuw testen.** Draai de tests uit *Werkwijze* opnieuw: de vorige stappen hebben code veranderd.
+5. **Bewaren aanbieden.** Commit en push niets uit jezelf. Sluit af met één regel: *"Wil je dit bewaren in
+   je eigen GitHub? Zeg dan 'bewaar'."*
+
+Ontbreekt een van deze skills, sla die stap dan over en meld het.
+
+## Bewaren, alleen op verzoek
+
+Commit en push alleen als de gebruiker erom vraagt, en nooit zonder bevestiging.
+
+1. **Laat zien wat er gebeurt.** Noem de bestanden die meegaan (de code van het dashboard; geen
+   `uitvoer/`, geen `.venv/` en geen databestanden die nog niet in de repo stonden) en de repo waar ze
+   heen gaan. Heeft de gebruiker geen schrijfrechten op die repo, zeg dan dat GitHub een kopie (fork) in
+   het eigen account van de gebruiker maakt, en dat die kopie **openbaar** is als de oorspronkelijke repo
+   openbaar is. Vraag om akkoord.
+2. **Na akkoord:** draai de skill `ship` om te committen en te pushen. In een Codespace regelt
+   `GITHUB_TOKEN` de toegang tot de repo: laat die staan, ook waar `ship` aanraadt hem te unsetten.
+3. **Weigert de push:** omzeil dat niet en vraag geen token. Zeg dat het werk lokaal gecommit is en geef
+   de klikroute om de bestanden te downloaden: rechtsklik op het bestand in de verkenner en *Download*.
 
 ## Let op
 
