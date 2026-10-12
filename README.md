@@ -26,6 +26,8 @@ Klik op de tab **Codespaces** en daarna op de groene knop **Create codespace on 
 
 De Codespace start automatisch op. Dit duurt ongeveer twee tot drie minuten.
 
+> **Start maar één Codespace en werk in één chat tegelijk.** Alle deelnemers delen dezelfde workshop-key. Een tweede Codespace of een tweede chat vertraagt je eigen werk en dat van anderen.
+
 ![Stap 3 — Codespace laadt](docs/images/03-codespace-laadt.png)
 
 ---
