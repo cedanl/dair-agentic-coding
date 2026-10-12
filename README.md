@@ -24,7 +24,7 @@ Klik op de tab **Codespaces** en daarna op de groene knop **Create codespace on 
 
 ### Stap 3 — Wacht tot de omgeving klaar is
 
-De Codespace start automatisch op. Dit duurt ongeveer één minuut.
+De Codespace start automatisch op. Dit duurt ongeveer twee tot drie minuten.
 
 ![Stap 3 — Codespace laadt](docs/images/03-codespace-laadt.png)
 
