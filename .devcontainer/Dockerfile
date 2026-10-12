@@ -64,10 +64,25 @@ RUN curl -LsSf "https://astral.sh/uv/${UV_VERSION}/install.sh" | \
 COPY onboard.sh /usr/local/bin/dair-onboard
 RUN chmod 755 /usr/local/bin/dair-onboard
 
+# Chromium voor de screenshots in bouwen_dashboard. De versie volgt playwright in
+# test-requirements.txt; de browser staat buiten de home-map zodat elke gebruiker hem vindt.
+COPY dashboard-requirements.txt test-requirements.txt /opt/dair/
+ENV PLAYWRIGHT_BROWSERS_PATH=/opt/ms-playwright
+RUN uv run --no-project --with-requirements /opt/dair/test-requirements.txt \
+        playwright install --with-deps chromium && \
+    chmod -R a+rX /opt/ms-playwright && \
+    rm -rf /root/.cache/uv /var/lib/apt/lists/*
+
 WORKDIR /workspace
 USER ${USERNAME}
 
 ENV PATH="/home/${USERNAME}/.local/bin:/usr/local/bin:/usr/bin:/sbin:/bin"
+
+# Python-pakketten van het dashboard en de tests vooraf in de uv-cache van de gebruiker
+RUN uv run --no-project \
+        --with-requirements /opt/dair/dashboard-requirements.txt \
+        --with-requirements /opt/dair/test-requirements.txt \
+        python -c "import duckdb, plotly, polars, pyarrow, streamlit, playwright, pytest"
 
 # Claude / Anthropic Foundry
 ENV CLAUDE_CODE_USE_FOUNDRY=1 \

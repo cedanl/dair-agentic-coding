@@ -1,0 +1,4 @@
+# Testgereedschap voor bouwen_dashboard. De versie van playwright bepaalt welke Chromium het image
+# installeert: gebruik in de skill dit bestand, anders downloadt Playwright een andere browser.
+playwright==1.63.0
+pytest==9.1.1
