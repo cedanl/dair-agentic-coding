@@ -359,10 +359,10 @@ toestemming te vragen. Meld per stap in één regel wat eruit kwam.
    `uv run --no-project --with-requirements requirements.txt --with pytest pytest tests`. De tests
    rekenen de aantallen onafhankelijk na, controleren de drempels en de secundaire onderdrukking,
    meten dat het uploadscherm eerst komt en dat het dashboard alle views toont.
-2. **Waarden uit de voorbeelddata.** Kopieer `assets/controleer_voorbeeldwaarden.py` naar de werkmap en
-   draai het op de voorbeelddata en de Python-bestanden van het dashboard
-   (`python controleer_voorbeeldwaarden.py voorbeeld.csv app.py berekeningen.py configuratie.py`). Haal
-   elke treffer uit de code, of leg uit waarom het geen datawaarde is. Sla dit over bij gevoelige data.
+2. **Waarden uit de voorbeelddata.** Zoek in de code naar waarden uit de voorbeelddata die er letterlijk
+   in staan (groepsnamen, codes, jaartallen). Die horen uit de data of uit de configuratie te komen,
+   zodat het dashboard op andere data draait. Haal elke treffer uit de code, of leg uit waarom het
+   geen datawaarde is. Toon bij gevoelige data de gevonden waarden niet.
 3. **Snelle stijlcheck.** Draai `uvx ruff check .` en `uvx ruff format .` met `dashboard/ruff.toml`
    (regelbreedte 100, regels E, F, I, N, W, UP). Dat kost seconden. Houd je aan de CEDA-regels bij
    het schrijven: functienamen met een werkwoord, type hints, Polars in plaats van pandas, en geen kale
