@@ -36,23 +36,21 @@ pas je uitleg aan op hoe de gebruiker praat. Stel alleen een vraag als het antwo
 en je het niet kunt aannemen. Alles wat je aanneemt, zeg je hardop en leg je vast, zodat het zichtbaar is
 en de gebruiker het kan corrigeren.
 
-De vragen, alleen voor zover het gesprek ze niet al beantwoordt:
+Drie vragen, in deze volgorde, alleen voor zover het gesprek ze niet al beantwoordt:
 
-1. **Welke data is dit, en mag ik die lezen?** Standaard: wat de gebruiker al zei; bij twijfel de
-   voorzichtigste keuze (zie *Datagebruik*). Dit is een van de twee vragen die altijd een expliciet
-   antwoord nodig hebben.
-2. **Welke metainfo heb je?** Een codebook, kolomomschrijvingen, definities, drempels. Standaard: geen;
+1. **De data: mag ik die lezen, en heb je er uitleg bij?** Standaard voor het lezen: wat de gebruiker al
+   zei; bij twijfel de voorzichtigste keuze (zie *Datagebruik*). Dit deel heeft altijd een expliciet
+   antwoord nodig. Standaard voor de uitleg (codebook, kolomomschrijvingen, definities, drempels): geen;
    je leidt betekenissen af uit de kolomnamen en markeert ze als aanname.
-3. **Welke definities en drempels gelden?** Zet de definitie van elke maat die de gebruiker noemt en de
-   privacydrempels in één tabel, met een voorstel als standaard en twee alternatieven. Eén antwoord
-   volstaat. De definitie van de kernmaat is de tweede vraag die altijd een expliciet antwoord nodig heeft:
-   kies hem nooit stilzwijgend.
-4. **Wat is één rij?** Een persoon, een gebeurtenis, een jaar per persoon. Standaard: jouw voorstel op
-   basis van de kolomnamen, met de kolommen die samen de sleutel vormen. Het script controleert of die
-   sleutel uniek is.
-5. **Wat denk je dat achter de vraag zit?** Optioneel; "weet ik niet" is een goed antwoord. Wat de
-   gebruiker zegt, komt **eerst** in het profiel, onder *Jouw aanpak*, in de eigen woorden van de gebruiker.
-   Jouw ideeën komen daarna.
+2. **Wat wil je weten, en waarop wil je uitsplitsen?** Vraag er ook bij wat de gebruiker denkt dat
+   erachter zit; dat is optioneel en "weet ik niet" is een goed antwoord. Wat de gebruiker zegt, komt
+   **eerst** in het profiel, onder *Jouw aanpak*, in de eigen woorden van de gebruiker. Jouw ideeën komen
+   daarna.
+3. **Klopt dit voorstel?** Eén bericht met een korte lijst: de definitie van de kernmaat die bij de vraag
+   past (met één alternatief als de vraag op twee manieren te lezen is), de privacydrempels, en wat één
+   rij is (een persoon, een gebeurtenis, een jaar per persoon) met de kolommen die samen de sleutel
+   vormen. Het script controleert of die sleutel uniek is. De gebruiker bevestigt met "ok" of corrigeert:
+   kies de kernmaat nooit stilzwijgend.
 
 Leg alle keuzes en aannames vast in het profiel onder *Keuzes van de gebruiker*, met bij elke aanname
 dat ze nog niet bevestigd is, zodat zichtbaar is wie wat besloot.
