@@ -30,13 +30,6 @@ fi
 
 echo ""
 echo "DAIR — Claude koppelen"
-read -rsp "Plak de workshop-key van de begeleider (Enter = overslaan): " key
-echo ""
-key="$(printf '%s' "$key" | tr -d '[:space:]')"
-if [[ -z "$key" ]]; then
-  echo "Overgeslagen. Later instellen kan met: dair-onboard"
-  exit 0
-fi
 
 resource="${ANTHROPIC_FOUNDRY_RESOURCE:-}"
 if [[ -z "$resource" ]]; then
@@ -48,32 +41,38 @@ resource="${resource#*://}"
 resource="${resource%%[./]*}"
 resource="$(printf '%s' "$resource" | tr -d '[:space:]')"
 if [[ -z "$resource" ]]; then
-  echo "✘ Geen resource-naam opgegeven. Probeer opnieuw met: dair-onboard"
+  echo "✘ Geen resource-naam opgegeven. Typ dair-onboard in de terminal om opnieuw te proberen."
   exit 1
 fi
 
-# Laat zien dat het plakken gelukt is: alleen de laatste 4 tekens zichtbaar
-if (( ${#key} > 4 )); then
-  masked="$(printf '%*s' $(( ${#key} - 4 )) '' | tr ' ' '*')${key: -4}"
-else
-  masked="$(printf '%*s' "${#key}" '' | tr ' ' '*')"
-fi
-echo "✔ Key ontvangen (${#key} tekens): $masked"
-echo "✔ Resource: $resource"
+while true; do
+  read -rsp "Plak de workshop-key van de begeleider (Enter = overslaan): " key
+  echo ""
+  key="$(printf '%s' "$key" | tr -d '[:space:]')"
+  if [[ -z "$key" ]]; then
+    echo "Overgeslagen. Later instellen: typ dair-onboard in de terminal."
+    exit 0
+  fi
 
-# Alleen 401/403 telt als foute key; bij netwerkproblemen slaan we de key toch op
-code="$(printf 'x-api-key: %s\napi-key: %s\n' "$key" "$key" | curl -s -o /dev/null -m 30 -w '%{http_code}' \
-  "https://$resource.services.ai.azure.com/anthropic/v1/messages" -H @- \
-  -H "anthropic-version: 2023-06-01" -H "content-type: application/json" \
-  -d "{\"model\":\"${ANTHROPIC_MODEL:-claude-opus-5-5}\",\"max_tokens\":1,\"messages\":[{\"role\":\"user\",\"content\":\"hoi\"}]}" || true)"
-case "$code" in
-  200) echo "✔ Key werkt" ;;
-  401|403)
-    echo "✘ Key geweigerd (HTTP $code). De key is niet opgeslagen. Controleer of je alles hebt geplakt en probeer opnieuw: dair-onboard"
-    exit 1
-    ;;
-  *) echo "⚠ Kon de key niet controleren (HTTP $code). Hij is wel opgeslagen; hangt het Claude-paneel straks, draai dan dair-onboard opnieuw." ;;
-esac
+  # Laat zien dat het plakken gelukt is: alleen de laatste 4 tekens zichtbaar
+  if (( ${#key} > 4 )); then
+    masked="$(printf '%*s' $(( ${#key} - 4 )) '' | tr ' ' '*')${key: -4}"
+  else
+    masked="$(printf '%*s' "${#key}" '' | tr ' ' '*')"
+  fi
+  echo "✔ Key ontvangen (${#key} tekens): $masked"
+
+  # Alleen 401/403 telt als foute key; bij netwerkproblemen slaan we de key toch op
+  code="$(printf 'x-api-key: %s\napi-key: %s\n' "$key" "$key" | curl -s -o /dev/null -m 30 -w '%{http_code}' \
+    "https://$resource.services.ai.azure.com/anthropic/v1/messages" -H @- \
+    -H "anthropic-version: 2023-06-01" -H "content-type: application/json" \
+    -d "{\"model\":\"${ANTHROPIC_MODEL:-claude-opus-5-5}\",\"max_tokens\":1,\"messages\":[{\"role\":\"user\",\"content\":\"hoi\"}]}" || true)"
+  case "$code" in
+    200) echo "✔ Key werkt"; break ;;
+    401|403) echo "✘ Key geweigerd (HTTP $code). Plak de key opnieuw, of druk op Enter om over te slaan." ;;
+    *) echo "⚠ Kon de key niet controleren (HTTP $code). Hij is wel opgeslagen; hangt het Claude-paneel straks, typ dan dair-onboard in de terminal."; break ;;
+  esac
+done
 
 mkdir -p "$HOME/.claude"
 KEY="$key" RESOURCE="$resource" node -e '
