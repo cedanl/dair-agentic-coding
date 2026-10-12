@@ -52,8 +52,10 @@ Drie vragen, in deze volgorde, alleen voor zover het gesprek ze niet al beantwoo
    vormen. Het script controleert of die sleutel uniek is. De gebruiker bevestigt met "ok" of corrigeert:
    kies de kernmaat nooit stilzwijgend.
 
-Leg alle keuzes en aannames vast in het profiel onder *Keuzes van de gebruiker*, met bij elke aanname
-dat ze nog niet bevestigd is, zodat zichtbaar is wie wat besloot.
+Leg alle keuzes en aannames vast in de tabel *In het kort* van het profiel: één rij per onderwerp, de
+keuze in een paar woorden en de status (*bevestigd* of *aanname*), zodat zichtbaar is wie wat besloot.
+Schrijf de uitleg niet in die tabel: die staat één keer, in het hoofdstuk waar de rij naar verwijst
+(de definitie bij *Definities*, de drempels bij *Privacy*, de eenheid van de rij bij *Datakwaliteit*).
 
 ## Datagebruik
 
@@ -109,8 +111,11 @@ de kolommen met één waarde (die kunnen niet uitsplitsen) en de groepsgroottes.
 
 ### 2. Controleer de kwaliteit en de verdelingen
 
-Het script rekent dit uit en zet het in het profiel onder *Datakwaliteit* en *Verdelingen*. Loop de
-uitkomst met de gebruiker langs en leg uit wat elk punt betekent voor de vraag:
+Het script rekent dit uit en zet het in het profiel onder *Datakwaliteit* en *Verdelingen*, met tegels
+bovenaan (rijen, kolommen, lege cellen, dubbele rijen, sleutel), een balk per kolom met ontbrekende
+waarden, een histogram per getalkolom, de aandelen per waarde bij kolommen met weinig verschillende
+waarden en een tabel met de samenhang tussen getalkolommen. Loop de uitkomst met de gebruiker langs en
+leg uit wat elk punt betekent voor de vraag:
 
 - **Sleutel**: is de sleutel uniek? Zo niet, dan telt een telling van rijen iets anders dan een telling
   van personen of eenheden. Leg vast wat het dashboard telt.
@@ -119,10 +124,14 @@ uitkomst met de gebruiker langs en leg uit wat elk punt betekent voor de vraag:
   passen. Zulke waarden zijn vaak een code voor "onbekend": vraag wat ze betekenen.
 - **Ontbrekende waarden per groep** (met `--uitsplitsing`): ontbreekt een kolom in de ene groep veel
   vaker dan in de andere, dan is een vergelijking tussen groepen op die kolom scheef.
-- **Verdelingen**: per getalkolom het aantal, de kwartielen, de laagste en hoogste waarde en het aantal
-  uitschieters. Een laagste of hoogste waarde die minder dan de celdrempel aan rijen heeft, toont het
-  script niet: dat getal wijst één rij aan. Vraag bij een onwaarschijnlijke waarde of uitschieter of
-  het een fout is of echt.
+- **Verdelingen**: per getalkolom een histogram met de mediaan, de kwartielen en het aantal
+  uitschieters. Een staaf, laagste of hoogste waarde met minder rijen dan de celdrempel toont het
+  script niet: die wijst één rij aan. Vraag bij een scheve verdeling, een onwaarschijnlijke waarde of
+  een uitschieter of het een fout is of echt.
+- **Aandelen per waarde**: bij kolommen met weinig verschillende waarden. De namen van de waarden staan
+  er alleen bij `--demo`.
+- **Samenhang**: de correlatie tussen getalkolommen. Twee kolommen die bijna volledig samenhangen
+  meten vaak hetzelfde; een samenhang is geen oorzaak.
 
 Dit beschrijft het bestand dat is ingelezen. Op echte data draait de gebruiker het script opnieuw; neem
 geen getal uit deze controle over in een definitie of in de tekst van `begrip.json`. Wil de gebruiker
@@ -190,10 +199,14 @@ deze gangbare voorbeeldwaarden voor:
 
 Drie bestanden:
 
-- `uitvoer/data-profiel.html`: eerst *Datagebruik*, *Jouw aanpak* en *Keuzes van de gebruiker*, dan het
-  begrip per kolom, de definities, de casusideeën en aanpakken voor de vraag, de privacyregels, de datakwaliteit
-  en de verdelingen, en als bijlage de structuur van de data. Eén bestand zonder externe afhankelijkheden.
-- `begrip.json`: je eigen tekst, met de velden `datagebruik`, `jouw_aanpak`, `keuzes`, `eenheid_rij`
+- `uitvoer/data-profiel.html`: een menu links dat meescrolt, en de hoofdstukken *In het kort* (met
+  *Datagebruik*, *Jouw aanpak* en de keuzes als rijen van één tabel), *Kolommen*, *Definities*,
+  *Datakwaliteit*, *Verdelingen*, *Ideeën en aanpak*, *Privacy* en *Bijlage*. Eén bestand zonder externe
+  afhankelijkheden.
+- `begrip.json`: je eigen tekst, met de velden `datagebruik` en `jouw_aanpak` (elk één korte zin),
+  `keuzes` (`[{"onderwerp", "keuze", "status", "hoofdstuk"}]`; `status` is `bevestigd` of `aanname`,
+  `hoofdstuk` is optioneel en een van `kolommen`, `definities`, `kwaliteit`, `verdelingen`, `ideeen`,
+  `privacy`), `eenheid_rij`
   (wat één rij is, in gewone taal), `sleutel` (lijst met kolomnamen), `kolommen`
   (`{naam: {"rol", "betekenis", "let_op", "type"}}`, `type` is optioneel), `definities` (`[{"naam", "definitie"}]`) en
   `casus_ideeen` (`{"relevante_kolommen": [{"kolom", "waarom"}], "afgeleide_maten": [{"naam", "definitie"}],

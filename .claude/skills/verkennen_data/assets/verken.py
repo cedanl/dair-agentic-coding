@@ -2,21 +2,22 @@
 
 Gebruik:
     python verken.py data/bestand.csv --begrip begrip.json --uit uitvoer/data-profiel.html
-    python verken.py data/demo.csv --demo               # demodata: label en de waarden bij weinig verschillende waarden
-    python verken.py data/echt.csv                      # elke andere data: geen label en geen waarden in het profiel
+    python verken.py data/demo.csv --demo               # demodata: label en de namen van waarden
+    python verken.py data/echt.csv                      # elke andere data: geen label en geen namen van waarden
     python verken.py data/bestand.csv --sleutel persoon --sleutel jaar --uitsplitsing groep
 
 Het script bevat geen waarden uit de data en geen conclusies. Het rekent de structuur uit (rijen,
 kolommen, unieke en ontbrekende waarden, groepsgroottes), controleert de kwaliteit (sleutel, dubbele rijen,
-typen, ontbrekende waarden per groep) en rekent de verdeling van getalkolommen uit. De tekst uit begrip.json
-komt erbij. Alles wat iets over het domein zegt (betekenis van kolommen, definities, aanpakken) komt uit
-begrip.json.
+typen, ontbrekende waarden per kolom en per groep) en tekent de verdelingen (histogram per getalkolom,
+aandelen per categorie, samenhang tussen getalkolommen). De tekst uit begrip.json komt erbij. Alles wat
+iets over het domein zegt (betekenis van kolommen, definities, aanpakken) komt uit begrip.json.
 
 Installeren: uv pip install duckdb
 """
 import argparse
 import html
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -24,10 +25,10 @@ import duckdb
 
 p = argparse.ArgumentParser()
 p.add_argument("csv")
-p.add_argument("--begrip", help="JSON met de tekst van de gebruiker: datagebruik, jouw_aanpak, keuzes, kolommen, definities, casus_ideeen, casus_aanpak")
+p.add_argument("--begrip", help="JSON met de tekst van de gebruiker: datagebruik, jouw_aanpak, keuzes, eenheid_rij, sleutel, kolommen, definities, casus_ideeen, casus_aanpak")
 p.add_argument("--uit", default="uitvoer/data-profiel.html")
 p.add_argument("--sep", default=";", help="scheidingsteken van de CSV")
-p.add_argument("--demo", action="store_true", help="de data is demodata: toon het demodata-label en de waarden bij weinig verschillende waarden")
+p.add_argument("--demo", action="store_true", help="de data is demodata: toon het demodata-label en de namen van waarden")
 p.add_argument("--uitsplitsing", action="append", default=[], help="kolom om mee uit te splitsen (herhaalbaar)")
 p.add_argument("--sleutel", action="append", default=[], help="kolom die samen met de andere sleutelkolommen één rij uniek maakt (herhaalbaar)")
 p.add_argument("--drempel", type=int, default=30, help="minimale groepsgrootte")
@@ -38,6 +39,9 @@ a = p.parse_args()
 TYPE_AANDEEL = 0.9  # een kolom krijgt een type als minstens dit deel van de ingevulde waarden erin past
 ID_AANDEEL = 0.9  # vrijwel alleen unieke waarden: de kolom lijkt een identificatie
 ONGELIJK = 0.2  # verschil in aandeel ontbrekend tussen groepen dat als ongelijk telt
+CATEGORIE_MAX = 12  # teken de aandelen per waarde bij hooguit zoveel verschillende waarden
+BAKKEN = 20  # aantal staven in een histogram
+SAMENHANG_MAX = 10  # hooguit zoveel getalkolommen in de tabel met samenhang
 GETAL = "try_cast(replace(v, ',', '.') as double)"  # een decimale komma telt als getal
 
 e = html.escape
@@ -58,6 +62,34 @@ def waarde(k):
     return f"nullif(trim(\"{k}\"), '')"
 
 
+def duizend(n):
+    return f"{n:,}".replace(",", ".")
+
+
+def getal(x):
+    return str(int(x)) if float(x).is_integer() else f"{x:.2f}".replace(".", ",")
+
+
+def procent(x):
+    return "<1%" if 0 < x < 0.005 else f"{round(100 * x)}%"
+
+
+def tabel(caption, kop, rijen, html_kolommen=()):
+    t = f"<table><caption>{e(caption)}</caption><thead><tr>" + "".join(f'<th scope="col">{e(c)}</th>' for c in kop) + "</tr></thead><tbody>"
+    for r in rijen:
+        t += "<tr>" + "".join(f"<td>{c if i in html_kolommen else e(str(c))}</td>" for i, c in enumerate(r)) + "</tr>"
+    return '<div class="wrap">' + t + "</tbody></table></div>"
+
+
+def balk(aandeel):
+    return f'<span class="balk"><span style="width:{round(100 * aandeel, 1)}%"></span></span>'
+
+
+def lijst(items):
+    return "<ul>" + "".join(f"<li>{i}</li>" for i in items) + "</ul>" if items else ""
+
+
+# Structuur en typen per kolom
 n_rijen = q(f"select count(*) from {bron}")[0][0]
 structuur = []
 typen = {}
@@ -77,18 +109,7 @@ for k in kolommen:
             f"select coalesce(nullif(trim(\"{k}\"), ''), '(leeg)'), count(*) from {bron} group by 1 order by 2 desc"))
     structuur.append((k, uniek, leeg, waarden))
 een_waarde = [k for k, u, _, _ in structuur if u == 1]
-
-
-def tabel(caption, kop, rijen, html_kolom=None):
-    t = f"<table><caption>{e(caption)}</caption><thead><tr>" + "".join(f'<th scope="col">{e(c)}</th>' for c in kop) + "</tr></thead><tbody>"
-    for r in rijen:
-        t += "<tr>" + "".join(f"<td>{c if i == html_kolom else e(str(c))}</td>" for i, c in enumerate(r)) + "</tr>"
-    return t + "</tbody></table>"
-
-
-def sectie(titel, inhoud):
-    return f"<h2>{e(titel)}</h2>\n{inhoud}\n" if inhoud else ""
-
+n_leeg = sum(leeg for _, _, leeg, _ in structuur)
 
 # Groepsgroottes per uitsplitsing: alleen aantallen, geen namen van groepen
 groepen_html = ""
@@ -100,30 +121,14 @@ if a.uitsplitsing:
                     f"{a.drempel} rijen. Een indicatie van de structuur; op andere data zijn de aantallen anders. "
                     "Let op: dit telt rijen, geen personen.</p>")
 
-
-def getal(x):
-    return str(int(x)) if float(x).is_integer() else f"{x:.2f}".replace(".", ",")
-
-
-def procent(x):
-    return f"{round(100 * x)}%"
-
-
-def boxplot(p5, q1, mediaan, q3, p95):
-    if p95 == p5:
-        return ""
-    x = lambda v: round(4 + 152 * (v - p5) / (p95 - p5), 1)
-    return (f'<svg width="160" height="20" viewBox="0 0 160 20" aria-hidden="true"><line x1="4" x2="156" y1="10" y2="10" stroke="currentColor"/>'
-            f'<rect x="{x(q1)}" y="3" width="{round(x(q3) - x(q1), 1)}" height="14" fill="var(--accent)"/>'
-            f'<line x1="{x(mediaan)}" x2="{x(mediaan)}" y1="1" y2="19" stroke="var(--bg)" stroke-width="2"/></svg>')
-
-
-# Datakwaliteit: wat één rij is, of de sleutel uniek is, dubbele rijen, typen en ontbrekende waarden per groep
+# Datakwaliteit: wat één rij is, of de sleutel uniek is, dubbele rijen, typen en ontbrekende waarden
 kwaliteit = [f"Eén rij is: {e(begrip['eenheid_rij'])}"] if begrip.get("eenheid_rij") else []
+sleutel_tegel = "niet opgegeven"
 if sleutel:
     cols = ", ".join(f'"{c}"' for c in sleutel)
     n_sleutels = q(f"select count(*) from (select distinct {cols} from {bron})")[0][0]
     naam = e(" × ".join(sleutel))
+    sleutel_tegel = "uniek" if n_sleutels == n_rijen else "niet uniek"
     kwaliteit.append(f"De sleutel {naam} is uniek: elke rij heeft een eigen combinatie." if n_sleutels == n_rijen else
                      f"De sleutel {naam} is <strong>niet uniek</strong>: {n_rijen - n_sleutels} rijen delen hun sleutel met een eerdere rij. "
                      "Een telling van rijen telt dan iets anders dan een telling van sleutels.")
@@ -131,10 +136,16 @@ else:
     kwaliteit.append("Er is geen sleutel opgegeven, dus het is niet gecontroleerd wat één rij voorstelt. Geef de kolommen op met <code>--sleutel</code>.")
 n_dubbel = n_rijen - q(f"select count(*) from (select distinct * from {bron})")[0][0]
 kwaliteit.append(f"{n_dubbel} rijen zijn een exacte kopie van een eerdere rij." if n_dubbel else "Er zijn geen exact dubbele rijen.")
+if een_waarde:
+    kwaliteit.append("Kolommen met één waarde (kunnen niet uitsplitsen): " + e(", ".join(een_waarde)))
 
-type_rijen = [(k, soort, past_niet) for k, (soort, past_niet, _, _) in typen.items() if soort != "tekst"]
+ontbrekend_kolom = [(k, f"{duizend(leeg)} ({procent(leeg / n_rijen)})", balk(leeg / n_rijen))
+                    for k, _, leeg, _ in sorted(structuur, key=lambda r: -r[2]) if leeg]
+n_getypeerd = sum(1 for soort, _, _, _ in typen.values() if soort != "tekst")
+type_rijen = [(k, soort, past_niet) for k, (soort, past_niet, _, _) in typen.items() if soort != "tekst" and past_niet]
+kwaliteit.append(f"{n_getypeerd} kolommen bevatten een getal of datum. " + (f"In {len(type_rijen)} daarvan passen niet alle waarden (zie de tabel)." if type_rijen else "Alle ingevulde waarden passen in dat type."))
 
-ontbrekend_rijen = []
+ontbrekend_groep = []
 if a.uitsplitsing:
     cols = ", ".join(f'"{c}"' for c in a.uitsplitsing)
     for k, _, leeg, _ in structuur:
@@ -143,12 +154,46 @@ if a.uitsplitsing:
         laagste, hoogste, n_groepen = q(f"select min(aandeel), max(aandeel), count(*) from (select count(*) filter (where {waarde(k)} is null) / count(*) aandeel "
                                         f"from {bron} group by {cols} having count(*) >= {a.drempel})")[0]
         if n_groepen:
-            ontbrekend_rijen.append((hoogste - laagste, k, procent(laagste), procent(hoogste), "ongelijk" if hoogste - laagste >= ONGELIJK else ""))
-    ontbrekend_rijen = [r[1:] for r in sorted(ontbrekend_rijen, reverse=True)]
+            ontbrekend_groep.append((hoogste - laagste, k, procent(laagste), procent(hoogste), "ongelijk" if hoogste - laagste >= ONGELIJK else ""))
+    ontbrekend_groep = [r[1:] for r in sorted(ontbrekend_groep, reverse=True)]
+
+
+def histogram(k, laagste, hoogste, kw, n_laagste):
+    """Staven tussen de grenzen voor uitschieters. Een staaf onder de celdrempel wordt niet getekend."""
+    afstand = kw[3] - kw[1]
+    onder, boven = (max(laagste, kw[1] - 1.5 * afstand), min(hoogste, kw[3] + 1.5 * afstand)) if afstand else (laagste, hoogste)
+    x = f"(select {GETAL} x from (select {waarde(k)} v from {bron}))"
+    geheel = q(f"select count(*) from {x} where x != floor(x)")[0][0] == 0
+    if geheel and boven - onder < 2 * BAKKEN:
+        onder, boven = math.floor(onder), math.ceil(boven)
+        breedte, n_bakken = 1, boven - onder + 1
+    else:
+        breedte, n_bakken = (boven - onder) / BAKKEN, BAKKEN
+    if not breedte:
+        return ""
+    tellingen = dict(q(f"select least(floor((x - {onder}) / {breedte}), {n_bakken - 1})::int, count(*) from {x} where x between {onder} and {boven} group by 1"))
+    hoogste_staaf = max(tellingen.values())
+    stap = 252 / n_bakken
+    staven, weggelaten = "", 0
+    for i in range(n_bakken):
+        n = tellingen.get(i, 0)
+        if 0 < n < a.drempel_cel:
+            weggelaten += 1
+        elif n:
+            hoogte = max(2, 70 * n / hoogste_staaf)
+            bereik = getal(onder + i) if breedte == 1 else f"{getal(onder + i * breedte)} tot {getal(onder + (i + 1) * breedte)}"
+            staven += (f'<rect x="{round(4 + i * stap + 1, 1)}" y="{round(74 - hoogte, 1)}" width="{round(stap - 2, 1)}" height="{round(hoogte, 1)}" rx="2">'
+                       f"<title>{bereik}: {duizend(n)} rijen</title></rect>")
+    # de laagste waarde staat alleen op de as als ze geen losse rij aanwijst
+    links = getal(onder) if onder > laagste or n_laagste >= a.drempel_cel else ""
+    as_tekst = f'<text x="4" y="90">{links}</text><text x="256" y="90" text-anchor="end">{getal(boven)}</text>'
+    noot = f" {weggelaten} staven met minder dan {a.drempel_cel} rijen zijn weggelaten." if weggelaten else ""
+    return (f'<svg viewBox="0 0 260 94" role="img" aria-label="Histogram van {e(k)}"><line x1="4" x2="256" y1="74.5" y2="74.5"/>{staven}{as_tekst}</svg>', noot)
+
 
 # Verdelingen: alleen getalkolommen die geen identificatie of categorie zijn
 onderdrukt = f"onderdrukt (minder dan {a.drempel_cel} rijen)"
-verdeling_rijen = []
+verdeling_rijen, kaarten, maten = [], "", []
 for k, (soort, past_niet, uniek, ingevuld) in typen.items():
     rol = kolom_begrip.get(k, {}).get("rol", "").lower()
     n = ingevuld - past_niet
@@ -157,42 +202,64 @@ for k, (soort, past_niet, uniek, ingevuld) in typen.items():
     if not rol and uniek >= ID_AANDEEL * ingevuld:
         continue
     if n < a.drempel:
-        verdeling_rijen.append((k, n, *["te weinig waarden"] * 6, ""))
+        verdeling_rijen.append((k, n, *["te weinig waarden"] * 6))
         continue
     laagste, hoogste, kw, n_laagste, n_hoogste, n_uitschieters = q(
         f"with g as (select {GETAL} x from (select {waarde(k)} v from {bron})), "
         "s as (select min(x) mn, max(x) mx, quantile_cont(x, [0.05, 0.25, 0.5, 0.75, 0.95]) kw from g) "
         "select mn, mx, kw, (select count(*) from g where x = mn), (select count(*) from g where x = mx), "
         "(select count(*) from g where x < kw[2] - 1.5 * (kw[4] - kw[2]) or x > kw[4] + 1.5 * (kw[4] - kw[2])) from s")[0]
+    uitschieters = n_uitschieters if n_uitschieters == 0 or n_uitschieters >= a.drempel_cel else f"minder dan {a.drempel_cel}"
     verdeling_rijen.append((
-        k, n,
+        k, duizend(n),
         getal(laagste) if n_laagste >= a.drempel_cel else onderdrukt,
         getal(kw[1]), getal(kw[2]), getal(kw[3]),
         getal(hoogste) if n_hoogste >= a.drempel_cel else onderdrukt,
-        n_uitschieters if n_uitschieters == 0 or n_uitschieters >= a.drempel_cel else f"minder dan {a.drempel_cel}",
-        boxplot(*kw)))
+        uitschieters))
+    maten.append(k)
+    plaatje = histogram(k, laagste, hoogste, kw, n_laagste)
+    if plaatje:
+        kaarten += (f"<figure><figcaption>{e(k)}</figcaption>{plaatje[0]}<p class='muted'>mediaan {getal(kw[2])}, helft tussen {getal(kw[1])} en {getal(kw[3])}, "
+                    f"{duizend(n)} waarden, uitschieters buiten beeld: {uitschieters}.{plaatje[1]}</p></figure>")
 
-kwaliteit_html = "<ul>" + "".join(f"<li>{x}</li>" for x in kwaliteit) + "</ul>"
-if type_rijen:
-    kwaliteit_html += '<div class="wrap">' + tabel("Kolommen met een getal of datum, en hoeveel ingevulde waarden daar niet in passen", ["Kolom", "Voorgesteld type", "Past niet"], type_rijen) + "</div>"
-if ontbrekend_rijen:
-    kwaliteit_html += ('<div class="wrap">' + tabel(f"Aandeel ontbrekend per groep van {' × '.join(a.uitsplitsing)} (alleen groepen vanaf {a.drempel} rijen)",
-                                                   ["Kolom", "Laagste aandeel", "Hoogste aandeel", "Verschil"], ontbrekend_rijen) + "</div>"
-                       "<p class='muted'>Ongelijk betekent: in de ene groep ontbreekt veel meer dan in de andere. Een vergelijking tussen groepen op die kolom is dan scheef.</p>")
-verdeling_html = ""
-if verdeling_rijen:
-    verdeling_html = ('<div class="wrap">' + tabel("Verdeling per getalkolom", ["Kolom", "Aantal", "Laagste", "Kwartiel 1", "Mediaan", "Kwartiel 3", "Hoogste", "Uitschieters", "5% tot 95%"], verdeling_rijen, html_kolom=8) + "</div>"
-                      f"<p class='muted'>De laagste en hoogste waarde staan er alleen als minstens {a.drempel_cel} rijen die waarde hebben: anders wijst het getal één rij aan. "
-                      "Uitschieters liggen meer dan anderhalf keer de afstand tussen kwartiel 1 en 3 buiten die kwartielen. De balk loopt van 5% tot 95%, het blok van kwartiel 1 tot 3, de streep is de mediaan. "
-                      "Deze cijfers beschrijven dit bestand; op andere data zijn ze anders.</p>")
+# Aandelen per waarde bij kolommen met weinig verschillende waarden; namen alleen bij demodata
+categorie_kaarten = ""
+for k, uniek, _, _ in structuur:
+    if not 2 <= uniek <= CATEGORIE_MAX:
+        continue
+    rijen = []
+    for i, (w, n) in enumerate(q(f"select coalesce({waarde(k)}, '(leeg)'), count(*) from {bron} group by 1 order by 2 desc"), 1):
+        naam = w if a.demo or w == "(leeg)" else f"waarde {i}"
+        rijen.append((naam, procent(n / n_rijen), balk(n / n_rijen)) if n >= a.drempel_cel else (naam, f"minder dan {a.drempel_cel} rijen", ""))
+    categorie_kaarten += "<figure>" + tabel(k, ["Waarde", "Aandeel", ""], rijen, html_kolommen={2}) + "</figure>"
 
+# Samenhang tussen getalkolommen: correlatie over de rijen waarin beide kolommen een getal hebben
+samenhang_html = ""
+maten = maten[:SAMENHANG_MAX]
+if len(maten) > 1:
+    paren = [(i, j) for i in range(len(maten)) for j in range(i)]
+    gekozen = ", ".join(f"try_cast(replace({waarde(k)}, ',', '.') as double) c{i}" for i, k in enumerate(maten))
+    r = dict(zip(paren, q(f"select {', '.join(f'corr(c{i}, c{j})' for i, j in paren)} from (select {gekozen} from {bron})")[0]))
+    rijen = ""
+    for i, k in enumerate(maten):
+        cellen = ""
+        for j in range(len(maten)):
+            c = r.get((i, j))
+            if j >= i or c is None or math.isnan(c):
+                cellen += "<td></td>" if j >= i else "<td>–</td>"
+            else:
+                kleur = "61,104,236" if c > 0 else "208,59,59"
+                cellen += f'<td style="background:rgba({kleur},{round(abs(c) * 0.55, 2)})">{f"{c:.2f}".replace(".", ",")}</td>'
+        rijen += f'<tr><th scope="row">{i + 1}. {e(k)}</th>{cellen}</tr>'
+    samenhang_html = ('<div class="wrap"><table class="samenhang"><caption>Samenhang tussen getalkolommen (correlatie van -1 tot 1)</caption><thead><tr><td></td>'
+                      + "".join(f'<th scope="col">{i + 1}</th>' for i in range(len(maten))) + f"</tr></thead><tbody>{rijen}</tbody></table></div>"
+                      "<p class='muted'>Dicht bij 1 (blauw): de kolommen gaan samen omhoog. Dicht bij -1 (rood): de ene gaat omhoog als de andere daalt. "
+                      "Rond 0: geen rechtlijnig verband. Een samenhang is geen oorzaak.</p>")
+
+# Tekst uit begrip.json
 begrip_rijen = [(k, v.get("rol", ""), v.get("betekenis", ""), v.get("let_op", "")) for k, v in kolom_begrip.items()]
 definities = begrip.get("definities", [])
 ideeen = begrip.get("casus_ideeen", {})
-
-
-def lijst(items):
-    return "<ul>" + "".join(f"<li>{i}</li>" for i in items) + "</ul>" if items else ""
 
 
 def ideeen_html():
@@ -207,44 +274,84 @@ def ideeen_html():
                          ("Vragen aan de gebruiker", [e(x) for x in ideeen.get("vragen", [])])]:
         if items:
             delen.append(f"<h3>{titel}</h3>{lijst(items)}")
+    aanpak = "".join(
+        f"<li><strong>{e(x.get('idee', ''))}</strong><br>Maat: {e(x.get('maat', ''))}. Uitsplitsing: {e(x.get('uitsplitsing', ''))}."
+        f"<br><span class='muted'>Kan niet zeggen: {e(x.get('kan_niet', ''))}</span></li>" for x in begrip.get("casus_aanpak", []))
+    if aanpak:
+        delen.append(f"<h3>Hoe de vraag aan te vliegen</h3><ol>{aanpak}</ol>")
     return "".join(delen)
 
-aanpak = begrip.get("casus_aanpak", [])
-aanpak_html = "".join(
-    f"<li><strong>{e(x.get('idee', ''))}</strong><br>Maat: {e(x.get('maat', ''))}. Uitsplitsing: {e(x.get('uitsplitsing', ''))}."
-    f"<br><span class='muted'>Kan niet zeggen: {e(x.get('kan_niet', ''))}</span></li>" for x in aanpak)
 
+# In het kort: elke keuze één keer, met de status en een verwijzing naar het hoofdstuk met de uitleg
+HOOFDSTUKKEN = [("kort", "In het kort"), ("kolommen", "Kolommen"), ("definities", "Definities"), ("kwaliteit", "Datakwaliteit"),
+                ("verdelingen", "Verdelingen"), ("ideeen", "Ideeën en aanpak"), ("privacy", "Privacy"), ("bijlage", "Bijlage")]
+titels = dict(HOOFDSTUKKEN)
+keuze_rijen = [(naam, e(begrip[veld]), "") for naam, veld in [("Datagebruik", "datagebruik"), ("Jouw aanpak", "jouw_aanpak")] if begrip.get(veld)]
+for x in begrip.get("keuzes", []):
+    x = x if isinstance(x, dict) else {"keuze": x}
+    verwijzing = f' <a href="#{x["hoofdstuk"]}">Zie {titels[x["hoofdstuk"]]}</a>' if x.get("hoofdstuk") in titels else ""
+    keuze_rijen.append((x.get("onderwerp", ""), e(x.get("keuze", "")) + verwijzing, x.get("status", "")))
+
+tegels = "".join(f"<div><strong>{e(str(w))}</strong><span>{e(n)}</span></div>" for w, n in [
+    (duizend(n_rijen), "rijen"), (len(kolommen), "kolommen"), (procent(n_leeg / (n_rijen * len(kolommen))) if n_rijen else "0%", "van de cellen is leeg"),
+    (duizend(n_dubbel), "dubbele rijen"), (sleutel_tegel, "sleutel")])
 demo = '<p class="demo"><strong>Dit is demodata.</strong> Het profiel beschrijft wat er in het bestand zit, niet wat er in de werkelijkheid geldt.</p>' if a.demo else ""
+
+inhoud = {
+    "kort": f'<p class="muted">Bestand: {e(Path(a.csv).name)}</p>{demo}<div class="tegels">{tegels}</div>'
+            + (tabel("Keuzes en aannames", ["Onderwerp", "Keuze", "Status"], keuze_rijen, html_kolommen={1}) if keuze_rijen else ""),
+    "kolommen": tabel("Rol, betekenis (aanname) en aandachtspunt per kolom", ["Kolom", "Rol", "Betekenis", "Let op"], begrip_rijen) if begrip_rijen else "",
+    "definities": "<dl>" + "".join(f"<dt>{e(d.get('naam', ''))}</dt><dd>{e(d.get('definitie', ''))}</dd>" for d in definities) + "</dl>" if definities else "",
+    "kwaliteit": lijst(kwaliteit)
+                 + (tabel("Ontbrekende waarden per kolom", ["Kolom", "Ontbrekend", ""], ontbrekend_kolom, html_kolommen={2}) if ontbrekend_kolom else "<p>Geen enkele kolom heeft ontbrekende waarden.</p>")
+                 + (tabel(f"Aandeel ontbrekend per groep van {' × '.join(a.uitsplitsing)} (alleen groepen vanaf {a.drempel} rijen)", ["Kolom", "Laagste aandeel", "Hoogste aandeel", "Verschil"], ontbrekend_groep)
+                    + "<p class='muted'>Ongelijk betekent: in de ene groep ontbreekt veel meer dan in de andere. Een vergelijking tussen groepen op die kolom is dan scheef.</p>" if ontbrekend_groep else "")
+                 + (tabel("Kolommen waarin niet alle ingevulde waarden in het voorgestelde type passen", ["Kolom", "Voorgesteld type", "Past niet"], type_rijen) if type_rijen else ""),
+    "verdelingen": (f"<h3>Getalkolommen</h3><div class='kaarten'>{kaarten}</div>" if kaarten else "")
+                   + (f"<details><summary>Toon de getallen als tabel</summary>{tabel('Verdeling per getalkolom', ['Kolom', 'Aantal', 'Laagste', 'Kwartiel 1', 'Mediaan', 'Kwartiel 3', 'Hoogste', 'Uitschieters'], verdeling_rijen)}"
+                      f"<p class='muted'>De laagste en hoogste waarde staan er alleen als minstens {a.drempel_cel} rijen die waarde hebben: anders wijst het getal één rij aan. "
+                      "Uitschieters liggen meer dan anderhalf keer de afstand tussen kwartiel 1 en 3 buiten die kwartielen.</p></details>" if verdeling_rijen else "")
+                   + (f"<h3>Kolommen met weinig verschillende waarden</h3><div class='kaarten'>{categorie_kaarten}</div>"
+                      + ("" if a.demo else "<p class='muted'>De namen van de waarden staan er alleen bij demodata.</p>") if categorie_kaarten else "")
+                   + (f"<h3>Samenhang</h3>{samenhang_html}" if samenhang_html else "")
+                   + ("<p class='muted'>Deze cijfers beschrijven dit bestand; op andere data zijn ze anders.</p>" if kaarten or categorie_kaarten else ""),
+    "ideeen": ideeen_html(),
+    "privacy": f"{groepen_html}<ul><li>Groepen onder <strong>{a.drempel}</strong> personen worden niet getoond.</li><li>Een percentage waarvan teller of rest onder <strong>{a.drempel_cel}</strong> ligt, ook niet.</li>"
+               "<li>Is één groep onderdrukt, onderdruk dan ook de kleinste zichtbare groep van die uitsplitsing (secundaire onderdrukking).</li></ul>",
+    "bijlage": tabel("Kolommen met aantal unieke en ontbrekende waarden", ["Kolom", "Unieke waarden", "Ontbrekend", "Waarden (bij weinig verschillende)"], structuur),
+}
+aanwezig = [(i, t) for i, t in HOOFDSTUKKEN if inhoud[i]]
+menu = "".join(f'<li><a href="#{i}">{e(t)}</a></li>' for i, t in aanwezig)
+secties = "\n".join(f'<section id="{i}"><h2>{e(t)}</h2>\n{inhoud[i]}\n</section>' for i, t in aanwezig)
+
 doc = f"""<!doctype html>
 <html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Dataprofiel</title>
 <style>
-:root{{--bg:#fff;--fg:#000;--muted:#4b5563;--line:#d1d5db;--accent:#3d68ec;--warn-bg:#fdf3d0}}
-@media (prefers-color-scheme:dark){{:root{{--bg:#111827;--fg:#f9fafb;--muted:#d1d5db;--line:#4b5563;--accent:#9db4ff;--warn-bg:#4a3b00}}}}
-body{{background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif;margin:0;padding:0 16px 48px}}
-main{{max-width:960px;margin:0 auto}}h1{{margin:24px 0 4px}}h2{{margin-top:32px;border-bottom:2px solid var(--accent);padding-bottom:4px}}h3{{margin:20px 0 4px}}
-.demo{{background:var(--warn-bg);border-left:6px solid var(--accent);padding:8px 12px;margin:12px 0}}
+:root{{--bg:#fff;--fg:#000;--muted:#4b5563;--line:#d1d5db;--accent:#3d68ec;--warn-bg:#fdf3d0;--vlak:#f3f4f6}}
+@media (prefers-color-scheme:dark){{:root{{--bg:#111827;--fg:#f9fafb;--muted:#d1d5db;--line:#4b5563;--accent:#9db4ff;--warn-bg:#4a3b00;--vlak:#1f2937}}}}
+html{{scroll-behavior:smooth}}body{{background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif;margin:0;padding:0 16px 48px}}
+.layout{{display:grid;grid-template-columns:200px minmax(0,1fr);gap:32px;max-width:1200px;margin:0 auto}}
+nav{{position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;padding-top:24px}}nav ol{{list-style:none;margin:8px 0;padding:0}}
+nav a{{display:block;padding:6px 8px;border-left:3px solid var(--line);color:var(--fg);text-decoration:none}}nav a:hover,nav a:focus{{border-color:var(--accent);background:var(--vlak)}}
+@media (max-width:800px){{.layout{{display:block}}nav{{position:static;max-height:none}}}}
+h1{{margin:24px 0 4px}}h2{{margin-top:40px;border-bottom:2px solid var(--accent);padding-bottom:4px}}h3{{margin:24px 0 4px}}section{{scroll-margin-top:8px}}
+.demo{{background:var(--warn-bg);border-left:6px solid var(--accent);padding:8px 12px;margin:12px 0}}.muted{{color:var(--muted)}}a{{color:var(--accent)}}
+.tegels{{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:16px 0}}.tegels div{{background:var(--vlak);border-radius:8px;padding:12px}}
+.tegels strong{{display:block;font-size:24px}}.tegels span{{color:var(--muted);font-size:14px}}
 .wrap{{overflow-x:auto}}table{{border-collapse:collapse;width:100%;font-size:14px}}caption{{text-align:left;font-weight:600;padding:8px 0}}
-th,td{{border:1px solid var(--line);padding:4px 8px;text-align:left;vertical-align:top}}th{{background:rgba(61,104,236,.12)}}.muted{{color:var(--muted)}}
-</style></head><body><main>
+th,td{{border:1px solid var(--line);padding:4px 8px;text-align:left;vertical-align:top}}th{{background:var(--vlak)}}
+.balk{{display:block;min-width:60px;height:12px;background:var(--vlak);border-radius:3px}}.balk span{{display:block;height:100%;background:var(--accent);border-radius:3px}}
+.kaarten{{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}}figure{{margin:0;border:1px solid var(--line);border-radius:8px;padding:12px}}
+figcaption,figure caption,li,p,dd,dt{{overflow-wrap:anywhere}}figcaption{{font-weight:600}}figure td:last-child{{width:40%}}figure p{{margin:4px 0 0;font-size:14px}}figure table{{font-size:13px}}figure td,figure th{{border:0;border-top:1px solid var(--line)}}
+svg{{width:100%;height:auto;display:block}}svg rect{{fill:var(--accent)}}svg line{{stroke:var(--line)}}svg text{{fill:var(--muted);font-size:11px}}
+.samenhang{{width:auto}}.samenhang td{{text-align:right;color:var(--fg);min-width:48px}}details{{margin:16px 0}}summary{{cursor:pointer;color:var(--accent)}}
+</style></head><body><div class="layout">
+<nav aria-label="Hoofdstukken"><strong>Dataprofiel</strong><ol>{menu}</ol></nav>
+<main>
 <h1>Dataprofiel</h1>
-<p class="muted">Bestand: {e(Path(a.csv).name)}</p>
-{demo}
-{sectie("Datagebruik", f"<p>{e(begrip['datagebruik'])}</p>" if begrip.get("datagebruik") else "")}
-{sectie("Jouw aanpak", f"<p>{e(begrip['jouw_aanpak'])}</p>" if begrip.get("jouw_aanpak") else "")}
-{sectie("Keuzes van de gebruiker", "<ul>" + "".join(f"<li>{e(k)}</li>" for k in begrip.get("keuzes", [])) + "</ul>" if begrip.get("keuzes") else "")}
-{sectie("Wat de kolommen kunnen betekenen", '<div class="wrap">' + tabel("Rol, betekenis (aanname) en aandachtspunt per kolom", ["Kolom", "Rol", "Betekenis", "Let op"], begrip_rijen) + "</div>" if begrip_rijen else "")}
-{sectie("Definities", "<dl>" + "".join(f"<dt>{e(d.get('naam', ''))}</dt><dd>{e(d.get('definitie', ''))}</dd>" for d in definities) + "</dl>" if definities else "")}
-{sectie("Casusgerichte ideeën", ideeen_html())}
-{sectie("Hoe de vraag aan te vliegen", f"<ol>{aanpak_html}</ol>" if aanpak_html else "")}
-{sectie("Privacyregels", f"{groepen_html}<ul><li>Groepen onder <strong>{a.drempel}</strong> personen worden niet getoond.</li><li>Een percentage waarvan teller of rest onder <strong>{a.drempel_cel}</strong> ligt, ook niet.</li><li>Is één groep onderdrukt, onderdruk dan ook de kleinste zichtbare groep van die uitsplitsing (secundaire onderdrukking).</li></ul>")}
-{sectie("Datakwaliteit", kwaliteit_html)}
-{sectie("Verdelingen", verdeling_html)}
-<h2>Bijlage: structuur van de data</h2>
-<ul><li>{f"{n_rijen:,}".replace(",", ".")} rijen, {len(kolommen)} kolommen</li></ul>
-{"<p><strong>Kolommen met één waarde</strong> (kunnen niet uitsplitsen): " + e(", ".join(een_waarde)) + "</p>" if een_waarde else ""}
-<div class="wrap">{tabel("Kolommen met aantal unieke en ontbrekende waarden", ["Kolom", "Unieke waarden", "Ontbrekend", "Waarden (bij weinig verschillende)"], structuur)}</div>
-</main></body></html>
+{secties}
+</main></div></body></html>
 """
 
 uit = Path(a.uit)

@@ -53,7 +53,7 @@ gebruiker besloot en wat een aanname is.
 
 ## Stappen
 
-1. **Lees het profiel**: welke uitsplitsingen kunnen (meer dan één waarde), welke maten hebben een
+1. **Lees het profiel** (*Datagebruik*, *Jouw aanpak* en de keuzes staan in de tabel *In het kort*): welke uitsplitsingen kunnen (meer dan één waarde), welke maten hebben een
    definitie, wat één rij is en of de sleutel uniek is (dat bepaalt of een view rijen of eenheden telt),
    welke kolommen per groep ongelijk ontbreken, welke regels gelden voor waarneembaarheid en privacy, en
    welke aanpakken `verkennen_data` voor de vraag voorstelde. Begin bij *Jouw aanpak* van de gebruiker, daarna de
@@ -82,7 +82,10 @@ cloudomgeving. Noem het pad en de klikroute: in VS Code of Codespaces rechtsklik
 *Show Preview*, of als die keuze er niet is *Download* en het gedownloade bestand openen; op een eigen
 computer dubbelklikken op het bestand.
 
-HTML-opmaak: semantische kopjes, per view een `<section>` met een kleine definitielijst
+HTML-opmaak: links een `<nav>` met een link naar elk kopje, dat meescrolt (`position: sticky`) en op een
+smal scherm bovenaan staat. *Keuzes van de gebruiker* is een tabel met onderwerp, keuze in een paar
+woorden en status (*bevestigd* of *aanname*); herhaal daar niet wat al bij een view staat. Verder
+semantische kopjes, per view een `<section>` met een kleine definitielijst
 (`<dl>`: vraag, maat, uitsplitsing, grafiektype, valt weg), contrast minimaal 4,5:1, geen kleur als
 enige onderscheid, leesbaar op een smal scherm. Eén inline `<style>`, geen scripts. Teken geen
 nagebootste grafieken met verzonnen waarden: een leeg kader met een tekstbeschrijving is genoeg.
