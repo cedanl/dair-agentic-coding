@@ -1,0 +1,14 @@
+[theme]
+# Npuls-huisstijl: waarden uit vormgever-npuls-huisstijl/references/design-tokens.json
+base = "light"
+primaryColor = "#3D68EC"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#FAEAEA"
+textColor = "#000000"
+
+[server]
+# Maximale uploadgrootte in MB. Een upload staat in het geheugen van de server.
+maxUploadSize = 1024
+
+[client]
+toolbarMode = "minimal"
