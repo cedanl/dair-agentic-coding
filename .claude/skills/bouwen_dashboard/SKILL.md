@@ -3,9 +3,9 @@ name: bouwen_dashboard
 description: >-
   Gebruik wanneer iemand uit een profiel en een schets (uitvoer/data-profiel.html en uitvoer/schets.html) een dashboard wil bouwen dat los van de voorbeelddata op andere data kan draaien — zonder vragenronde vooraf: de keuzes komen uit de schets. Eerst een schijn-uploadscherm waarop het databestand al klaarstaat (de gebruiker klikt op Doorgaan) en daarna grafiek, vergelijking en filter, met privacy-drempel, eerlijke framing, bron en toegankelijkheid, en een afronding met tests en waardencheck; bewaren in git alleen als de gebruiker erom vraagt. LET OP — de data eerst verkennen hoort bij `verkennen_data` en de views schetsen bij `schets_dashboard`.
 disable-model-invocation: true
-allowed-tools: Read Grep Glob Write Edit Bash
+allowed-tools: Read Grep Glob Write Edit Bash AskUserQuestion
 metadata:
-  versie: "0.6.0"
+  versie: "0.7.0"
 ---
 
 # Dashboard bouwen
@@ -36,9 +36,12 @@ een groot bestand, in de Npuls-huisstijl, tenzij je iets anders zegt."* Dit neem
 - **Huisstijl:** de Npuls-huisstijl, via de skill `vormgever-npuls-huisstijl`. Een eigen stijl of een
   rustig standaardthema alleen als de gebruiker dat zegt. Zie *Huisstijl*.
 
-Stel **hooguit drie vragen**, en alleen over iets dat het bouwen van een view blokkeert. Stel ze één voor
-één: één vraag per bericht, met een standaardantwoord ("Ik ga uit van X, tenzij je iets anders zegt").
-Alles wat je aanneemt, zeg je hardop en leg je vast, zodat de gebruiker het kan corrigeren.
+Stel **hooguit drie vragen**, en alleen over iets dat het bouwen van een view blokkeert. Stel ze met de
+AskUserQuestion-tool: elke optie met een korte uitleg, de standaard als eerste optie met "(Aanbevolen)"
+erachter, en `multiSelect` als de gebruiker er meer dan één mag kiezen. De tool biedt zelf "Other" voor een
+eigen antwoord. Is de tool niet beschikbaar, stel dan één vraag per bericht met een standaardantwoord ("Ik
+ga uit van X, tenzij je iets anders zegt"). Alles wat je aanneemt, zeg je hardop en leg je vast, zodat de
+gebruiker het kan corrigeren.
 
 Bouw alle views uit de schets in één keer. Wat de gebruiker niet goed vindt aan een view had in de
 schets al zichtbaar moeten zijn: de schets is het moment om te sturen, het bouwen voert die keuzes uit.
@@ -365,7 +368,7 @@ de intro valt terug op Georgia.
 0. **Lees de keuzes en de open punten.** Lees *Keuzes van de gebruiker* en *Nog open vragen* in
    `uitvoer/schets.html`, en let op maten die de schets nieuw voorstelt en nog niet in het profiel staan.
    Wat bij de keuzes staat, vraag je niet opnieuw. Vraag alleen een open punt dat het bouwen van een
-   view blokkeert, één vraag per bericht met een standaardantwoord, en leg het antwoord vast bij *Keuzes
+   view blokkeert, met de AskUserQuestion-tool (zie boven), en leg het antwoord vast bij *Keuzes
    van de gebruiker* in de schets. Elk ander open punt wordt een aanname: zeg die hardop, leg haar vast
    en toon haar op het dashboard onder *Zo lees je dit*.
 1. Lees `uitvoer/schets.html` en bouw alle views in de volgorde van de schets, in één keer. Zeg in
@@ -477,8 +480,9 @@ toestemming te vragen. Meld per stap in één regel wat eruit kwam.
    elk doet (bijvoorbeeld `berekeningen.py` rekent, `app.py` toont, `configuratie.py` bevat de
    instellingen), en zeg in welk bestand de gebruiker een grafiek of drempel aanpast. Noem het pad van
    `dashboard/app.py` zodat de gebruiker de code zelf kan openen.
-6. **Bewaren aanbieden.** Commit en push niets uit jezelf. Sluit af met één regel: *"Wil je dit bewaren in
-   je eigen GitHub? Zeg dan 'bewaar'."*
+6. **Bewaren aanbieden.** Commit en push niets uit jezelf. Sluit af met de AskUserQuestion-tool:
+   *Wil je dit bewaren in je eigen GitHub?* met de opties *Nu bewaren* en *Nog niet* (aanbevolen). Kiest de
+   gebruiker *Nu bewaren* of typt hij 'bewaar', dan volg je *Bewaren, alleen op verzoek*.
 
 **Optioneel, niet standaard.** `check-style` en `simplify-ceda` kosten veel tijd (drie review-agents,
 een plugin en opnieuw testen) en horen niet bij de workshopronde. Draai ze niet zelf. Noem ze alleen aan
@@ -503,7 +507,7 @@ Commit en push alleen als de gebruiker erom vraagt, en nooit zonder bevestiging.
    `uitvoer/`, geen `.venv/` en geen databestanden die nog niet in de repo stonden) en de repo waar ze
    heen gaan. Heeft de gebruiker geen schrijfrechten op die repo, zeg dan dat GitHub een kopie (fork) in
    het eigen account van de gebruiker maakt, en dat die kopie **openbaar** is als de oorspronkelijke repo
-   openbaar is. Vraag om akkoord.
+   openbaar is. Vraag om akkoord met de AskUserQuestion-tool (*Doorgaan* of *Annuleren*).
 2. **Na akkoord:** lees `.claude/skills/ship/SKILL.md` en volg die om te committen en te pushen. In een Codespace regelt
    `GITHUB_TOKEN` de toegang tot de repo: laat die staan, ook waar `ship` aanraadt hem te unsetten.
 3. **Weigert de push:** omzeil dat niet en vraag geen token. Zeg dat het werk lokaal gecommit is en geef
