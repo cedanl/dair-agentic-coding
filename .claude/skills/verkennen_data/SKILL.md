@@ -28,22 +28,15 @@ code zien (of zet 'm in een bestand) zodat de gebruiker mee kan lezen.
 
 De gebruiker heeft kennis die jij niet hebt en blijft de regisseur, ook al doe jij het werk.
 
-Houd het ritme hoog. **Stel alle vragen die je nodig hebt in één bericht**, genummerd, en geef bij elke
-vraag een **standaardantwoord** ("Ik ga uit van X, tenzij je iets anders zegt"). Antwoordt de gebruiker
-"ok", dan gelden de standaarden. Vraag niets wat al in het gesprek staat, en vraag niet naar ervaring:
+Houd het ritme hoog. **Stel de vragen één voor één**: één vraag per bericht, met een
+**standaardantwoord** ("Ik ga uit van X, tenzij je iets anders zegt"), en wacht op het antwoord voor je de
+volgende stelt. Zeg bij de eerste vraag hoeveel vragen er komen. Antwoordt de gebruiker "ok", dan geldt
+de standaard van die vraag. Vraag niets wat al in het gesprek staat, en vraag niet naar ervaring:
 pas je uitleg aan op hoe de gebruiker praat. Stel alleen een vraag als het antwoord het werk echt verandert
 en je het niet kunt aannemen. Alles wat je aanneemt, zeg je hardop en leg je vast, zodat het zichtbaar is
 en de gebruiker het kan corrigeren.
 
-**Bij demodata, synthetische of openbare data** (de gebruiker of de documentatie bij het bestand zegt
-dat het zulke data is) stel je één vraag: *wat wil je weten?* Geef als standaard een voorbeeldvraag die
-bij de kolomnamen past en twee of drie uitsplitsingen. Alles uit de lijst hieronder kies je zelf en zet
-je in hetzelfde bericht als korte lijst aannames, één regel per aanname, zonder tabel en zonder
-alternatieven: dat het demodata is en je de rijen leest, dat er geen metainfo is, de drempels, en wat
-één rij is. Zegt de gebruiker "ok", dan werk je met de voorbeeldvraag. Kies de kernmaat zodra de vraag
-er is, noem de definitie in één zin en ga door; de gebruiker corrigeert bij het doorlopen van het profiel.
-
-**Bij alle andere data** stel je de vragen hieronder, alleen voor zover het gesprek ze niet al beantwoordt:
+De vragen, alleen voor zover het gesprek ze niet al beantwoordt:
 
 1. **Welke data is dit, en mag ik die lezen?** Standaard: wat de gebruiker al zei; bij twijfel de
    voorzichtigste keuze (zie *Datagebruik*). Dit is een van de twee vragen die altijd een expliciet
