@@ -432,6 +432,9 @@ de intro valt terug op Georgia.
 De gebruiker kent `streamlit run` niet en weet niet waar het dashboard opent. Leg dat uit, zowel in een
 `README.md` naast `app.py` als in de samenvatting in het gesprek.
 
+- **In de workshopomgeving (devcontainer):** zeg de gebruiker `dair-dashboard` te typen in de terminal. Dat
+  commando start het dashboard met de demodata, vanuit elke map; `dair-dashboard <pad-naar-csv>` gebruikt
+  een eigen bestand. Bestaat het commando niet, gebruik dan het startcommando hieronder.
 - **Eén startcommando zonder voorinstallatie**, in de map van het dashboard, met het pad naar het
   databestand achter `--`:
   `uv run --no-project --with-requirements requirements.txt streamlit run app.py -- <pad-naar-csv>`.
