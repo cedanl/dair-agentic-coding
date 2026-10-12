@@ -4,7 +4,7 @@ description: Gebruik wanneer iemand uit een profiel en een schets (uitvoer/data-
 disable-model-invocation: true
 allowed-tools: Read Grep Glob Write Edit Bash
 metadata:
-  versie: "0.5.0"
+  versie: "0.6.0"
 ---
 
 # Dashboard bouwen
@@ -77,14 +77,21 @@ dashboard daarom zo dat het zonder jou op andere data te draaien is:
 ## Stack
 
 Python, DuckDB voor de berekening en Streamlit voor het dashboard. Gebruikt de gebruiker iets anders,
-volg dan die keuze. Installeer wat nodig is met uv in een virtuele omgeving
-(`uv venv` en `uv pip install duckdb streamlit plotly polars pyarrow`). Volg de CEDA-standaard:
+volg dan die keuze.
+
+**Vaste versies.** Kopieer `.devcontainer/dashboard-requirements.txt` naar `dashboard/requirements.txt`
+en wijzig de versies niet; voeg alleen een pakket toe als het echt nodig is. Draai tests en screenshots
+met `--with-requirements .devcontainer/test-requirements.txt`. Het devcontainer-image heeft precies deze
+versies al in de uv-cache en Chromium voor Playwright al geïnstalleerd: een andere versie kost een
+download, en een andere Playwright-versie een nieuwe browser. Installeer dus niets los met
+`uv pip install` en draai geen `playwright install` als Chromium er al is. Gebruik `uv run --no-project
+--with-requirements requirements.txt ...` vanuit `dashboard/` voor alles wat je start. Volg de CEDA-standaard:
 Polars voor DataFrames, `ruff` voor stijl, `pytest` voor tests. Zet de berekeningen in
 `berekeningen.py` naast `app.py`, zodat ze los te testen zijn; `app.py` bevat alleen de weergave. Zet de
 kolomnamen per rol, de lijst met verplichte kolommen, het scheidingsteken en de drempels in één
 configuratie (`configuratie.py`), afgeleid van het profiel, niet verspreid door de code. Begin `app.py`
 met `st.set_page_config(page_title=..., layout="wide")` en zet het thema in `.streamlit/config.toml`.
-Start tijdens het bouwen met `streamlit run app.py` in de venv; hoe de gebruiker het opent staat onder
+Start tijdens het bouwen met hetzelfde startcommando als de gebruiker; hoe de gebruiker het opent staat onder
 *Hoe de gebruiker het opent*. Gebruik `width="stretch"` in plaats van `use_container_width`.
 
 Zet de code in een map `dashboard/` in de werkmap, niet in `uitvoer/` (dat staat in `.gitignore` en is
@@ -185,7 +192,7 @@ bestand met ontbrekende kolommen en een start zonder pad.
 | Eenheid | Tel wat het profiel als eenheid van de rij noemt. Is de sleutel niet uniek, tel dan unieke sleutels en geen rijen, en zeg op het dashboard wat er geteld wordt. |
 | Waarneembaarheid | Sluit perioden uit waarvan de observatietermijn niet volledig is (zie de regel in het profiel) en zeg dat op het dashboard. |
 | Eerlijke framing | Geen woorden als "slechter" of "risicogroep" over groepen mensen; benoem de groep of eenheid, geen kenmerken van personen als oorzaak. Een verband is geen oorzaak. |
-| Toegankelijkheid | Kleurenblind-veilig palet (niet alleen rood/groen), contrast minimaal 4,5:1, elke grafiek met een tekstuele samenvatting als alt-tekst, labels direct op de staven waar het past. |
+| Toegankelijkheid | Kleurenblind-veilig palet (niet alleen rood/groen), contrast minimaal 4,5:1, elke grafiek met een tekstuele samenvatting als alt-tekst, labels direct boven de staven (zie *Vaste patronen voor grafieken*). |
 | Bron en uitleg | Bronvermelding (bestandsnaam, de definities), peildatum en n per groep zichtbaar. Heeft de data geen peildatum, gebruik dan de laatste periode in de data en zeg dat, tenzij de gebruiker iets anders opgeeft. |
 
 ## Grafiekkeuze
@@ -199,6 +206,8 @@ In Streamlit teken je de grafiek met `st.plotly_chart(fig, width="stretch", them
 sjabloon uit `grafiekkeuze` `use_container_width` gebruikt. Streamlit zet anders zijn eigen kleuren over
 die van de huisstijl heen. Zonder het Streamlit-thema ontbreken de automatische marges: zet
 `automargin=True` op beide assen en `ticklabelstandoff` op de y-as, anders overlappen de labels de staven.
+Bij een horizontaal staafdiagram staan de labels boven de staven en niet op de y-as (zie *Vaste
+patronen voor grafieken*).
 
 ## Huisstijl
 
@@ -267,6 +276,74 @@ Wat uit de praktijk volgt:
 - Zet het logo als `<img>` met een base64-`data:`-URI in `st.markdown(..., unsafe_allow_html=True)`, met
   `alt="Npuls"`. Dan hoef je geen statische bestanden te serveren.
 
+### Vaste patronen voor grafieken (smal scherm)
+
+Bouw deze vier patronen meteen in; ze komen bij elk dashboard terug en kosten anders een ronde
+screenshots. `stijl_grafiek(fig, hoogte)` is je eigen gedeelde stijlfunctie (lettertype, kleuren,
+marges, hoogte).
+
+**a. Labels boven de staven bij een horizontaal staafdiagram.** Labels naast de staaf (y-as) drukken op
+390 px de staaf weg en worden afgekapt. Zet de y-as zonder labels en het label als annotatie links boven
+de staaf, met `bargap=0.55` en ongeveer 64 px hoogte per staaf. Een verborgen groep krijgt geen staaf:
+zet de toevoeging op een tweede regel (`"Groep<br>(te weinig personen)"`) en het label midden op de plek
+van de staaf.
+
+```python
+def zet_labels_boven_staven(fig: go.Figure, labels: list[str]) -> go.Figure:
+    """Zet het label boven elke staaf in plaats van ernaast, zodat het op een telefoon past."""
+    fig.update_yaxes(showticklabels=False, showgrid=False)
+    fig.update_layout(bargap=0.55)
+    for label in labels:
+        zonder_staaf = "<br>" in label  # verborgen groep: label op de plek van de staaf
+        fig.add_annotation(
+            x=0, y=label, xref="x", yref="y", text=label, showarrow=False,
+            xanchor="left", align="left",
+            yanchor="middle" if zonder_staaf else "bottom",
+            yshift=0 if zonder_staaf else 11,
+            font={"size": 14, "color": "#000000"},
+        )
+    return fig
+
+# gebruik: hoogte = 60 + 64 * aantal staven
+```
+
+Dit geldt ook voor een 100% gestapeld staafdiagram; zet daar `fig.update_yaxes(autorange="reversed")`
+als de groepen van boven naar beneden in de volgorde van de data moeten staan. Staat de waarde naast de
+staaf (`textposition="outside"`), zet dan het bereik van de x-as op ongeveer 1,3 × het maximum en
+`cliponaxis=False`, anders valt het percentage op een telefoon rechts weg.
+
+**b. Kleine panelen via `st.columns`, niet via Plotly-facets.** `px.line(..., facet_col=...,
+facet_col_wrap=3)` blijft op een telefoon drie panelen breed en titels en assen overlappen; kolommen van
+Streamlit komen op een smal scherm vanzelf onder elkaar. Vraagt `grafiekkeuze` om een facet, bouw dan
+één kleine figuur per groep, drie per rij, met **hetzelfde y- en x-bereik** in elk paneel:
+
+```python
+bereik_y = [0, max((data["waarde"].max() or 0) * 1.15, 1)]
+bereik_x = [data["periode"].min() - 0.5, data["periode"].max() + 0.5]
+groepen = data["groep"].unique(maintain_order=True).to_list()
+for start in range(0, len(groepen), 3):
+    for kolom, groep in zip(st.columns(3), groepen[start : start + 3], strict=False):
+        deel = data.filter(pl.col("groep") == groep)
+        fig = go.Figure(go.Scatter(
+            x=deel["periode"].to_list(), y=deel["waarde"].to_list(), mode="lines+markers",
+            line={"color": "#3D68EC", "width": 3}, marker={"size": 7},
+        ))
+        fig.update_layout(title={"text": groep, "font": {"size": 15}, "x": 0})
+        fig.update_yaxes(range=bereik_y)
+        fig.update_xaxes(range=bereik_x, tickformat="d", nticks=4)
+        with kolom:
+            st.plotly_chart(stijl_grafiek(fig, 230), width="stretch", theme=None)
+```
+
+Een verborgen waarde is `None`: de lijn krijgt daar een gat (Plotly verbindt standaard geen gaten). Noem
+de verborgen perioden in de samenvatting onder de grafiek.
+
+**c. Nederlandse getalnotatie in Plotly.** Zet `separators=",."` in `fig.update_layout(...)` in
+`stijl_grafiek`, anders toont de hover "25.6%" in plaats van "25,6%".
+
+**d. Lettertype meten, niet schatten.** Streamlit zet een eigen lettertype op koppen en tekst; de regel
+daarvoor staat in `npuls-dashboard.css`. Controleer het in de browser (zie *Werkwijze*, stap 3).
+
 Contrast van deze kleuren, zelf berekend:
 
 | Paar | Contrast | Gebruik |
@@ -299,14 +376,25 @@ de intro valt terug op Georgia.
    dashboard: zet `sys.argv` op het pad (bijvoorbeeld met `monkeypatch`) voor `AppTest.from_file(...)`,
    klik op *Doorgaan* (`at.button(...).click().run()`) en controleer dat het dashboard verschijnt. Test
    ook ontbrekende kolommen en een start zonder pad. Bekijk de schermen daarna in een echte browser
-   (Playwright) en bekijk de screenshots zelf voor je zegt dat het er goed uitziet. Meld eerlijk wat je niet kon controleren,
+   (het screenshotscript, stap 3) en bekijk de screenshots zelf voor je zegt dat het er goed uitziet. Meld eerlijk wat je niet kon controleren,
    bijvoorbeeld hoe het er in de browser uitziet of de alt-tekst bij een schermlezer aankomt
    (Plotly in Streamlit heeft geen echte alt-tekst: zet de samenvatting in een `st.caption`).
 3. **Bekijk het uiterlijk zelf, op de hele pagina.** De gebruiker moet bij de eerste blik tevreden zijn.
-   Maak met Playwright screenshots van het schijn-uploadscherm, de foutmelding bij een bestand met
-   ontbrekende kolommen (start de app met dat bestand als pad) en het dashboard, op 1280 en op 390 pixels breed, en kijk niet alleen naar het eerste scherm:
-   maak de viewport zo hoog als de pagina (`scrollHeight` van `stMain`). Wacht op een tekst in de
-   pagina, niet op een vaste tijd, anders fotografeer je een half gerenderd scherm. Kijk naar:
+   Maak de screenshots met het script in deze skill; schrijf er geen eigen script voor:
+
+   ```bash
+   uv run --no-project --with-requirements dashboard/requirements.txt \
+       --with-requirements .devcontainer/test-requirements.txt \
+       python .claude/skills/bouwen_dashboard/assets/screenshots.py \
+       --app dashboard/app.py --data <pad-naar-csv> --uit uitvoer/screenshots
+   ```
+
+   Het maakt het schijn-uploadscherm, het dashboard na *Doorgaan* en de foutmelding bij een bestand
+   zonder de verplichte kolommen, op 1280 en 390 pixels breed en over de hele pagina. Het meet het
+   lettertype van de kop in de browser (`getComputedStyle(h1).fontFamily` moet met
+   `"General Sans", "Plus Jakarta Sans"` beginnen) en meldt een traceback van Streamlit. Het werkt
+   alleen als het dashboard de afspraken uit *Eerste scherm* volgt (*Stap 1 van 2*, de knop
+   *Doorgaan*, *Stap 2 van 2*, het pad na `--`). Bekijk elke screenshot zelf. Kijk naar:
    - afgekapte labels, tekst of waarden (op smal scherm valt vaak tekst rechts van een staaf af: zet n
      dan bij het label);
    - filters die niet passen, zoals een rij chips in een klein vak (gebruik een schuif of vinkjes met de
@@ -315,7 +403,7 @@ de intro valt terug op Georgia.
      zin die uit de data is berekend);
    - getalnotatie in het Nederlands (punt voor duizendtallen, geen "5,811");
    - de huisstijl: het officiële logo staat in de hero en als favicon, minstens drie primaire kleuren zichtbaar, een foutmelding is oranje en niet rood
-     (open daarvoor een bestand met ontbrekende kolommen), het lettertype is Plus Jakarta Sans, en de
+     (de screenshot *foutmelding*), het lettertype is Plus Jakarta Sans (gemeten door het script), en de
      kleurparen komen uit `allowed_combinations`. Heb je `vormgever-npuls-huisstijl/SKILL.md` niet
      gelezen, doe dat dan nu.
    Pas aan en maak de screenshots opnieuw. Zeg niet "ziet er goed uit" voor je ze zelf bekeken hebt.
@@ -364,7 +452,8 @@ toestemming te vragen. Meld per stap in één regel wat eruit kwam.
 
 1. **Tests bewaren.** Zet de tests uit *Werkwijze* in `dashboard/tests/test_dashboard.py` (pytest), zodat
    ze later opnieuw te draaien zijn:
-   `uv run --no-project --with-requirements requirements.txt --with pytest pytest tests`. De tests
+   `uv run --no-project --with-requirements requirements.txt --with-requirements
+   ../.devcontainer/test-requirements.txt pytest tests` (vanuit `dashboard/`). De tests
    rekenen de aantallen onafhankelijk na, controleren de drempels en de secundaire onderdrukking,
    meten dat het schijn-uploadscherm eerst komt, dat *Doorgaan* naar het dashboard leidt, dat
    ontbrekende kolommen en een ontbrekend pad een melding geven, en dat het dashboard alle views toont.

@@ -37,6 +37,13 @@ footer { visibility: hidden; }
 h1, h2, h3 { font-weight: 600; color: var(--npuls-zwart); letter-spacing: -0.01em; }
 h1 { font-size: 2.75rem; line-height: 1.1; }
 h2, h3 { font-size: 1.5rem; }
+/* Streamlit zet een eigen lettertype op koppen en tekst; iconen, code en de intro houden hun eigen font */
+.stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp p, .stApp li, .stApp label,
+.stApp span:not([data-testid="stIconMaterial"]):not(code span):not(pre span), .stApp summary,
+.stApp div[data-testid="stMarkdownContainer"] {
+  font-family: var(--npuls-font) !important;
+}
+.stApp .npuls-intro { font-family: var(--npuls-font-intro) !important; }
 .npuls-label {
   font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
   color: var(--npuls-zwart); margin: 0 0 8px;
