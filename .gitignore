@@ -5,8 +5,13 @@ uitvoer/
 __pycache__/
 .pytest_cache/
 .ruff_cache/
+.DS_Store
 # Lokale metainfo bij de demodata: nooit pushen
 data/metadata_1cho.md
 
 # Gebouwd dashboard (komt uit de skill bouwen_dashboard): nooit pushen
 dashboard/
+
+# Lokaal werkdocument voor de workshoptest
+PLANNING.md
+CLAUDE.local.md
