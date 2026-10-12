@@ -3,3 +3,5 @@ package-lock.json
 uitvoer/
 .venv/
 __pycache__/
+# Lokale metainfo bij de demodata: nooit pushen
+data/metadata_1cho.md
