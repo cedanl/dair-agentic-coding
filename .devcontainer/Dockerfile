@@ -62,7 +62,8 @@ RUN curl -LsSf "https://astral.sh/uv/${UV_VERSION}/install.sh" | \
     uv --version
 
 COPY onboard.sh /usr/local/bin/dair-onboard
-RUN chmod 755 /usr/local/bin/dair-onboard
+COPY dashboard.sh /usr/local/bin/dair-dashboard
+RUN chmod 755 /usr/local/bin/dair-onboard /usr/local/bin/dair-dashboard
 
 # Chromium voor de screenshots in bouwen_dashboard. De versie volgt playwright in
 # test-requirements.txt; de browser staat buiten de home-map zodat elke gebruiker hem vindt.
