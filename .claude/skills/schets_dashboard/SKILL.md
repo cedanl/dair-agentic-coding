@@ -104,12 +104,12 @@ maten die je zelf nieuw voorstelt, keuzes die je zelf deed) staat als aanname me
 *Keuzes van de gebruiker*, zodat de gebruiker het kan corrigeren. Laat niets onuitgesproken: wat nergens
 staat, denkt de gebruiker dat al beslist is.
 
-Eindig met een korte samenvatting in het gesprek. Zeg met welke view je begint en geef daar een
-stellige standaard voor, bijvoorbeeld *"Ik begin met view 1, tenzij je iets anders wilt."* Kies
-standaard de view die de vraag het meest direct beantwoordt, tenzij de gebruiker al een volgorde noemde.
-De gebruiker houdt de keuze maar hoeft niets te beantwoorden. Vraag dus niet *"welke view eerst?"*
-als je al een aanbeveling hebt. Noem de open vragen apart, zodat ze niet in de samenvatting
-verdwijnen.
+Eindig met een korte samenvatting in het gesprek. Zet de view die de vraag het meest direct
+beantwoordt als eerste in de schets, tenzij de gebruiker al een volgorde noemde. Vraag niet met welke
+view je moet beginnen en zeg ook niet dat je met één view begint: `bouwen_dashboard` bouwt alle views
+in één keer, in de volgorde van de schets. Sluit af met de volgende stap, bijvoorbeeld *"Als de schets
+klopt, kun je het dashboard laten bouwen met `/bouwen_dashboard`."* Noem de open vragen apart, zodat
+ze niet in de samenvatting verdwijnen.
 
 ## Let op
 

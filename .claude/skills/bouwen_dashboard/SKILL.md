@@ -1,10 +1,10 @@
 ---
 name: bouwen_dashboard
-description: Gebruik wanneer iemand uit een profiel en een schets (uitvoer/data-profiel.html en uitvoer/schets.html) een dashboard wil bouwen dat draait op data die de gebruiker zelf uploadt — zonder vragenronde vooraf: de keuzes komen uit de schets. Eerst een uploadscherm als eerste scherm en daarna grafiek, vergelijking en filter, met privacy-drempel, eerlijke framing, bron en toegankelijkheid, en een afronding met tests en waardencheck; bewaren in git alleen als de gebruiker erom vraagt. LET OP — de data eerst verkennen hoort bij `verkennen_data` en de views schetsen bij `schets_dashboard`.
+description: Gebruik wanneer iemand uit een profiel en een schets (uitvoer/data-profiel.html en uitvoer/schets.html) een dashboard wil bouwen dat los van de voorbeelddata op andere data kan draaien — zonder vragenronde vooraf: de keuzes komen uit de schets. Eerst een schijn-uploadscherm waarop het databestand al klaarstaat (de gebruiker klikt op Doorgaan) en daarna grafiek, vergelijking en filter, met privacy-drempel, eerlijke framing, bron en toegankelijkheid, en een afronding met tests en waardencheck; bewaren in git alleen als de gebruiker erom vraagt. LET OP — de data eerst verkennen hoort bij `verkennen_data` en de views schetsen bij `schets_dashboard`.
 disable-model-invocation: true
 allowed-tools: Read Grep Glob Write Edit Bash
 metadata:
-  versie: "0.4.0"
+  versie: "0.6.0"
 ---
 
 # Dashboard bouwen
@@ -55,12 +55,12 @@ data die jij of de gebruiker maakt.
 Echte data gaat pas door de tool als die af is en er geen AI meer bij betrokken is. Bouw het
 dashboard daarom zo dat het zonder jou op andere data te draaien is:
 
-- Het dashboard **laadt zelf geen data**. Het **eerste scherm is het uploadscherm** (zie hieronder) en
-  het dashboard opent pas na een geslaagde upload. Geen pad naar voorbeelddata in de code, geen
-  terugval op een bestand.
+- Het dashboard **kent zelf geen databestand**. Het pad komt uit het startcommando (zie *Eerste scherm*).
+  Het **eerste scherm is het schijn-uploadscherm** en het dashboard opent pas na *Doorgaan* en een
+  geslaagde controle op de kolommen. Geen pad naar voorbeelddata in de code, geen terugval op een bestand.
 - Geen waarden, kolomwaarden of groepsnamen uit de voorbeelddata in de code. Groepen, perioden en
   waarneembaarheid komen uit de data zelf.
-- Het label *Dit is demodata* volgt een vinkje op het uploadscherm (standaard aan, de gebruiker
+- Het label *Dit is demodata* volgt een vinkje op het schijn-uploadscherm (standaard aan, de gebruiker
   zet het uit bij echte data) en is geen vaste tekst.
 - Een uitspraak over de werkelijkheid doe je nooit op demodata, ook niet in de samenvatting.
 
@@ -69,23 +69,29 @@ dashboard daarom zo dat het zonder jou op andere data te draaien is:
 - `uitvoer/data-profiel.html` uit `verkennen_data` en `uitvoer/schets.html` uit `schets_dashboard`.
   Ontbreken ze, draai dan eerst die skills, of vraag de gebruiker om de kolommen, de maten en de
   definities.
-- Voorbeelddata om te testen. Het dashboard leest die niet zelf, je uploadt hem. In een cloudomgeving
-  zoals GitHub Codespaces kiest de bestandsdialoog van de browser een bestand van de eigen computer,
-  niet uit de omgeving. Laat de gebruiker het bestand dan eerst downloaden en dan uploaden.
+- Voorbeelddata om te testen. Het dashboard krijgt het pad mee in het startcommando; de gebruiker hoeft
+  niets te downloaden of te uploaden.
 - De vraag die het dashboard beantwoordt (staat bovenaan de schets).
 - De kopjes *Keuzes van de gebruiker* en *Nog open vragen* in de schets (zie *Werkwijze*).
 
 ## Stack
 
 Python, DuckDB voor de berekening en Streamlit voor het dashboard. Gebruikt de gebruiker iets anders,
-volg dan die keuze. Installeer wat nodig is met uv in een virtuele omgeving
-(`uv venv` en `uv pip install duckdb streamlit plotly polars pyarrow`). Volg de CEDA-standaard:
+volg dan die keuze.
+
+**Vaste versies.** Kopieer `.devcontainer/dashboard-requirements.txt` naar `dashboard/requirements.txt`
+en wijzig de versies niet; voeg alleen een pakket toe als het echt nodig is. Draai tests en screenshots
+met `--with-requirements .devcontainer/test-requirements.txt`. Het devcontainer-image heeft precies deze
+versies al in de uv-cache en Chromium voor Playwright al geïnstalleerd: een andere versie kost een
+download, en een andere Playwright-versie een nieuwe browser. Installeer dus niets los met
+`uv pip install` en draai geen `playwright install` als Chromium er al is. Gebruik `uv run --no-project
+--with-requirements requirements.txt ...` vanuit `dashboard/` voor alles wat je start. Volg de CEDA-standaard:
 Polars voor DataFrames, `ruff` voor stijl, `pytest` voor tests. Zet de berekeningen in
 `berekeningen.py` naast `app.py`, zodat ze los te testen zijn; `app.py` bevat alleen de weergave. Zet de
 kolomnamen per rol, de lijst met verplichte kolommen, het scheidingsteken en de drempels in één
 configuratie (`configuratie.py`), afgeleid van het profiel, niet verspreid door de code. Begin `app.py`
 met `st.set_page_config(page_title=..., layout="wide")` en zet het thema in `.streamlit/config.toml`.
-Start tijdens het bouwen met `streamlit run app.py` in de venv; hoe de gebruiker het opent staat onder
+Start tijdens het bouwen met hetzelfde startcommando als de gebruiker; hoe de gebruiker het opent staat onder
 *Hoe de gebruiker het opent*. Gebruik `width="stretch"` in plaats van `use_container_width`.
 
 Zet de code in een map `dashboard/` in de werkmap, niet in `uitvoer/` (dat staat in `.gitignore` en is
@@ -106,73 +112,77 @@ gebruiker het dashboard opent, zie *Hoe de gebruiker het opent*).
 2. **Een vergelijking** tussen groepen of perioden, met één gemeenschappelijke nul-as.
 3. **Een filter** op de uitsplitsingen uit de schets, waarbij de privacy-drempel opnieuw wordt
    toegepast op de gefilterde groep.
-4. **Een uploadscherm als eerste scherm** (zie hieronder).
+4. **Een schijn-uploadscherm als eerste scherm** (zie hieronder).
 5. **Een zijbalk of kader "Zo lees je dit"** met definities (uit `uitvoer/data-profiel.html`), bron en de
    zin *Wat dit dashboard niet kan zeggen*.
 
-## Eerste scherm: data uploaden
+## Eerste scherm: schijn-upload
 
-Het dashboard is gemaakt op voorbeelddata maar draait straks op echte data, door iemand zonder AI. Het
-eerste scherm is daarom het uploadscherm: geen tabbladen, alleen dit scherm tot er geldige data is.
-Daarna toont de app het dashboard, met in de zijbalk een knop *Andere data uploaden* die terugkeert
-naar het eerste scherm. Schrijf er twee functies voor (`toon_scherm_upload()` en `toon_scherm_dashboard()`, functienamen
-beginnen met een werkwoord) en kies in `app.py` op basis van `st.session_state`. Geef het uploadscherm de stap als label ("Stap 1
-van 2") en het dashboard "Stap 2 van 2".
+Het dashboard is gemaakt op voorbeelddata maar draait straks op echte data, door iemand zonder AI. In
+een echte toepassing is het eerste scherm daarom een uploadscherm. Voor de workshop is dat een
+**schijn-uploadscherm**: het databestand staat al klaar en de gebruiker klikt alleen op *Doorgaan*.
+Echt uploaden is in GitHub Codespaces omslachtig (eerst downloaden, dan uploaden) en kan mislukken
+achter de poortdoorsturing (een 403 bij `st.file_uploader`). Bouw geen `st.file_uploader`.
 
-Het uploadscherm heeft:
+**Waar het bestand vandaan komt.** Het pad staat in het startcommando, niet in de code:
+`streamlit run app.py -- <pad-naar-csv>`. Lees het in één functie (`bepaal_databestand()`) uit
+`sys.argv[1]`. Ontbreekt het pad of bestaat het bestand niet, toon dan op het eerste scherm één heldere
+melding met het startcommando, en geen traceback. Lees de data via één functie (`lees_data(bron)`) die
+een pad of een bestandsobject aanneemt, zodat een echte `st.file_uploader` later één kleine wijziging is.
 
-- `st.file_uploader` voor een CSV, met uitleg welke kolommen nodig zijn en wat de verwachte opmaak is.
-  Het scheidingsteken komt uit de configuratie.
-- **Controle op de kolommen**: ontbreken er kolommen die de berekening nodig heeft, toon dan één
-  heldere melding met de ontbrekende kolomnamen en gebruik de upload niet. Geen traceback.
-- Een geslaagde upload opent meteen het dashboard (`st.rerun()`). Toon op het dashboard de
+Het eerste scherm heeft geen tabbladen, alleen dit scherm tot er geldige data is. Daarna toont de app
+het dashboard. Schrijf er twee functies voor (`toon_scherm_upload()` en `toon_scherm_dashboard()`,
+functienamen beginnen met een werkwoord) en kies in `app.py` op basis van `st.session_state`. Geef het
+eerste scherm de stap als label ("Stap 1 van 2") en het dashboard "Stap 2 van 2".
+
+Het schijn-uploadscherm heeft:
+
+- **Een kader dat uitlegt wat er gebeurt**, bovenaan en goed zichtbaar, in deze bewoording of dicht
+  erbij: *"In een echte toepassing upload je hier je eigen databestand. Voor deze workshop staat het
+  bestand al klaar, zodat je meteen ziet hoe het dashboard werkt. Klik op Doorgaan."*
+- **Het klaargezette bestand**: de bestandsnaam en de grootte, en de uitleg welke kolommen nodig zijn
+  en wat de verwachte opmaak is. Het scheidingsteken komt uit de configuratie.
+- **Een knop *Doorgaan*** (`st.button`, de gele pill-knop uit de huisstijl). Pas bij de klik lees je het
+  bestand in.
+- **Controle op de kolommen** bij *Doorgaan*: ontbreken er kolommen die de berekening nodig heeft, toon
+  dan één heldere melding met de ontbrekende kolomnamen en open het dashboard niet. Geen traceback.
+- Een geslaagde controle opent meteen het dashboard (`st.rerun()`). Toon op het dashboard de
   bestandsnaam als bron; toon nergens rijen uit de data.
 - Een vinkje *Dit bestand is demodata* (standaard aan) dat bepaalt of het demodata-label getoond wordt.
-  Zet de keuze bij een geslaagde upload over naar een eigen sleutel in `st.session_state`: een
-  widget dat niet meer getoond wordt, verliest zijn waarde.
-- Een knop *Andere data uploaden* in de zijbalk van het dashboard. Geef de uploader een `key` met een
-  teller en verhoog die bij het terugkeren: anders blijft het bestand in de uploader staan en wordt
-  het meteen opnieuw ingelezen.
+  Zet de keuze bij *Doorgaan* over naar een eigen sleutel in `st.session_state`: een widget dat niet
+  meer getoond wordt, verliest zijn waarde.
 - Een korte privacy-tekst: de data wordt alleen in het geheugen van deze sessie gebruikt, niet
-  opgeslagen en nergens naartoe gestuurd. Zorg dat dat klopt: lees de upload in het geheugen
-  (geen schrijfactie naar schijf) en stuur de data nergens heen. De huisstijl laadt het lettertype van
-  Google Fonts: dat is een aanroep van de browser zonder data, maar zeg het wel in de privacy-tekst
-  ("alleen het lettertype wordt van Google Fonts geladen"), of lever het lettertype lokaal mee.
+  opgeslagen en nergens naartoe gestuurd. Zorg dat dat klopt: schrijf niets naar schijf en stuur de data
+  nergens heen. De huisstijl laadt het lettertype van Google Fonts: dat is een aanroep van de browser
+  zonder data, maar zeg het wel in de privacy-tekst ("alleen het lettertype wordt van Google Fonts
+  geladen"), of lever het lettertype lokaal mee.
 
 ### Grote bestanden
 
-De grootte van het echte bestand bepaalt hoe je de upload bouwt. Gemeten met een testbestand van 227 MB
-(169.760 rijen, 186 kolommen): het hele bestand lezen kostte 28 seconden en 459 MB, alleen de
+De grootte van het echte bestand bepaalt hoe je het inlezen bouwt. Gemeten met een testbestand van
+227 MB (169.760 rijen, 186 kolommen): het hele bestand lezen kostte 28 seconden en 459 MB, alleen de
 verplichte kolommen lezen kostte 2 seconden en 27 MB. Bouw het daarom zo:
 
 - **Lees alleen de kolommen die je nodig hebt.** Lees eerst de kopregel (`nrows=0`), controleer de
-  verplichte kolommen, en lees dan met `columns=` en `infer_schema=False`. Geef de upload zelf door
-  aan `polars.read_csv` (met `seek(0)` ertussen) en niet `getvalue()`: dat maakt een kopie in het
-  geheugen.
-- **Zet de grens bewust.** Streamlit weigert standaard bestanden boven 200 MB. Zet in
-  `.streamlit/config.toml` onder `[server]` een `maxUploadSize` (in MB) die bij het bestand past en
-  toon die grens op het uploadscherm (`st.get_option("server.maxUploadSize")`). Een upload staat in het
-  geheugen van de server: reken ruim, en zeg de gebruiker dat dit geheugen kost.
+  verplichte kolommen, en lees dan met `columns=` en `infer_schema=False`.
 - **Toon voortgang.** Een `st.spinner` met de bestandsnaam en grootte tijdens het lezen, en daarna
   alleen het aantal rijen als bron, nooit rijen uit de data.
-- **Maak de verbinding één keer.** Bouw de DuckDB-verbinding bij de upload en bewaar die in
-  `st.session_state`, niet bij elke herberekening. Gooi hem weg bij *Andere data uploaden*.
+- **Maak de verbinding één keer.** Bouw de DuckDB-verbinding bij *Doorgaan* en bewaar die in
+  `st.session_state`, niet bij elke herberekening.
 - **Vang een geheugenfout op** (`MemoryError`) met een melding die zegt dat het bestand te groot is en
   dat de gebruiker alleen de verplichte kolommen in een kleiner bestand kan opslaan.
 - **Past het nog niet?** Bespreek met de gebruiker: een kleiner bestand met alleen de nodige kolommen,
-  een ander formaat zoals parquet, of het dashboard lokaal laten draaien en een pad laten opgeven in
-  plaats van uploaden. Dat laatste leest van schijf; leg dan uit dat de data dan niet via de browser
-  binnenkomt.
+  of een ander formaat zoals parquet.
 
 Test met een groot testbestand dat je zelf maakt **buiten de repo** (bijvoorbeeld in een tijdelijke
 map), op basis van de voorbeelddata met extra kolommen en herhaalde rijen. Meet de tijd en het geheugen,
 en verwijder het bestand daarna. Zet geen groot bestand in de repo.
 
-Na een upload berekent het dashboard alles uit die data: groepen, perioden, drempels en
+Na *Doorgaan* berekent het dashboard alles uit die data: groepen, perioden, drempels en
 waarneembaarheid. De bron toont de bestandsnaam.
 
-Test de upload alleen met voorbeelddata waar de gebruiker mee akkoord is, bijvoorbeeld met Playwright
-(`set_input_files`), en test ook een bestand met ontbrekende kolommen.
+Test het eerste scherm alleen met voorbeelddata waar de gebruiker mee akkoord is, en test ook een
+bestand met ontbrekende kolommen en een start zonder pad.
 
 ## Responsible, verweven
 
@@ -182,7 +192,7 @@ Test de upload alleen met voorbeelddata waar de gebruiker mee akkoord is, bijvoo
 | Eenheid | Tel wat het profiel als eenheid van de rij noemt. Is de sleutel niet uniek, tel dan unieke sleutels en geen rijen, en zeg op het dashboard wat er geteld wordt. |
 | Waarneembaarheid | Sluit perioden uit waarvan de observatietermijn niet volledig is (zie de regel in het profiel) en zeg dat op het dashboard. |
 | Eerlijke framing | Geen woorden als "slechter" of "risicogroep" over groepen mensen; benoem de groep of eenheid, geen kenmerken van personen als oorzaak. Een verband is geen oorzaak. |
-| Toegankelijkheid | Kleurenblind-veilig palet (niet alleen rood/groen), contrast minimaal 4,5:1, elke grafiek met een tekstuele samenvatting als alt-tekst, labels direct op de staven waar het past. |
+| Toegankelijkheid | Kleurenblind-veilig palet (niet alleen rood/groen), contrast minimaal 4,5:1, elke grafiek met een tekstuele samenvatting als alt-tekst, labels direct boven de staven (zie *Vaste patronen voor grafieken*). |
 | Bron en uitleg | Bronvermelding (bestandsnaam, de definities), peildatum en n per groep zichtbaar. Heeft de data geen peildatum, gebruik dan de laatste periode in de data en zeg dat, tenzij de gebruiker iets anders opgeeft. |
 
 ## Grafiekkeuze
@@ -196,6 +206,8 @@ In Streamlit teken je de grafiek met `st.plotly_chart(fig, width="stretch", them
 sjabloon uit `grafiekkeuze` `use_container_width` gebruikt. Streamlit zet anders zijn eigen kleuren over
 die van de huisstijl heen. Zonder het Streamlit-thema ontbreken de automatische marges: zet
 `automargin=True` op beide assen en `ticklabelstandoff` op de y-as, anders overlappen de labels de staven.
+Bij een horizontaal staafdiagram staan de labels boven de staven en niet op de y-as (zie *Vaste
+patronen voor grafieken*).
 
 ## Huisstijl
 
@@ -247,7 +259,7 @@ toolbarMode = "minimal"
 ```
 
 Opmaak van het scherm: roze hero met een grote blauwe kop en het officiële logo, een kaart "Zo werkt het" op
-licht-blauw, privacy op licht-geel, het uploadvak met een gele pill-knop, de zijbalk roze, en de
+licht-blauw, privacy op licht-geel, de knop *Doorgaan* als gele pill-knop, de zijbalk roze, en de
 grafieken op een witte achtergrond. Staven en lijnen zijn blauw (een tweede reeks oranje), met zwarte
 labels en gridlijnen in grijs-200. Het demodata-label is een gele pill met zwarte tekst
 (`.npuls-demo`). Zet de hero (`.npuls-hero`) op beide schermen bovenaan, met de stap als label
@@ -263,6 +275,74 @@ Wat uit de praktijk volgt:
   spaties in `(n = 12)`, zodat ze op een telefoon niet worden afgekapt.
 - Zet het logo als `<img>` met een base64-`data:`-URI in `st.markdown(..., unsafe_allow_html=True)`, met
   `alt="Npuls"`. Dan hoef je geen statische bestanden te serveren.
+
+### Vaste patronen voor grafieken (smal scherm)
+
+Bouw deze vier patronen meteen in; ze komen bij elk dashboard terug en kosten anders een ronde
+screenshots. `stijl_grafiek(fig, hoogte)` is je eigen gedeelde stijlfunctie (lettertype, kleuren,
+marges, hoogte).
+
+**a. Labels boven de staven bij een horizontaal staafdiagram.** Labels naast de staaf (y-as) drukken op
+390 px de staaf weg en worden afgekapt. Zet de y-as zonder labels en het label als annotatie links boven
+de staaf, met `bargap=0.55` en ongeveer 64 px hoogte per staaf. Een verborgen groep krijgt geen staaf:
+zet de toevoeging op een tweede regel (`"Groep<br>(te weinig personen)"`) en het label midden op de plek
+van de staaf.
+
+```python
+def zet_labels_boven_staven(fig: go.Figure, labels: list[str]) -> go.Figure:
+    """Zet het label boven elke staaf in plaats van ernaast, zodat het op een telefoon past."""
+    fig.update_yaxes(showticklabels=False, showgrid=False)
+    fig.update_layout(bargap=0.55)
+    for label in labels:
+        zonder_staaf = "<br>" in label  # verborgen groep: label op de plek van de staaf
+        fig.add_annotation(
+            x=0, y=label, xref="x", yref="y", text=label, showarrow=False,
+            xanchor="left", align="left",
+            yanchor="middle" if zonder_staaf else "bottom",
+            yshift=0 if zonder_staaf else 11,
+            font={"size": 14, "color": "#000000"},
+        )
+    return fig
+
+# gebruik: hoogte = 60 + 64 * aantal staven
+```
+
+Dit geldt ook voor een 100% gestapeld staafdiagram; zet daar `fig.update_yaxes(autorange="reversed")`
+als de groepen van boven naar beneden in de volgorde van de data moeten staan. Staat de waarde naast de
+staaf (`textposition="outside"`), zet dan het bereik van de x-as op ongeveer 1,3 × het maximum en
+`cliponaxis=False`, anders valt het percentage op een telefoon rechts weg.
+
+**b. Kleine panelen via `st.columns`, niet via Plotly-facets.** `px.line(..., facet_col=...,
+facet_col_wrap=3)` blijft op een telefoon drie panelen breed en titels en assen overlappen; kolommen van
+Streamlit komen op een smal scherm vanzelf onder elkaar. Vraagt `grafiekkeuze` om een facet, bouw dan
+één kleine figuur per groep, drie per rij, met **hetzelfde y- en x-bereik** in elk paneel:
+
+```python
+bereik_y = [0, max((data["waarde"].max() or 0) * 1.15, 1)]
+bereik_x = [data["periode"].min() - 0.5, data["periode"].max() + 0.5]
+groepen = data["groep"].unique(maintain_order=True).to_list()
+for start in range(0, len(groepen), 3):
+    for kolom, groep in zip(st.columns(3), groepen[start : start + 3], strict=False):
+        deel = data.filter(pl.col("groep") == groep)
+        fig = go.Figure(go.Scatter(
+            x=deel["periode"].to_list(), y=deel["waarde"].to_list(), mode="lines+markers",
+            line={"color": "#3D68EC", "width": 3}, marker={"size": 7},
+        ))
+        fig.update_layout(title={"text": groep, "font": {"size": 15}, "x": 0})
+        fig.update_yaxes(range=bereik_y)
+        fig.update_xaxes(range=bereik_x, tickformat="d", nticks=4)
+        with kolom:
+            st.plotly_chart(stijl_grafiek(fig, 230), width="stretch", theme=None)
+```
+
+Een verborgen waarde is `None`: de lijn krijgt daar een gat (Plotly verbindt standaard geen gaten). Noem
+de verborgen perioden in de samenvatting onder de grafiek.
+
+**c. Nederlandse getalnotatie in Plotly.** Zet `separators=",."` in `fig.update_layout(...)` in
+`stijl_grafiek`, anders toont de hover "25.6%" in plaats van "25,6%".
+
+**d. Lettertype meten, niet schatten.** Streamlit zet een eigen lettertype op koppen en tekst; de regel
+daarvoor staat in `npuls-dashboard.css`. Controleer het in de browser (zie *Werkwijze*, stap 3).
 
 Contrast van deze kleuren, zelf berekend:
 
@@ -292,16 +372,29 @@ de intro valt terug op Georgia.
    De view die de vraag het meest direct beantwoordt staat bovenaan.
 2. Test headless met `streamlit.testing.v1.AppTest`: geen exception, de periodekeuze stopt bij de
    laatste waarneembare periode, en een filter naar een kleine groep geeft "te weinig personen".
-   Dat zegt meer dan alleen kijken of de server start. `AppTest` kan geen bestand uploaden: test het
-   uploadscherm en de flow naar het dashboard in een echte browser (Playwright), en bekijk de
-   screenshots zelf voor je zegt dat het er goed uitziet. Meld eerlijk wat je niet kon controleren,
+   Dat zegt meer dan alleen kijken of de server start. Test ook de flow van het eerste scherm naar het
+   dashboard: zet `sys.argv` op het pad (bijvoorbeeld met `monkeypatch`) voor `AppTest.from_file(...)`,
+   klik op *Doorgaan* (`at.button(...).click().run()`) en controleer dat het dashboard verschijnt. Test
+   ook ontbrekende kolommen en een start zonder pad. Bekijk de schermen daarna in een echte browser
+   (het screenshotscript, stap 3) en bekijk de screenshots zelf voor je zegt dat het er goed uitziet. Meld eerlijk wat je niet kon controleren,
    bijvoorbeeld hoe het er in de browser uitziet of de alt-tekst bij een schermlezer aankomt
    (Plotly in Streamlit heeft geen echte alt-tekst: zet de samenvatting in een `st.caption`).
 3. **Bekijk het uiterlijk zelf, op de hele pagina.** De gebruiker moet bij de eerste blik tevreden zijn.
-   Maak met Playwright screenshots van het uploadscherm, de foutmelding bij een bestand met ontbrekende
-   kolommen en het dashboard, op 1280 en op 390 pixels breed, en kijk niet alleen naar het eerste scherm:
-   maak de viewport zo hoog als de pagina (`scrollHeight` van `stMain`). Wacht op een tekst in de
-   pagina, niet op een vaste tijd, anders fotografeer je een half gerenderd scherm. Kijk naar:
+   Maak de screenshots met het script in deze skill; schrijf er geen eigen script voor:
+
+   ```bash
+   uv run --no-project --with-requirements dashboard/requirements.txt \
+       --with-requirements .devcontainer/test-requirements.txt \
+       python .claude/skills/bouwen_dashboard/assets/screenshots.py \
+       --app dashboard/app.py --data <pad-naar-csv> --uit uitvoer/screenshots
+   ```
+
+   Het maakt het schijn-uploadscherm, het dashboard na *Doorgaan* en de foutmelding bij een bestand
+   zonder de verplichte kolommen, op 1280 en 390 pixels breed en over de hele pagina. Het meet het
+   lettertype van de kop in de browser (`getComputedStyle(h1).fontFamily` moet met
+   `"General Sans", "Plus Jakarta Sans"` beginnen) en meldt een traceback van Streamlit. Het werkt
+   alleen als het dashboard de afspraken uit *Eerste scherm* volgt (*Stap 1 van 2*, de knop
+   *Doorgaan*, *Stap 2 van 2*, het pad na `--`). Bekijk elke screenshot zelf. Kijk naar:
    - afgekapte labels, tekst of waarden (op smal scherm valt vaak tekst rechts van een staaf af: zet n
      dan bij het label);
    - filters die niet passen, zoals een rij chips in een klein vak (gebruik een schuif of vinkjes met de
@@ -310,7 +403,7 @@ de intro valt terug op Georgia.
      zin die uit de data is berekend);
    - getalnotatie in het Nederlands (punt voor duizendtallen, geen "5,811");
    - de huisstijl: het officiële logo staat in de hero en als favicon, minstens drie primaire kleuren zichtbaar, een foutmelding is oranje en niet rood
-     (open daarvoor een bestand met ontbrekende kolommen), het lettertype is Plus Jakarta Sans, en de
+     (de screenshot *foutmelding*), het lettertype is Plus Jakarta Sans (gemeten door het script), en de
      kleurparen komen uit `allowed_combinations`. Heb je `vormgever-npuls-huisstijl/SKILL.md` niet
      gelezen, doe dat dan nu.
    Pas aan en maak de screenshots opnieuw. Zeg niet "ziet er goed uit" voor je ze zelf bekeken hebt.
@@ -336,16 +429,19 @@ de intro valt terug op Georgia.
 De gebruiker kent `streamlit run` niet en weet niet waar het dashboard opent. Leg dat uit, zowel in een
 `README.md` naast `app.py` als in de samenvatting in het gesprek.
 
-- **Eén startcommando zonder voorinstallatie**, in de map van het dashboard:
-  `uv run --no-project --with-requirements requirements.txt streamlit run app.py`. Test dat het werkt
-  (`... streamlit --version`). Zet de pakketten in `requirements.txt`.
+- **Eén startcommando zonder voorinstallatie**, in de map van het dashboard, met het pad naar het
+  databestand achter `--`:
+  `uv run --no-project --with-requirements requirements.txt streamlit run app.py -- <pad-naar-csv>`.
+  Vul in de README en de samenvatting het echte pad naar de voorbeelddata in, relatief vanaf
+  `dashboard/`. Test dat het commando werkt. Zet de pakketten in `requirements.txt`. Leg uit dat je
+  voor andere data alleen het pad wijzigt.
 - **Waar het opent:** op een eigen computer opent de browser vanzelf, anders `http://localhost:8501`. In
   GitHub Codespaces verschijnt rechtsonder een melding over poort 8501 (*Open in Browser*), en anders
   staat het wereldbolletje bij poort 8501 in het tabblad *Poorten*.
-- **Wat de gebruiker daarna doet:** welk bestand te uploaden (in Codespaces eerst downloaden), wat stap 2
-  laat zien, hoe je stopt (`Ctrl+C`) en wat je doet als het niet lukt (melding over kolommen, te groot
-  bestand, poort bezet).
-- Noem alleen wat je getest hebt. Heb je iets niet kunnen testen, zoals een 403 bij uploaden in
+- **Wat de gebruiker daarna doet:** op het eerste scherm op *Doorgaan* klikken (er hoeft niets
+  geüpload te worden), wat stap 2 laat zien, hoe je stopt (`Ctrl+C`) en wat je doet als het niet lukt
+  (melding over kolommen of een ontbrekend pad, te groot bestand, poort bezet).
+- Noem alleen wat je getest hebt. Heb je iets niet kunnen testen, zoals het openen via de poort in
   Codespaces, zeg dat dan erbij.
 
 ## Afronden
@@ -356,9 +452,11 @@ toestemming te vragen. Meld per stap in één regel wat eruit kwam.
 
 1. **Tests bewaren.** Zet de tests uit *Werkwijze* in `dashboard/tests/test_dashboard.py` (pytest), zodat
    ze later opnieuw te draaien zijn:
-   `uv run --no-project --with-requirements requirements.txt --with pytest pytest tests`. De tests
+   `uv run --no-project --with-requirements requirements.txt --with-requirements
+   ../.devcontainer/test-requirements.txt pytest tests` (vanuit `dashboard/`). De tests
    rekenen de aantallen onafhankelijk na, controleren de drempels en de secundaire onderdrukking,
-   meten dat het uploadscherm eerst komt en dat het dashboard alle views toont.
+   meten dat het schijn-uploadscherm eerst komt, dat *Doorgaan* naar het dashboard leidt, dat
+   ontbrekende kolommen en een ontbrekend pad een melding geven, en dat het dashboard alle views toont.
 2. **Waarden uit de voorbeelddata.** Zoek in de code naar waarden uit de voorbeelddata die er letterlijk
    in staan (groepsnamen, codes, jaartallen). Die horen uit de data of uit de configuratie te komen,
    zodat het dashboard op andere data draait. Haal elke treffer uit de code, of leg uit waarom het
