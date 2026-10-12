@@ -196,9 +196,10 @@ onderscheid.
 
 ### Voorbeeldstijl: Npuls
 
-De bron van deze stijl is de skill `npuls-huisstijl`: kleuren, toegestane kleurparen, vormen en
-lettertypes staan daar. Lees die eerst. Gebruik de stijl alleen als de gebruiker bij Npuls hoort of er
-uitdrukkelijk om vraagt. De bestanden in `assets/npuls/` zijn de uitwerking voor dit dashboard
+De bron van deze stijl is de skill `vormgever-npuls-huisstijl`: kleuren, toegestane kleurparen, vormen
+en lettertypes staan daar. Lees die eerst. Het lettertype is Plus Jakarta Sans, de digitale vervanger van
+General Sans; gebruik nooit Inter of een ander vervangend lettertype. Gebruik de stijl alleen als de
+gebruiker bij Npuls hoort of er uitdrukkelijk om vraagt. De bestanden in `assets/npuls/` zijn de uitwerking voor dit dashboard
 (uploadscherm, hero, kaarten):
 
 - `npuls-dashboard.css`: lettertype, hero, kaarten, pill-knoppen, uploadvak, zijbalk, meldingen en

@@ -78,7 +78,7 @@ Een skill is een werkwijze die Claude volgt. Je start er een met `/` en de naam.
 
 **Hoe het werkt.** Claude stelt je eerst een paar vragen in één bericht, elk met een standaardantwoord. Antwoord "ok" of corrigeer wat niet klopt: jij beslist over de inhoud, Claude voert uit. De uitkomsten (HTML) komen in de map `uitvoer/`; open ze in je browser.
 
-**Andere skills.** De drie skills verwijzen naar skills die CEDA ook in eigen projecten gebruikt en die in deze repo staan: `grafiekkeuze` (welke grafiek past), `npuls-huisstijl` (de Npuls-stijl), `check-style` en `simplify-ceda` (de code nakijken) en `ship` (bewaren in git). Je hoeft ze niet zelf te starten.
+**Andere skills.** De drie skills verwijzen naar skills die CEDA ook in eigen projecten gebruikt en die in deze repo staan: `grafiekkeuze` (welke grafiek past), `vormgever-npuls-huisstijl` (de Npuls-stijl), `check-style` en `simplify-ceda` (de code nakijken) en `ship` (bewaren in git). Je hoeft ze niet zelf te starten.
 
 **De data.** De demodata (fictieve studenten) staat in `data/demodata_1cho.csv`. Heb je uitleg bij de data (een codebook, een omschrijving van de kolommen, een definitie), geef die dan aan Claude wanneer `verkennen_data` daarom vraagt. Heb je dat niet, dan leidt Claude de betekenis af uit de kolomnamen en vraagt het jou om te bevestigen. De skills zelf kennen geen 1CHO en werken ook met andere data. Het dashboard laadt zelf geen data: je uploadt het bestand op het eerste scherm. In Codespaces download je het eerst (rechtsklik op het bestand in de verkenner, *Downloaden*) en upload je het daarna.
 
