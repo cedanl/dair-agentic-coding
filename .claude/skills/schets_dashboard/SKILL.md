@@ -1,7 +1,8 @@
 ---
 name: schets_dashboard
 description: Gebruik wanneer iemand uit een dataprofiel (uitvoer/data-profiel.html) twee of drie views voor een dashboard wil schetsen — eerst een voorstel waar de gebruiker op reageert, dan per view de vraag, de uitsplitsing, het grafiektype en wat het niet kan zeggen, als HTML-schets zonder code. LET OP — de data verkennen hoort bij `verkennen_data` en het dashboard bouwen bij `bouwen_dashboard`.
-allowed-tools: Read Grep Glob Write Skill
+disable-model-invocation: true
+allowed-tools: Read Grep Glob Write
 metadata:
   versie: "0.3.0"
 ---
@@ -60,7 +61,8 @@ gebruiker besloot en wat een aanname is.
    aanpakken van `verkennen_data`.
 2. **Kies twee of drie views** die samen de vraag beantwoorden. Laat uitsplitsingen weg die het
    profiel niet draagt.
-3. **Kies het grafiektype** met de skill `grafiekkeuze` (de TRIPS-beslisboom). Neem daaruit alleen de
+3. **Kies het grafiektype** met `.claude/skills/grafiekkeuze/SKILL.md` (de TRIPS-beslisboom; lees het
+   bestand, de skill start niet vanzelf). Neem daaruit alleen de
    keuze en het pad in één regel (*"vergelijken, lange labels -> horizontaal staafdiagram"*), geen code:
    de schets blijft zonder code. Ontbreekt de skill, houd dan aan: groepen vergelijken met staven op een
    gemeenschappelijke nul-as, tijd met een lijn.

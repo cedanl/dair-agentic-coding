@@ -1,7 +1,8 @@
 ---
 name: bouwen_dashboard
 description: Gebruik wanneer iemand uit een profiel en een schets (uitvoer/data-profiel.html en uitvoer/schets.html) een dashboard wil bouwen dat draait op data die de gebruiker zelf uploadt — zonder vragenronde vooraf: de keuzes komen uit de schets. Eerst een uploadscherm als eerste scherm en daarna grafiek, vergelijking en filter, met privacy-drempel, eerlijke framing, bron en toegankelijkheid, en een afronding met stijlcheck; bewaren in git alleen als de gebruiker erom vraagt. LET OP — de data eerst verkennen hoort bij `verkennen_data` en de views schetsen bij `schets_dashboard`.
-allowed-tools: Read Grep Glob Write Edit Bash Skill
+disable-model-invocation: true
+allowed-tools: Read Grep Glob Write Edit Bash
 metadata:
   versie: "0.4.0"
 ---
@@ -78,7 +79,8 @@ dashboard daarom zo dat het zonder jou op andere data te draaien is:
 
 Python, DuckDB voor de berekening en Streamlit voor het dashboard. Gebruikt de gebruiker iets anders,
 volg dan die keuze. Installeer wat nodig is met uv in een virtuele omgeving
-(`uv venv` en `uv pip install duckdb streamlit plotly`). Zet de berekeningen in
+(`uv venv` en `uv pip install duckdb streamlit plotly polars pyarrow`). Volg de CEDA-standaard:
+Polars voor DataFrames, `ruff` voor stijl, `pytest` voor tests. Zet de berekeningen in
 `berekeningen.py` naast `app.py`, zodat ze los te testen zijn; `app.py` bevat alleen de weergave. Zet de
 kolomnamen per rol, de lijst met verplichte kolommen, het scheidingsteken en de drempels in één
 configuratie (`configuratie.py`), afgeleid van het profiel, niet verspreid door de code. Begin `app.py`
@@ -88,7 +90,8 @@ Start tijdens het bouwen met `streamlit run app.py` in de venv; hoe de gebruiker
 
 Zet de code in een map `dashboard/` in de werkmap, niet in `uitvoer/` (dat staat in `.gitignore` en is
 voor gegenereerde HTML). Die map bevat `app.py`, `berekeningen.py`, `configuratie.py`,
-`requirements.txt`, `README.md`, `.streamlit/config.toml` en `npuls/` (stijlblad en logo).
+`requirements.txt`, `README.md`, `ruff.toml`, `tests/`, `.streamlit/config.toml` en `npuls/`
+(stijlblad en logo).
 
 Deze platte opzet (drie bestanden naast elkaar, geen pakket) is een bewuste keuze: het dashboard moet
 klein en leesbaar blijven. Bouw er geen `src/`-indeling of `pyproject.toml` omheen, tenzij de gebruiker
@@ -112,8 +115,8 @@ gebruiker het dashboard opent, zie *Hoe de gebruiker het opent*).
 Het dashboard is gemaakt op voorbeelddata maar draait straks op echte data, door iemand zonder AI. Het
 eerste scherm is daarom het uploadscherm: geen tabbladen, alleen dit scherm tot er geldige data is.
 Daarna toont de app het dashboard, met in de zijbalk een knop *Andere data uploaden* die terugkeert
-naar het eerste scherm. Schrijf er twee functies voor (`scherm_upload()` en `scherm_dashboard()`) en
-kies in `app.py` op basis van `st.session_state`. Geef het uploadscherm de stap als label ("Stap 1
+naar het eerste scherm. Schrijf er twee functies voor (`toon_scherm_upload()` en `toon_scherm_dashboard()`, functienamen
+beginnen met een werkwoord) en kies in `app.py` op basis van `st.session_state`. Geef het uploadscherm de stap als label ("Stap 1
 van 2") en het dashboard "Stap 2 van 2".
 
 Het uploadscherm heeft:
@@ -143,8 +146,9 @@ De grootte van het echte bestand bepaalt hoe je de upload bouwt. Gemeten met een
 verplichte kolommen lezen kostte 2 seconden en 27 MB. Bouw het daarom zo:
 
 - **Lees alleen de kolommen die je nodig hebt.** Lees eerst de kopregel (`nrows=0`), controleer de
-  verplichte kolommen, en lees dan met `usecols`. Geef de upload zelf door aan `pandas.read_csv` (met
-  `seek(0)` ertussen) en niet `getvalue()`: dat maakt een kopie in het geheugen.
+  verplichte kolommen, en lees dan met `columns=` en `infer_schema=False`. Geef de upload zelf door
+  aan `polars.read_csv` (met `seek(0)` ertussen) en niet `getvalue()`: dat maakt een kopie in het
+  geheugen.
 - **Zet de grens bewust.** Streamlit weigert standaard bestanden boven 200 MB. Zet in
   `.streamlit/config.toml` onder `[server]` een `maxUploadSize` (in MB) die bij het bestand past en
   toon die grens op het uploadscherm (`st.get_option("server.maxUploadSize")`). Een upload staat in het
@@ -183,7 +187,7 @@ Test de upload alleen met voorbeelddata waar de gebruiker mee akkoord is, bijvoo
 
 ## Grafiekkeuze
 
-Kies elke grafiek met de skill `grafiekkeuze` (de TRIPS-beslisboom) en noem het pad kort bij je keuze
+Kies elke grafiek met `.claude/skills/grafiekkeuze/SKILL.md` (de TRIPS-beslisboom) en noem het pad kort bij je keuze
 (*"vergelijken tussen groepen, lange labels -> horizontaal staafdiagram"*). De schets noemt per view al
 een grafiektype: volg dat, tenzij de data het niet draagt. Ontbreekt de skill, houd dan aan: groepen
 vergelijken met staven op een gemeenschappelijke nul-as, tijd met een lijn of kolommen.
@@ -195,9 +199,10 @@ die van de huisstijl heen. Zonder het Streamlit-thema ontbreken de automatische 
 
 ## Huisstijl
 
-**De standaard is de Npuls-huisstijl.** Roep de skill `vormgever-npuls-huisstijl` aan (Skill-tool) voor
-je het scherm opmaakt, en lees `vormgever-npuls-huisstijl/references/design-tokens.json`: kleuren, toegestane kleurparen,
-typografie en grafiekkleuren staan daar. Pas de stijl toe met de bestanden hieronder. Alleen als de
+**De standaard is de Npuls-huisstijl.** Lees `.claude/skills/vormgever-npuls-huisstijl/SKILL.md` en volg
+die voor je het scherm opmaakt (zie *Hulpskills lees je zelf*), en lees
+`.claude/skills/vormgever-npuls-huisstijl/references/design-tokens.json`: kleuren, toegestane
+kleurparen, typografie en grafiekkleuren staan daar. Pas de stijl toe met de bestanden hieronder. Alleen als de
 gebruiker iets anders zegt:
 
 - **Een eigen stijl**: de gebruiker geeft kleuren, lettertype en eventueel een logo.
@@ -306,11 +311,11 @@ de intro valt terug op Georgia.
    - getalnotatie in het Nederlands (punt voor duizendtallen, geen "5,811");
    - de huisstijl: het officiële logo staat in de hero en als favicon, minstens drie primaire kleuren zichtbaar, een foutmelding is oranje en niet rood
      (open daarvoor een bestand met ontbrekende kolommen), het lettertype is Plus Jakarta Sans, en de
-     kleurparen komen uit `allowed_combinations`. Heb je de skill `vormgever-npuls-huisstijl` niet
-     aangeroepen, doe dat dan nu.
+     kleurparen komen uit `allowed_combinations`. Heb je `vormgever-npuls-huisstijl/SKILL.md` niet
+     gelezen, doe dat dan nu.
    Pas aan en maak de screenshots opnieuw. Zeg niet "ziet er goed uit" voor je ze zelf bekeken hebt.
 4. **Controleer of het inhoudelijk logisch is op de data.** Reken de maat onafhankelijk na, bijvoorbeeld
-   in pandas, en vergelijk de aantallen met het dashboard. Controleer dat de totalen kloppen (aantal
+   met Polars, en vergelijk de aantallen met het dashboard. Controleer dat de totalen kloppen (aantal
    instromers is het aantal personen min het niet-waarneembare jaar) en controleer de aannames waarop de
    definitie rust: heeft elke persoon één instroomjaar, zijn er gaten, staat een diploma op de laatste
    rij, wisselen mensen van groep. Zet wat je vindt als beperking onder *Zo lees je dit*. Trek geen
@@ -320,7 +325,9 @@ de intro valt terug op Georgia.
    in hetzelfde proces maakt, vertekent het geheugen.
 6. **Leg uit hoe de gebruiker het opent** (zie *Hoe de gebruiker het opent*) en test dat het commando
    werkt.
-7. Rond af (zie *Afronden*).
+7. **Rond af (zie *Afronden*).** Dit hoort bij het bouwen: bewaar de tests, draai `check-style` en
+   `simplify-ceda` en test opnieuw. Vraag er geen toestemming voor en zeg niet dat het dashboard klaar is
+   voor het is gedaan.
 8. Vat samen: welke keuzes zijn gemaakt, welke checks zijn toegepast, wat blijft open, en hoe de
    gebruiker het dashboard opent.
 
@@ -343,23 +350,45 @@ De gebruiker kent `streamlit run` niet en weet niet waar het dashboard opent. Le
 
 ## Afronden
 
-Het dashboard is af als de code is nagekeken. Doe deze stappen achter elkaar als alle views
-staan, zonder per stap toestemming te vragen. Meld per stap in één regel wat eruit kwam.
+Afronden is onderdeel van bouwen: het dashboard is pas af als de code is nagekeken en de tests zijn
+bewaard. Doe deze stappen achter elkaar als alle views staan, zonder per stap toestemming te vragen.
+Meld per stap in één regel wat eruit kwam.
 
-1. **Waarden uit de voorbeelddata.** Kopieer `assets/controleer_voorbeeldwaarden.py` naar de werkmap en
+1. **Tests bewaren.** Zet de tests uit *Werkwijze* in `dashboard/tests/test_dashboard.py` (pytest), zodat
+   ze na de stappen hieronder en later opnieuw te draaien zijn:
+   `uv run --no-project --with-requirements requirements.txt --with pytest pytest tests`. De tests
+   rekenen de aantallen onafhankelijk na, controleren de drempels en de secundaire onderdrukking,
+   meten dat het uploadscherm eerst komt en dat het dashboard alle views toont.
+2. **Waarden uit de voorbeelddata.** Kopieer `assets/controleer_voorbeeldwaarden.py` naar de werkmap en
    draai het op de voorbeelddata en de Python-bestanden van het dashboard
    (`python controleer_voorbeeldwaarden.py voorbeeld.csv app.py berekeningen.py configuratie.py`). Haal
    elke treffer uit de code, of leg uit waarom het geen datawaarde is. Sla dit over bij gevoelige data.
-2. **Stijl.** Draai de skill `check-style` op `app.py`, `berekeningen.py` en `configuratie.py`.
-   Bevindingen over de pakketstructuur (`src/`, `pyproject.toml`, entrypoint) noem je in één regel en
-   los je niet op: de platte opzet is een bewuste keuze. pandas bij het inlezen van de upload blijft.
-3. **Vereenvoudigen.** Draai de skill `simplify-ceda` op dezelfde bestanden. Lukt het installeren van
-   de plugin niet, sla de stap dan over en meld dat.
-4. **Opnieuw testen.** Draai de tests uit *Werkwijze* opnieuw: de vorige stappen hebben code veranderd.
-5. **Bewaren aanbieden.** Commit en push niets uit jezelf. Sluit af met één regel: *"Wil je dit bewaren in
+3. **Stijl: `check-style`.** Lees `.claude/skills/check-style/SKILL.md` en volg die op `app.py`,
+   `berekeningen.py` en `configuratie.py` (zie *Hulpskills lees je zelf*). Draai ook `ruff check` en
+   `ruff format` met `dashboard/ruff.toml` (regelbreedte 100, regels E, F, I, N, W, UP). Los de
+   bevindingen op: functienamen met een werkwoord, type hints, docstrings in Google-stijl, Polars in
+   plaats van pandas, en geen kale `except Exception`. Bevindingen over de pakketstructuur (`src/`,
+   `pyproject.toml`, `app/main.py`) noem je in één regel en los je niet op: de platte opzet is een
+   bewuste keuze.
+4. **Vereenvoudigen: `simplify-ceda`.** Lees `.claude/skills/simplify-ceda/SKILL.md` en volg die op
+   dezelfde bestanden: hergebruik, kwaliteit en efficiëntie. Pas de bevindingen toe. De plugin
+   `code-simplifier` installeer je niet zelf: staat hij er niet, voer de drie beoordelingen dan zelf
+   uit en meld dat.
+5. **Opnieuw testen.** Draai de tests opnieuw, en kijk de schermen opnieuw in de browser als de
+   vorige stappen de weergave of het inlezen hebben veranderd: de stappen veranderen code.
+6. **Bewaren aanbieden.** Commit en push niets uit jezelf. Sluit af met één regel: *"Wil je dit bewaren in
    je eigen GitHub? Zeg dan 'bewaar'."*
 
-Ontbreekt een van deze skills, sla die stap dan over en meld het.
+Ontbreekt een van deze skillbestanden, sla die stap dan over en meld het.
+
+## Hulpskills lees je zelf
+
+Alle skills in deze repo starten alleen als de gebruiker ze zelf typt (`/naam`): ze hebben
+`disable-model-invocation: true`, zodat ze niet vanzelf aanspringen tijdens gewoon chatten. Daardoor
+kun je ze ook niet met de Skill-tool aanroepen. De hulpskills `grafiekkeuze`,
+`vormgever-npuls-huisstijl`, `check-style`, `simplify-ceda` en `ship` lees je daarom als bestand
+(`.claude/skills/<naam>/SKILL.md`) en je volgt wat daarin staat, als onderdeel van deze skill. De
+gebruiker heeft `bouwen_dashboard` zelf gestart; dat is de toestemming.
 
 ## Bewaren, alleen op verzoek
 
@@ -370,7 +399,7 @@ Commit en push alleen als de gebruiker erom vraagt, en nooit zonder bevestiging.
    heen gaan. Heeft de gebruiker geen schrijfrechten op die repo, zeg dan dat GitHub een kopie (fork) in
    het eigen account van de gebruiker maakt, en dat die kopie **openbaar** is als de oorspronkelijke repo
    openbaar is. Vraag om akkoord.
-2. **Na akkoord:** draai de skill `ship` om te committen en te pushen. In een Codespace regelt
+2. **Na akkoord:** lees `.claude/skills/ship/SKILL.md` en volg die om te committen en te pushen. In een Codespace regelt
    `GITHUB_TOKEN` de toegang tot de repo: laat die staan, ook waar `ship` aanraadt hem te unsetten.
 3. **Weigert de push:** omzeil dat niet en vraag geen token. Zeg dat het werk lokaal gecommit is en geef
    de klikroute om de bestanden te downloaden: rechtsklik op het bestand in de verkenner en *Download*.

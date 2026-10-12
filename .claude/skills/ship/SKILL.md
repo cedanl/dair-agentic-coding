@@ -1,6 +1,7 @@
 ---
 name: ship
 description: Land a code change safely — review, fix, commit, push — with guardrails that verify the change actually works first. Use when finishing a piece of work that needs to land on a branch.
+disable-model-invocation: true
 ---
 
 # ship

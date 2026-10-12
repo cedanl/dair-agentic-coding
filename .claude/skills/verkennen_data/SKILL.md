@@ -1,6 +1,7 @@
 ---
 name: verkennen_data
 description: Gebruik wanneer iemand een tabelbestand (CSV) wil verkennen voor er een dashboard of analyse komt — eerst afspreken welke data er gebruikt mag worden en sparren over de expertise en aanpak van de gebruiker, dan begrijpen wat de kolommen kunnen betekenen, de datakwaliteit en verdelingen controleren, definities vastleggen en casusgerichte ideeën en aanpakken bedenken voor de vraag van de gebruiker, met een HTML-profiel als uitkomst. De metainfo (codebook, definities, uitleg) komt van de gebruiker. LET OP — de views schetsen hoort bij `schets_dashboard` en het dashboard bouwen bij `bouwen_dashboard`.
+disable-model-invocation: true
 allowed-tools: Read Grep Glob Write Bash
 metadata:
   versie: "0.5.0"
@@ -135,7 +136,7 @@ leg uit wat elk punt betekent voor de vraag:
 
 Dit beschrijft het bestand dat is ingelezen. Op echte data draait de gebruiker het script opnieuw; neem
 geen getal uit deze controle over in een definitie of in de tekst van `begrip.json`. Wil de gebruiker
-een verdeling als grafiek zien, kies die dan met de skill `grafiekkeuze`.
+een verdeling als grafiek zien, kies die dan met `.claude/skills/grafiekkeuze/SKILL.md`.
 
 ### 3. Leg de definities vast
 
