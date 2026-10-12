@@ -33,6 +33,18 @@ Je ziet daarna in de terminal een regel zoals `Local URL: http://localhost:8501`
 In Codespaces kiest de bestandsdialoog een bestand van je eigen computer. Download het bestand dus eerst
 (rechtsklik in de verkenner, *Downloaden*) en upload het daarna.
 
+## Testen
+
+```
+uv run --no-project --with-requirements requirements.txt --with pytest pytest tests
+```
+
+## Stijl nakijken
+
+```
+uvx ruff check . && uvx ruff format --check .
+```
+
 ## Stoppen
 
 Druk in de terminal op `Ctrl+C`.
@@ -57,5 +69,7 @@ Druk in de terminal op `Ctrl+C`.
 | `.streamlit/config.toml` | Thema en uploadgrens |
 | `npuls/` | Npuls-huisstijl: stijlblad en het officiële Npuls-logo |
 | `requirements.txt` | De pakketten die nodig zijn |
+| `ruff.toml` | Stijlregels (CEDA-standaard, regelbreedte 100) |
+| `tests/` | Tests met pytest |
 
 De drempels (30 en 5) zijn voorbeeldwaarden. Stem de echte waarden af met je organisatie.
