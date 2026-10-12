@@ -470,7 +470,11 @@ toestemming te vragen. Meld per stap in één regel wat eruit kwam.
    `except Exception`.
 4. **Opnieuw testen.** Draai de tests opnieuw, en kijk de schermen opnieuw in de browser als de
    vorige stappen de weergave of het inlezen hebben veranderd.
-5. **Bewaren aanbieden.** Commit en push niets uit jezelf. Sluit af met één regel: *"Wil je dit bewaren in
+5. **Laat zien wat er staat.** Geef een korte lijst van de bestanden in `dashboard/` met in één zin wat
+   elk doet (bijvoorbeeld `berekeningen.py` rekent, `app.py` toont, `configuratie.py` bevat de
+   instellingen), en zeg in welk bestand de gebruiker een grafiek of drempel aanpast. Noem het pad van
+   `dashboard/app.py` zodat de gebruiker de code zelf kan openen.
+6. **Bewaren aanbieden.** Commit en push niets uit jezelf. Sluit af met één regel: *"Wil je dit bewaren in
    je eigen GitHub? Zeg dan 'bewaar'."*
 
 **Optioneel, niet standaard.** `check-style` en `simplify-ceda` kosten veel tijd (drie review-agents,
