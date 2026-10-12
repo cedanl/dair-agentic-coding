@@ -60,7 +60,7 @@ Typ je opdracht in het vak onderaan het paneel en druk op **Enter**. Met `/` zie
 
 ## De skills
 
-Een skill is een werkwijze die Claude volgt. Je start er een met `/` en de naam. In deze sessie gebruik je er drie, achter elkaar:
+Een skill is een werkwijze die Claude volgt. Je start er een met `/` en de naam. Skills starten alleen als je ze zelf typt; tijdens gewoon chatten springen ze niet vanzelf aan. In deze sessie gebruik je er drie, achter elkaar:
 
 | Stap | Skill | Wat Claude doet | Wat je krijgt |
 |---|---|---|---|
