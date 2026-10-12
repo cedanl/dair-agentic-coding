@@ -370,6 +370,8 @@ de intro valt terug op Georgia.
    en toon haar op het dashboard onder *Zo lees je dit*.
 1. Lees `uitvoer/schets.html` en bouw alle views in de volgorde van de schets, in één keer. Zeg in
    één zin wat je gaat bouwen ("Ik bouw de drie views uit de schets") en vraag het niet als open vraag.
+   Zeg er ook bij dat bouwen, testen en afronden samen ongeveer 10 minuten duurt en dat je tussendoor
+   per stap in één regel meldt waar je mee bezig bent, zodat de gebruiker weet dat het doorloopt.
    De view die de vraag het meest direct beantwoordt staat bovenaan.
 2. Test headless met `streamlit.testing.v1.AppTest`: geen exception, de periodekeuze stopt bij de
    laatste waarneembare periode, en een filter naar een kleine groep geeft "te weinig personen".
