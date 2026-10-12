@@ -87,14 +87,8 @@ smal scherm bovenaan staat. *Keuzes van de gebruiker* is een tabel met onderwerp
 woorden en status (*bevestigd* of *aanname*); herhaal daar niet wat al bij een view staat. Verder
 semantische kopjes, per view een `<section>` met een kleine definitielijst
 (`<dl>`: vraag, maat, uitsplitsing, grafiektype, valt weg), contrast minimaal 4,5:1, geen kleur als
-enige onderscheid, leesbaar op een smal scherm. Eén inline `<style>`, geen scripts.
-
-Teken per view een schetsmatig plaatje in inline SVG van het gekozen grafiektype, in plaats van het in
-tekst te beschrijven. Gebruik neutrale vormen: staven van gelijke lengte, vlakke lijnen en lege cellen.
-Zet in het onderschrift *Schets, geen data*. Verzin geen waarden, geen volgorde en geen verschil: staven
-van ongelijke lengte of lijnen op verschillende hoogte lezen als een uitkomst. Heb je meer lijnen of
-groepen dan in één plaatje past, maak dan per groep een klein paneel met dezelfde vlakke lijn. Houd de
-tekst bij een view kort: het plaatje vervangt de uitleg van het grafiektype.
+enige onderscheid, leesbaar op een smal scherm. Eén inline `<style>`, geen scripts. Teken geen
+nagebootste grafieken met verzonnen waarden: een leeg kader met een tekstbeschrijving is genoeg.
 
 Zet in de schets een kopje *Nog open vragen* met hooguit drie punten: alleen wat een view verandert en
 wat de gebruiker nog niet beantwoordde. Al het andere dat niet bevestigd is (open punten uit het profiel,
@@ -114,4 +108,3 @@ verdwijnen.
 - Geen conclusie, geen getal uit voorbeelddata als uitkomst.
 - Noem een verschil tussen groepen geen "effect" of "oorzaak".
 - Houd het bij twee of drie views: meer is geen verbetering.
-- Een schetsplaatje toont het type grafiek en de indeling, niet een uitkomst.

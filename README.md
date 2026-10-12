@@ -82,9 +82,21 @@ Aan het einde van de sessie sluit je af met `/review-reflect` (zie hieronder).
 
 ## Review geven
 
-Aan het einde van de sessie geef je je review **in Claude**: typ `/review-reflect`. Er opent een vragenlijst die je invult.
+Aan het einde van de sessie, kies de route die voor jou werkt:
 
-De review is anoniem en gaat naar de begeleiders. Je kunt een vraag overslaan.
+1. **Webformulier (aanbevolen).** Draai dit in de terminal en open de link in je browser:
+
+   ```
+   python3 scripts/feedback.py link
+   ```
+
+   Je kunt ook de link gebruiken die de begeleider deelt.
+2. **In Claude:** typ `/review-reflect`.
+3. **In de terminal, zonder Claude:** `python3 scripts/feedback.py form`
+
+Routes 2 en 3 sturen vanuit je Codespace rechtstreeks naar voxpop. Dat lukt niet altijd (soms time-out); gebruik dan route 1.
+
+De review is anoniem en gaat naar de begeleiders. Enter slaat een vraag over.
 
 ---
 

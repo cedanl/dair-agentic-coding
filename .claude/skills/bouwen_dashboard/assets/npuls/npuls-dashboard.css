@@ -43,21 +43,16 @@ h2, h3 { font-size: 1.5rem; }
 }
 .npuls-intro { font-family: var(--npuls-font-intro); font-weight: 400; font-size: 1.375rem; line-height: 1.4; color: var(--npuls-zwart); margin: 12px 0 0; max-width: 640px; }
 
-/* Hero: roze vlak, grote blauwe kop (3,6:1 is genoeg voor grote tekst) en het officiële Npuls-beeldmerk.
-   Het logo is het enige beeld: geen kernvormen als decoratie. */
+/* Hero: roze vlak, grote blauwe kop (3,6:1 is genoeg voor grote tekst), vormen als decoratie */
 .npuls-hero {
   display: flex; align-items: center; justify-content: space-between; gap: 32px;
   background: var(--npuls-roze); border-radius: var(--radius-xl); padding: 40px 48px; margin-bottom: 24px;
   overflow: hidden;
 }
 .npuls-hero h1 { color: var(--npuls-blauw); margin: 0; font-size: 3rem; font-weight: 700; }
-/* Officieel beeldmerk, niet aanpassen. De achtergrond van het bestand (#F3D9DC) valt weg op npuls-roze. */
-.npuls-logo { flex: 0 0 auto; display: block; width: 160px; height: auto; }
-@media (max-width: 700px) {
-  .npuls-hero { flex-direction: column-reverse; align-items: flex-start; padding: 24px; gap: 8px; }
-  .npuls-hero h1 { font-size: 1.75rem; }
-  .npuls-logo { width: 88px; }
-}
+.npuls-hero-vorm { flex: 0 0 auto; width: 190px; height: 190px; }
+.npuls-hero-vorm svg { width: 100%; height: 100%; }
+@media (max-width: 700px) { .npuls-hero { flex-direction: column; align-items: flex-start; padding: 28px; } .npuls-hero-vorm { width: 120px; height: 120px; } }
 
 /* Kaarten */
 .npuls-kaart { border-radius: var(--radius-lg); padding: 24px; margin-bottom: 16px; color: var(--npuls-zwart); }
@@ -98,15 +93,14 @@ h2, h3 { font-size: 1.5rem; }
 [data-baseweb="select"] > div { border-radius: var(--radius-md); background: var(--npuls-wit); }
 [data-testid="stCheckbox"] label span { color: var(--npuls-zwart); }
 
-/* Meldingen: statuskleuren uit het palet, fouten zijn oranje, nooit rood.
-   Streamlit zet de status in data-testid van de inhoud (stAlertContentError, ...Info, ...Success, ...Warning). */
-[data-testid="stAlert"] { border-radius: var(--radius-md); color: var(--npuls-zwart); }
+/* Meldingen: statuskleuren uit het palet, fouten zijn oranje, nooit rood */
+[data-testid="stAlert"] { border-radius: var(--radius-md); color: var(--npuls-zwart); border-left: 6px solid; }
 [data-testid="stAlert"] * { color: var(--npuls-zwart) !important; }
-[data-testid="stAlertContainer"] { border-left: 6px solid var(--npuls-blauw); background: var(--npuls-licht-blauw); border-radius: var(--radius-md); }
-[data-testid="stAlertContainer"]:has([data-testid="stAlertContentError"]) { border-left-color: var(--npuls-oranje); background: var(--npuls-licht-oranje); }
-[data-testid="stAlertContainer"]:has([data-testid="stAlertContentSuccess"]) { border-left-color: var(--npuls-groen); background: var(--npuls-licht-groen); }
-[data-testid="stAlertContainer"]:has([data-testid="stAlertContentWarning"]) { border-left-color: var(--npuls-geel); background: var(--npuls-licht-geel); }
-[data-testid="stAlertContainer"]:has([data-testid="stAlertContentInfo"]) { border-left-color: var(--npuls-blauw); background: var(--npuls-licht-blauw); }
+[data-testid="stAlertContainer"]:has([data-testid="stAlertContentSuccess"]),
+div[data-baseweb="notification"][kind="positive"] { background: var(--npuls-licht-groen); border-color: var(--npuls-groen); }
+div[data-baseweb="notification"][kind="negative"] { background: var(--npuls-licht-oranje); border-color: var(--npuls-oranje); }
+div[data-baseweb="notification"][kind="info"] { background: var(--npuls-licht-blauw); border-color: var(--npuls-blauw); }
+div[data-baseweb="notification"][kind="warning"] { background: var(--npuls-licht-geel); border-color: var(--npuls-geel); }
 
 /* Bijschrift onder grafieken: de samenvatting in tekst */
 [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] * { color: #5C5C66 !important; opacity: 1 !important; font-size: 0.9375rem; }
