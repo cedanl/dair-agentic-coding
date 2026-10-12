@@ -44,7 +44,7 @@ De eerste keer vraagt de terminal om de **workshop-key**. Die krijg je van de be
 
 ### Stap 5 — Open het Claude-paneel
 
-Klik op het **oranje Claude-icoon** rechtsboven in de editor. Het Claude-paneel opent aan de rechterkant. Je hoeft niets in de terminal te typen.
+Klik op het **oranje Claude-icoon** rechtsboven in de editor, of op het Claude-icoon in de linkerbalk. Het Claude-paneel opent aan de rechterkant. Je hoeft niets in de terminal te typen.
 
 ![Stap 5 — Claude-knop](docs/images/05-claude-knop.png)
 
