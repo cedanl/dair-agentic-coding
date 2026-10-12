@@ -2,9 +2,9 @@
 name: schets_dashboard
 description: Gebruik wanneer iemand uit een dataprofiel (uitvoer/data-profiel.html) twee of drie views voor een dashboard wil schetsen — eerst een voorstel waar de gebruiker op reageert, dan per view de vraag, de uitsplitsing, het grafiektype en wat het niet kan zeggen, als HTML-schets zonder code. LET OP — de data verkennen hoort bij `verkennen_data` en het dashboard bouwen bij `bouwen_dashboard`.
 disable-model-invocation: true
-allowed-tools: Read Grep Glob Write
+allowed-tools: Read Grep Glob Write AskUserQuestion
 metadata:
-  versie: "0.3.0"
+  versie: "0.4.0"
 ---
 
 # Dashboard schetsen
@@ -40,13 +40,17 @@ regisseur ook al doe jij het werk.
 Begin zonder vragenronde. Lees voor wie het dashboard is en welke beslissing het helpt nemen uit het
 gesprek of het profiel; staat het daar niet, neem dan iets aan en zeg dat. Doe in **één bericht** een
 voorstel: twee of drie views met grafiektype en volgorde, en daaronder je aannames, één regel per
-aanname. Het voorstel is de vraag: antwoordt de gebruiker "ok", dan schrijf je de schets, en anders pas
-je het voorstel aan. Vraag niets wat al in het gesprek of het profiel staat, en vraag niet naar ervaring:
-pas je uitleg aan op hoe de gebruiker praat.
+aanname. Vraag daarna met de AskUserQuestion-tool of het voorstel klopt: *Ja, schrijf de schets*
+(aanbevolen), *Andere volgorde of andere views* of *Iets aanpassen*. Kiest de gebruiker *Ja*, dan schrijf je
+de schets, en anders pas je het voorstel aan. Vraag niets wat al in het gesprek of het profiel staat, en
+vraag niet naar ervaring: pas je uitleg aan op hoe de gebruiker praat.
 
 Stel **hooguit drie vragen**, en alleen als het antwoord een view verandert en je het niet kunt aannemen.
-Stel ze na het voorstel, één voor één: één vraag per bericht, met een standaardantwoord ("Ik ga uit van
-X, tenzij je iets anders zegt"). Al het andere is een aanname die je hardop zegt en vastlegt.
+Stel ze na het voorstel met dezelfde tool: elke optie met een korte uitleg, de standaard als eerste optie
+met "(Aanbevolen)" erachter, en `multiSelect` als de gebruiker er meer dan één mag kiezen. Vragen die niet
+elkaar beïnvloeden bundel je in één aanroep. De tool biedt zelf "Other" voor een eigen antwoord. Is de tool
+niet beschikbaar, stel dan één vraag per bericht met een standaardantwoord ("Ik ga uit van X, tenzij je iets
+anders zegt"). Al het andere is een aanname die je hardop zegt en vastlegt.
 
 Wat de gebruiker als eerste wil zien, wordt een view, ook als jij een andere had gekozen: zeg een bezwaar
 kort en laat de gebruiker beslissen. Zet in de schets een kopje *Keuzes van de gebruiker* met wat de
