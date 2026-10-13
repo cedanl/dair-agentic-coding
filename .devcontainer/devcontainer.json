@@ -12,7 +12,9 @@
         "terminal.integrated.defaultProfile.linux": "bash",
         "chat.editing.autoAccept": true,
         "claudeCode.allowDangerouslySkipPermissions": true,
-        "livePreview.openPreviewTarget": "External Browser"
+        "livePreview.openPreviewTarget": "External Browser",
+        "extensions.ignoreRecommendations": true,
+        "security.workspace.trust.enabled": false
       },
       "extensions": [
         "anthropic.claude-code",
