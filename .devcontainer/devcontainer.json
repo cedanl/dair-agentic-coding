@@ -2,6 +2,9 @@
   "name": "DAIR Agentic Coding",
   "image": "ghcr.io/cedanl/dair-agentic-coding:latest",
   "remoteUser": "dev",
+  "remoteEnv": {
+    "ANTHROPIC_FOUNDRY_API_KEY": "${localEnv:ANTHROPIC_FOUNDRY_API_KEY}"
+  },
   "postCreateCommand": "bash .devcontainer/welcome.sh",
   "customizations": {
     "vscode": {

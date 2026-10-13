@@ -38,7 +38,7 @@ Klik in de menubalk op **Terminal → New Terminal**.
 
 ![Stap 4 — Terminal openen](docs/images/04-vscode-terminal.png)
 
-De eerste keer vraagt de terminal om de **workshop-key**. Die krijg je van de begeleider. Plak hem en druk op **Enter** (je ziet tijdens het plakken niets verschijnen, dat is normaal). Opnieuw instellen kan altijd met `dair-onboard`.
+De eerste keer vraagt de terminal om de **workshop-key**, tenzij die al via een Codespace-secret is ingesteld — dan hoef je niets te doen. Vraagt de terminal toch om de key, plak hem en druk op **Enter** (je ziet tijdens het plakken niets verschijnen, dat is normaal). Opnieuw instellen kan altijd met `dair-onboard`.
 
 ---
 

@@ -9,14 +9,35 @@ has_key() {
     node -e 'process.exit(require(process.argv[1]).env?.ANTHROPIC_FOUNDRY_API_KEY ? 0 : 1)' "$settings"
 }
 
-# De image-standaard wint van een oude of verkeerd getypte resource in settings.json
+# Schrijft de key uit de omgeving (Codespace-secret) weg naar settings.json,
+# zodat ook de VS Code-extension hem oppikt. Maakt het bestand aan indien nodig.
+sync_key() {
+  [[ -n "${ANTHROPIC_FOUNDRY_API_KEY:-}" ]] || return 0
+  mkdir -p "$(dirname "$settings")"
+  KEY="$ANTHROPIC_FOUNDRY_API_KEY" node -e '
+const fs = require("fs");
+const f = process.argv[1];
+const s = fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, "utf8")) : {};
+s.env = s.env || {};
+if (s.env.ANTHROPIC_FOUNDRY_API_KEY !== process.env.KEY) {
+  s.env.ANTHROPIC_FOUNDRY_API_KEY = process.env.KEY;
+  fs.writeFileSync(f, JSON.stringify(s, null, 2) + "\n");
+}
+' "$settings"
+  chmod 600 "$settings"
+}
+
+# De image-standaard wint van een oude of verkeerd getypte resource in settings.json.
+# Alleen actief als de resource in de omgeving niet-leeg is, zodat een leeg
+# ${localEnv:...} nooit de goede waarde wist.
 sync_resource() {
   [[ -n "${ANTHROPIC_FOUNDRY_RESOURCE:-}" && -f "$settings" ]] || return 0
   node -e '
 const fs = require("fs");
 const f = process.argv[1];
 const s = JSON.parse(fs.readFileSync(f, "utf8"));
-if (s.env?.ANTHROPIC_FOUNDRY_RESOURCE && s.env.ANTHROPIC_FOUNDRY_RESOURCE !== process.env.ANTHROPIC_FOUNDRY_RESOURCE) {
+if (!s.env?.ANTHROPIC_FOUNDRY_RESOURCE || s.env.ANTHROPIC_FOUNDRY_RESOURCE !== process.env.ANTHROPIC_FOUNDRY_RESOURCE) {
+  s.env = s.env || {};
   s.env.ANTHROPIC_FOUNDRY_RESOURCE = process.env.ANTHROPIC_FOUNDRY_RESOURCE;
   fs.writeFileSync(f, JSON.stringify(s, null, 2) + "\n");
 }
@@ -24,7 +45,20 @@ if (s.env?.ANTHROPIC_FOUNDRY_RESOURCE && s.env.ANTHROPIC_FOUNDRY_RESOURCE !== pr
 }
 
 if [[ "${1:-}" == "--if-needed" ]] && { [[ -n "${ANTHROPIC_FOUNDRY_API_KEY:-}" ]] || has_key; }; then
+  sync_key
   sync_resource
+  exit 0
+fi
+
+# Key via Codespace-secret aanwezig maar nog niet weggeschreven (bv. handmatige
+# run): gebruik hem direct, zonder paste-prompt. Zonder secret volgt de prompt.
+if [[ -n "${ANTHROPIC_FOUNDRY_API_KEY:-}" ]]; then
+  sync_key
+  sync_resource
+  echo ""
+  echo "✔ Foundry-key overgenomen uit het Codespace-secret."
+  echo "✔ Resource: ${ANTHROPIC_FOUNDRY_RESOURCE:-onbekend}"
+  echo "✔ Klaar. Start Claude met: claude (of open het Claude-paneel)"
   exit 0
 fi
 

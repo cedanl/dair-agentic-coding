@@ -22,6 +22,12 @@ for cli in claude entire; do
   fi
 done
 
+if [[ -n "${ANTHROPIC_FOUNDRY_API_KEY:-}" ]]; then
+  echo -e "  ${GREEN}✔${RESET}  Foundry-key via Codespace-secret"
+else
+  echo -e "  Stel de workshop-key in met: ${CYAN}dair-onboard${RESET}"
+fi
+
 echo ""
 echo -e "  ${BOLD}Aan de slag:${RESET}"
 echo ""
