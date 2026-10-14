@@ -37,7 +37,8 @@ gekozen vraag, in die volgorde, met het `label` uit `uitsplitsingen` en "(Aanbev
 Typt de gebruiker iets eigens ("Other"), neem het serieus: herhaal in één zin wat je hoort, zeg welke optie
 er het dichtst bij ligt en waarom, en ga daarmee door (*"Je wilt weten wie afhaakt: dat lijkt het meest op
 vraag A. Daar ga ik mee aan de slag."*). Past niets, kies dan de aanbevolen optie en zeg dat de rest later
-kan. Is de tool niet beschikbaar, neem dan de aanbevolen opties en zeg welke.
+kan. Is de AskUserQuestion-tool niet beschikbaar, stel de vraag dan in het gesprek: de opties als A, B, C (met
+*(aanbevolen)* achter de aanbevolen optie), en stop je bericht daar. Ga pas verder als de gebruiker antwoordt.
 
 ## 2. Vier stappen
 

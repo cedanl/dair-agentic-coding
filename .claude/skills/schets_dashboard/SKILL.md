@@ -32,8 +32,8 @@ en stel dan in **één** aanroep van de AskUserQuestion-tool twee vragen:
    de jaren*.
 
 Typt de gebruiker iets eigens, herhaal dan in één zin wat je hoort en kies de optie die er het dichtst bij
-ligt (*"Je wilt per stad kunnen kijken: dat is het filter op vestiging."*). Is de tool niet beschikbaar, neem
-dan de aanbevolen opties en zeg welke.
+ligt (*"Je wilt per stad kunnen kijken: dat is het filter op vestiging."*). Is de AskUserQuestion-tool niet beschikbaar, stel de vraag dan in het gesprek: de opties als A, B, C (met
+*(aanbevolen)* achter de aanbevolen optie), en stop je bericht daar. Ga pas verder als de gebruiker antwoordt.
 
 ## 2. Schets maken
 

@@ -36,6 +36,8 @@ Dat drukt een vraag en drie opties af. Zeg: *"Voor ik het dashboard
 bouw: wat verwacht jij?"* en stel de vraag met de AskUserQuestion-tool, met de drie opties in de afgedrukte
 volgorde en als vierde *Geen idee*. Geen optie is aanbevolen. Onthoud het antwoord.
 
+Is de AskUserQuestion-tool niet beschikbaar, stel de vraag dan in het gesprek: de opties als A, B, C, D (bij de raadvraag zonder aanbevolen optie), en stop je bericht daar. Ga pas verder als de gebruiker antwoordt. Dit geldt voor elke keuzevraag in deze skill.
+
 ## 2. Bouwen
 
 Zeg in één zin: *"Ik bouw nu je dashboard: ik tel de eerstejaars, verberg groepen die te klein zijn en zet
