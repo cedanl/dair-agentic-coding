@@ -351,14 +351,6 @@ def bepaal_ranglijst(data: pl.DataFrame, ins: dict) -> list[dict]:
     return sorted((r for r in rijen if not r["verborgen"]), key=lambda r: -r["waarde"])
 
 
-def toon_gok(data: pl.DataFrame, ins: dict) -> None:
-    """Een raadvraag voor de gebruiker: de hoogste, de laagste en een middelste groep, op alfabet."""
-    lijst = bepaal_ranglijst(data, ins)
-    keuze = {id(lijst[0]): lijst[0], id(lijst[-1]): lijst[-1], id(lijst[len(lijst) // 2]): lijst[len(lijst) // 2]}
-    print("Vraag: " + ins["vraag"]["gok"].format(uitsplitsing=ins["uitsplitsing"]["label"]))
-    print("Opties: " + " | ".join(sorted(maak_label(r["groep"]) for r in keuze.values())))
-
-
 def toon_uitkomst(data: pl.DataFrame, ins: dict) -> None:
     """Wat het dashboard laat zien, en wat de gebruiker daarna kan aanpassen. Voor het gesprek."""
     lijst = bepaal_ranglijst(data, ins)
@@ -454,7 +446,6 @@ def main() -> None:
     parser.add_argument("--filter", help="bijvoorbeeld vestiging, of geen")
     parser.add_argument("--volgorde", choices=["groep", "jaar"], help="welke view bovenaan staat")
     parser.add_argument("--uit", type=Path, default=Path("dashboard.html"))
-    parser.add_argument("--gok", action="store_true", help="druk alleen een raadvraag af; maakt geen dashboard")
     parser.add_argument("--controleer", action="store_true",
                         help="controleer een met de hand aangepast dashboard (--vanaf) tegen een nieuw gemaakt dashboard")
     args = parser.parse_args()
@@ -467,9 +458,6 @@ def main() -> None:
         data = lees_data(csv, ins)
         if args.controleer:
             controleer(Path(args.vanaf or "dashboard.html"), ins, data, csv)
-            return
-        if args.gok:
-            toon_gok(data, ins)
             return
         pagina = maak_html(data, csv, ins)
     except Melding as melding:

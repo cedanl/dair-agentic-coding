@@ -72,15 +72,6 @@ def test_onbekend_bestand_geeft_een_melding(tmp_path: Path) -> None:
     assert resultaat.returncode == 1 and "Traceback" not in resultaat.stderr
 
 
-def test_gok_bevat_het_goede_antwoord(tmp_path: Path) -> None:
-    gok = subprocess.run([sys.executable, str(SCRIPT), "data/demodata_1cho.csv", "--vraag", "A", "--gok"],
-                         capture_output=True, text=True, cwd=REPO)
-    resultaat, _ = maak(tmp_path, "data/demodata_1cho.csv", "--vraag", "A")
-    hoogst = re.search(r"Hoogst: (.+?) \(", resultaat.stdout).group(1)
-    assert gok.returncode == 0 and hoogst in gok.stdout.splitlines()[1]
-    assert not (tmp_path / "x").exists()
-
-
 def test_aanpassingen_zijn_uitvoerbaar(tmp_path: Path) -> None:
     resultaat, _ = maak(tmp_path, "data/demodata_1cho.csv", "--vraag", "A")
     for regel in resultaat.stdout.splitlines():

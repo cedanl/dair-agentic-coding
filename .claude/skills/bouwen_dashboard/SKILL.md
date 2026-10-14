@@ -1,7 +1,7 @@
 ---
 name: bouwen_dashboard
 description: >-
-  Gebruik wanneer iemand na de schets (schets.html) het dashboard wil laten bouwen — eerst een raadvraag, dan maakt één script uit de keuzes in de schets het dashboard dashboard.html in de hoofdmap (kerncijfers, grafieken, filter, privacydrempel en uitleg, in de Npuls-huisstijl, zonder server), met een link om het met één klik te openen. Daarna kan de gebruiker het dashboard aanpassen met vaste keuzes, en het alleen op verzoek bewaren in GitHub. LET OP — de data verkennen hoort bij `verkennen_data` en de views schetsen bij `schets_dashboard`.
+  Gebruik wanneer iemand na de schets (schets.html) het dashboard wil laten bouwen — zonder vragen vooraf maakt één script uit de keuzes in de schets het dashboard dashboard.html in de hoofdmap (kerncijfers, grafieken, filter, privacydrempel en uitleg, in de Npuls-huisstijl, zonder server), met een link om het met één klik te openen. Daarna kan de gebruiker het dashboard aanpassen met vaste keuzes, en het alleen op verzoek bewaren in GitHub. LET OP — de data verkennen hoort bij `verkennen_data` en de views schetsen bij `schets_dashboard`.
 disable-model-invocation: true
 allowed-tools: Read Edit Bash AskUserQuestion
 metadata:
@@ -20,25 +20,15 @@ kleine wens van de gebruiker mag je `dashboard.html` zelf aanpassen (zie *Aanpas
 gebruiker kiest of typt, in je eigen woorden. Hooguit drie zinnen per bericht. Noem geen bestandsnamen of
 commando's, tenzij de gebruiker erom vraagt.
 
+Is de AskUserQuestion-tool niet beschikbaar, stel een keuzevraag dan in het gesprek: de opties als A, B, C
+(met *(aanbevolen)* achter de aanbevolen optie), en stop je bericht daar. Ga pas verder als de gebruiker
+antwoordt.
+
 Staat `schets.html` niet in de hoofdmap, zeg dan: *"Typ eerst `/schets_dashboard`."* en stop.
 
 Alle commando's draai je vanuit de hoofdmap, precies zoals ze hier staan.
 
-## 1. Eerst raden
-
-Draai:
-
-```bash
-uv run --no-project --with polars==1.44.2 python .claude/skills/bouwen_dashboard/assets/maak_dashboard.py --vanaf schets.html --gok
-```
-
-Dat drukt een vraag en drie opties af. Zeg: *"Voor ik het dashboard
-bouw: wat verwacht jij?"* en stel de vraag met de AskUserQuestion-tool, met de drie opties in de afgedrukte
-volgorde en als vierde *Geen idee*. Geen optie is aanbevolen. Onthoud het antwoord.
-
-Is de AskUserQuestion-tool niet beschikbaar, stel de vraag dan in het gesprek: de opties als A, B, C, D (bij de raadvraag zonder aanbevolen optie), en stop je bericht daar. Ga pas verder als de gebruiker antwoordt. Dit geldt voor elke keuzevraag in deze skill.
-
-## 2. Bouwen
+## 1. Bouwen
 
 Zeg in één zin: *"Ik bouw nu je dashboard: ik tel de eerstejaars, verberg groepen die te klein zijn en zet
 alles in de Npuls-huisstijl."* Draai dan:
@@ -51,20 +41,19 @@ python3 .claude/skills/verkennen_data/assets/toon.py dashboard.html
 Het eerste commando drukt af wat het dashboard laat zien (hoogst, laagst, over de jaren) en welke
 aanpassingen kunnen. Het tweede drukt de link af.
 
-## 3. De onthulling
+## 2. Laten zien
 
-Eindig met dit, in je eigen woorden maar met deze opbouw en de afgedrukte link:
+Geef de link meteen, met deze opbouw in je eigen woorden:
 
 > **Je dashboard staat klaar.** [Open het dashboard](<link>) of klik in de verkenner links op `dashboard.html`.
 >
-> <Reageer op de gok: goed geraden, of *"Je gokte X; het blijkt Y te zijn (Z%)."* Bij *Geen idee*: noem
-> gewoon de hoogste.> <Eén zin over de jaren, uit de afgedrukte regel.> Dit is demodata: het laat zien wat
-> het dashboard kan, niet hoe het echt zit.
+> <Eén zin over wat er bovenaan staat en één over de jaren, uit de afgedrukte regels, zonder oordeel.> Dit
+> is demodata: het laat zien wat het dashboard kan, niet hoe het echt zit.
 >
 > Probeer het filter bovenaan. Groepen met te weinig studenten verdwijnen vanzelf: zo beschermt het
 > dashboard de privacy.
 
-## 4. Aanpassen
+## 3. Aanpassen
 
 Vraag met de AskUserQuestion-tool: **Wil je nog iets anders zien?** Opties, in deze volgorde: de eerste twee
 aanpassingen uit de laatste uitvoer (de regels die met `- ` beginnen na *Aanpassen*, het deel vóór `=>` als
@@ -103,7 +92,7 @@ veranderen, herhaal het in één zin, en kijk of het een kleine of een grote wen
   vaste aanpassing aan.
 - Twijfel je of het klein of groot is, behandel het dan als groot.
 
-## 5. Bewaren
+## 4. Bewaren
 
 Vraag tot slot met de AskUserQuestion-tool: **Wil je dit bewaren in je eigen GitHub?** met de opties *Nog
 niet* (aanbevolen) en *Nu bewaren*. Kiest de gebruiker *Nu bewaren* of typt de gebruiker 'bewaar', volg dan
