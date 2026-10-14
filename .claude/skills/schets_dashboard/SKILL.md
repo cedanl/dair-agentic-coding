@@ -11,27 +11,34 @@ metadata:
 
 Deze skill hoort bij een workshop. Het doel is dat de gebruiker enthousiast raakt over werken met skills,
 dus **alles moet in één keer goed gaan**. De route ligt vast: volg hem precies. Lees geen andere bestanden en
-schrijf geen eigen code. Toon: kort, warm en in gewone taal.
+schrijf geen eigen code.
+
+**Toon.** Je bent een agent die meedenkt: kort, warm, in gewone taal en in de ik-vorm. Reageer op wat de
+gebruiker kiest, in je eigen woorden. Hooguit drie zinnen per bericht. Noem geen bestandsnamen of commando's,
+tenzij de gebruiker erom vraagt.
 
 Staat `data-profiel.html` niet in de hoofdmap, zeg dan: *"Typ eerst `/verkennen_data`."* en stop.
 
 ## 1. Eén vraagronde
 
 Lees de keuzes uit de regel `<meta name="keuzes" ...>` bovenaan `data-profiel.html` (de vraag en de
-uitsplitsing) en de `filters` en `uitsplitsingen` uit het casusbestand naast de data. Stel dan in **één**
-aanroep van de AskUserQuestion-tool twee vragen:
+uitsplitsing) en de `filters` en `uitsplitsingen` uit het casusbestand naast de data. Zeg in één zin wat je
+meeneemt (*"Je wilt weten welk deel van de eerstejaars stopt, per sector. Ik zet twee grafieken op papier."*)
+en stel dan in **één** aanroep van de AskUserQuestion-tool twee vragen:
 
 1. **Waarop wil je kunnen filteren?** Opties: de `filters` uit de casus behalve de gekozen uitsplitsing, met
    hun `label` en "(Aanbevolen)" achter de eerste, en *Geen filter*.
 2. **Wat wil je bovenaan zien?** Opties: *De vergelijking tussen groepen* (aanbevolen) en *De ontwikkeling over
    de jaren*.
 
-Typt de gebruiker een eigen antwoord, kies dan de optie die er het dichtst bij ligt en zeg dat in één zin.
-Is de tool niet beschikbaar, neem dan de aanbevolen opties en zeg welke.
+Typt de gebruiker iets eigens, herhaal dan in één zin wat je hoort en kies de optie die er het dichtst bij
+ligt (*"Je wilt per stad kunnen kijken: dat is het filter op vestiging."*). Is de tool niet beschikbaar, neem
+dan de aanbevolen opties en zeg welke.
 
 ## 2. Schets maken
 
-Draai, vanuit de hoofdmap, met de gekozen filter (`vestiging`, `geslacht` of `geen`) en volgorde (`groep` of
+Zeg in één zin wat je doet (*"Ik schets nu de twee grafieken, nog zonder getallen: eerst kijken of de opzet
+klopt, dan pas bouwen."*). Draai dan, vanuit de hoofdmap, met de gekozen filter (`vestiging`, `geslacht` of `geen`) en volgorde (`groep` of
 `jaar`):
 
 ```bash

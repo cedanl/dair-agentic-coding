@@ -1,6 +1,6 @@
 ---
 name: verkennen_data
-description: Gebruik wanneer iemand de workshopdata wil verkennen voor er een dashboard komt — twee keuzevragen (welke vraag, waarop uitsplitsen), dan maakt één script het dataprofiel data-profiel.html in de hoofdmap (kolommen, definities en privacy, datakwaliteit, ideeën) en krijgt de gebruiker een link om het met één klik te openen. Alles wat over de data gaat, staat in het casusbestand naast de data. LET OP — de views schetsen hoort bij `schets_dashboard` en het dashboard bouwen bij `bouwen_dashboard`.
+description: Gebruik wanneer iemand de workshopdata wil verkennen voor er een dashboard komt — twee keuzevragen (welke vraag, waarop vergelijken), dan vier zichtbare stappen (kolommen, definities en privacy, datakwaliteit, ideeën en aannames) die samen het dataprofiel data-profiel.html in de hoofdmap maken, met een link om het met één klik te openen. Alles wat over de data gaat, staat in het casusbestand naast de data. LET OP — de views schetsen hoort bij `schets_dashboard` en het dashboard bouwen bij `bouwen_dashboard`.
 disable-model-invocation: true
 allowed-tools: Read Bash AskUserQuestion
 metadata:
@@ -13,48 +13,60 @@ Deze skill hoort bij een workshop. Het doel is dat de gebruiker enthousiast raak
 dus **alles moet in één keer goed gaan**, voor beginners en ervaren programmeurs. De route ligt vast: volg
 hem precies, sla niets over en voeg niets toe. Lees geen andere bestanden en schrijf geen eigen code.
 
-Toon: kort, warm en in gewone taal. Hooguit drie zinnen per bericht.
+**Toon.** Je bent een agent die meedenkt: kort, warm, in gewone taal en in de ik-vorm (*"Ik lees nu…"*,
+*"Ik controleer…"*). Reageer op wat de gebruiker kiest, in je eigen woorden. Hooguit drie zinnen per bericht.
+Noem geen bestandsnamen of commando's, tenzij de gebruiker erom vraagt.
 
 ## 1. Twee vragen
 
 Lees `data/demodata_1cho.casus.json` (noemt de gebruiker een ander bestand `data/x.csv`, lees dan
-`data/x.casus.json`). Zeg niets over dat bestand; stel meteen de eerste vraag met de AskUserQuestion-tool:
+`data/x.casus.json`). Begin met één zin: *"Ik heb de data gevonden: fictieve studenten van een hogeschool.
+Eerst twee vragen, dan ga ik aan de slag."* Stel dan met de AskUserQuestion-tool:
 
 **Wat wil je weten?** Opties: de drie `vragen` uit de casus, in de volgorde A, B, C. Label: het veld
 `label`, met "(Aanbevolen)" achter A. Uitleg: het veld `uitleg`. Vierde optie: *Leg dit eerst uit*. Kiest de
-gebruiker die, leg dan in drie zinnen uit dat Claude met de data een dashboard gaat bouwen dat één vraag
+gebruiker die, leg dan in drie zinnen uit dat jij met de data een dashboard gaat bouwen dat één vraag
 beantwoordt, en stel de vraag opnieuw zonder die optie.
 
-Daarna de tweede vraag, ook met de tool: **Waarop wil je het vergelijken?** Opties: de drie
-`uitsplitsingen` bij de gekozen vraag, in die volgorde, met het `label` uit `uitsplitsingen` en
-"(Aanbevolen)" achter de eerste.
+Reageer in één zin op de keuze (*"Mooie vraag: daar kan een dashboard echt iets laten zien."*) en stel de
+tweede vraag, ook met de tool: **Waarop wil je het vergelijken?** Opties: de drie `uitsplitsingen` bij de
+gekozen vraag, in die volgorde, met het `label` uit `uitsplitsingen` en "(Aanbevolen)" achter de eerste.
 
-Typt de gebruiker een eigen antwoord, kies dan de optie die er het dichtst bij ligt, zeg dat in één zin
-en ga door. Is de tool niet beschikbaar, neem dan de aanbevolen opties en zeg welke.
+## Eigen antwoorden
 
-## 2. Profiel maken
+Typt de gebruiker iets eigens ("Other"), neem het serieus: herhaal in één zin wat je hoort, zeg welke optie
+er het dichtst bij ligt en waarom, en ga daarmee door (*"Je wilt weten wie afhaakt: dat lijkt het meest op
+vraag A. Daar ga ik mee aan de slag."*). Past niets, kies dan de aanbevolen optie en zeg dat de rest later
+kan. Is de tool niet beschikbaar, neem dan de aanbevolen opties en zeg welke.
 
-Draai, vanuit de hoofdmap, met de gekozen letter en uitsplitsing (zoals `A` en `sector`):
+## 2. Vier stappen
+
+Draai de vier stappen als **vier losse commando's**, vanuit de hoofdmap, met de gekozen letter en
+uitsplitsing (zoals `A` en `sector`). Zet vóór elk commando één zin in de ik-vorm over wat je gaat doen, en
+na elk commando één of twee zinnen over wat je zag, in je eigen woorden, op basis van de afgedrukte regels:
 
 ```bash
-uv run --no-project --with duckdb==1.5.6 python .claude/skills/verkennen_data/assets/verken.py data/demodata_1cho.csv --vraag A --uitsplitsing sector
-python3 .claude/skills/verkennen_data/assets/toon.py data-profiel.html
+uv run --no-project --with duckdb==1.5.6 python .claude/skills/verkennen_data/assets/verken.py data/demodata_1cho.csv --vraag A --uitsplitsing sector --stap 1
 ```
 
-Het eerste commando schrijft `data-profiel.html` en drukt vier regels af, één per stap. Het tweede drukt
-de link af.
+Daarna hetzelfde met `--stap 2`, `--stap 3` en `--stap 4`. Stap 4 schrijft ook het profiel.
+
+- **Stap 1, kolommen**: wat één rij is en welke kolommen niet bruikbaar zijn om te vergelijken.
+- **Stap 2, definities en privacy**: de definitie van de maat in gewone woorden, en dat kleine groepen
+  straks vanzelf verborgen worden. Vraag hier niets.
+- **Stap 3, kwaliteit**: dat elke student één keer per jaar voorkomt, en wat lege waarden betekenen.
+- **Stap 4, ideeën en aannames**: noem de aannames uit de uitvoer, zodat de gebruiker weet waarop het
+  dashboard rust (*"Ik neem aan dat wie het jaar erna niet in het bestand staat, gestopt is bij de
+  instelling."*).
+
+Noem geen uitkomsten of percentages: die komen pas in het dashboard.
 
 ## 3. Afsluiten
 
-Eindig met precies dit, met de vier stappen in je eigen woorden (één korte zin per stap, zonder getallen
-uit de data) en de afgedrukte link:
+Draai `python3 .claude/skills/verkennen_data/assets/toon.py data-profiel.html` en eindig met precies dit,
+met de afgedrukte link:
 
 > **Je dataprofiel staat klaar.** [Open het profiel](<link>) of klik in de verkenner links op `data-profiel.html`.
->
-> 1. **Kolommen**: …
-> 2. **Definities en privacy**: …
-> 3. **Datakwaliteit**: …
-> 4. **Ideeën**: …
 >
 > Volgende stap: typ `/schets_dashboard`.
 

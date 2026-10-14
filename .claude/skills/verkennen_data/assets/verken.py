@@ -35,6 +35,7 @@ p.add_argument("csv")
 p.add_argument("--begrip", help="JSON met de tekst van de gebruiker: datagebruik, jouw_aanpak, keuzes, eenheid_rij, sleutel, kolommen, definities, casus_ideeen, casus_aanpak")
 p.add_argument("--uit", default="data-profiel.html")
 p.add_argument("--vraag", help="A, B of C uit het casusbestand naast de data")
+p.add_argument("--stap", type=int, choices=[1, 2, 3, 4], help="druk alleen de samenvatting van deze stap af; stap 4 schrijft ook het profiel")
 p.add_argument("--uitsplitsing", dest="uitsplitsing_naam", help="naam van de uitsplitsing uit het casusbestand, bijvoorbeeld sector")
 p.add_argument("--overzicht", action="store_true", help="druk alleen de structuur per kolom af en schrijf geen profiel")
 p.add_argument("--sep", default=";", help="scheidingsteken van de CSV")
@@ -87,6 +88,7 @@ if casus_pad.is_file() and not a.begrip:
              "status": "bevestigd", "hoofdstuk": "privacy"},
         ],
         "definities": [{"naam": n, "definitie": t} for n, t in maat["definities"]],
+        "aannames": maat["aannames"],
         "casus_ideeen": {
             "hypotheses": [{k: v.format(uitsplitsing=label) for k, v in h.items()} for h in vraag["ideeen"]["hypotheses"]],
             "valkuilen": vraag["ideeen"]["valkuilen"],
@@ -411,13 +413,55 @@ svg{{width:100%;height:auto;display:block}}svg rect{{fill:var(--accent)}}svg lin
 </main></div></body></html>
 """
 
+# Per stap een korte samenvatting voor het gesprek. Alleen kolomnamen, regels en aantallen rijen: geen waarden
+# uit de data. Zo ziet de gebruiker de agent vier stappen zetten, terwijl elke stap hetzelfde script is.
+kolom_let_op = {k: v.get("let_op", "") for k, v in kolom_begrip.items()}
+rollen = {}
+for v in kolom_begrip.values():
+    rol = v.get("rol", "").split()[0] if v.get("rol") else "onbekend"
+    rollen[rol] = rollen.get(rol, 0) + 1
+STAPPEN = {
+    1: ("Kolommen begrijpen", [
+        f"{len(kolommen)} kolommen en {duizend(n_rijen)} rijen gelezen.",
+        "Soorten kolommen: " + ", ".join(f"{n} {r}" for r, n in sorted(rollen.items(), key=lambda x: -x[1])) + "." if rollen else "",
+        f"Eén rij is: {begrip['eenheid_rij']}" if begrip.get("eenheid_rij") else "",
+        ("Kan niet vergelijken (één waarde): " + ", ".join(een_waarde) + ".") if een_waarde else "",
+    ]),
+    2: ("Definities en privacy", [
+        *[f"{d.get('naam', '')}: {d.get('definitie', '')}" for d in definities],
+        f"Privacy: groepen onder {a.drempel} en percentages met minder dan {a.drempel_cel} in teller of rest tonen we niet, "
+        "plus secundaire onderdrukking. Dat gebeurt straks vanzelf in het dashboard.",
+    ]),
+    3: ("Datakwaliteit controleren", [
+        (f"Sleutel {' × '.join(sleutel)}: " + ("uniek, elke student staat één keer per jaar in het bestand." if sleutel_tegel == "uniek" else "niet uniek.")) if sleutel else "Geen sleutel opgegeven.",
+        "Geen dubbele rijen." if not n_dubbel else f"{n_dubbel} dubbele rijen.",
+        *[f"Lege waarden in {k}: {kolom_let_op.get(k) or 'controleer wat leeg betekent.'}" for k, _, _ in ontbrekend_kolom],
+    ]),
+    4: ("Ideeën en aannames", [
+        *[f"Hypothese: {h.get('vraag', '')} Andere verklaring: {h.get('alternatieve_verklaring', '')}" for h in ideeen.get("hypotheses", [])],
+        *[f"Aanname: {x}" for x in begrip.get("aannames", [])],
+    ]),
+}
+
+
+def toon_stap(nummer):
+    titel, regels = STAPPEN[nummer]
+    print(f"Stap {nummer} van 4: {titel}")
+    for regel in regels:
+        if regel:
+            print(f"- {regel}")
+
+
+if a.stap in (1, 2, 3):
+    toon_stap(a.stap)
+    sys.exit()
+
 uit = Path(a.uit)
 uit.parent.mkdir(parents=True, exist_ok=True)
 uit.write_text(doc, encoding="utf-8")
+if a.stap == 4:
+    toon_stap(4)
+else:
+    for nummer in STAPPEN:
+        toon_stap(nummer)
 print(f"Geschreven: {uit}")
-# Vier regels voor het gesprek: wat elke stap heeft opgeleverd, zonder waarden uit de data
-print(f"Stap 1, kolommen: {len(kolommen)} kolommen, waarvan {len(een_waarde)} met één waarde (die kunnen niet uitsplitsen).")
-print(f"Stap 2, definities en privacy: {len(definities)} definities; groepen onder {a.drempel} tonen we niet.")
-print(f"Stap 3, kwaliteit: sleutel {sleutel_tegel}, {'geen' if not n_dubbel else n_dubbel} dubbele rijen, "
-      f"{len(ontbrekend_kolom)} kolommen met lege waarden.")
-print(f"Stap 4, ideeën: {len(ideeen.get('hypotheses', []))} hypotheses en {len(begrip.get('casus_aanpak', []))} aanpakken.")

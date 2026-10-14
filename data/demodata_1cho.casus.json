@@ -128,7 +128,8 @@
           "Kleine groepen schommelen sterk; die tonen we niet."
         ]
       },
-      "maat": "uitval"
+      "maat": "uitval",
+      "gok": "Bij welke {uitsplitsing} stoppen volgens jou de meeste eerstejaars?"
     },
     "B": {
       "label": "Wie haalt binnen vijf jaar een diploma?",
@@ -162,7 +163,8 @@
           "De laatste vier instroomjaren zijn nog niet te meten."
         ]
       },
-      "maat": "diploma"
+      "maat": "diploma",
+      "gok": "Bij welke {uitsplitsing} halen volgens jou de meeste eerstejaars binnen vijf jaar een diploma?"
     },
     "C": {
       "label": "Hangt stoppen samen met je vooropleiding?",
@@ -196,7 +198,8 @@
           "Kleine groepen schommelen sterk; die tonen we niet."
         ]
       },
-      "maat": "uitval"
+      "maat": "uitval",
+      "gok": "Bij welke {uitsplitsing} stoppen volgens jou de meeste eerstejaars?"
     }
   },
   "begrip": {

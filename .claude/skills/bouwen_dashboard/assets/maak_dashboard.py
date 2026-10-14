@@ -104,6 +104,7 @@ def stel_in(keuzes: dict, casus: dict) -> dict:
         "ondertitel": casus["ondertitel"], "demo": casus.get("demo", False),
         "scheidingsteken": casus.get("scheidingsteken", ";"),
         "groep": casus["drempels"]["groep"], "cel": casus["drempels"]["cel"],
+        "alle_uitsplitsingen": casus["uitsplitsingen"],
     }
 
 
@@ -344,6 +345,43 @@ def toon_zo_lees_je_dit(ins: dict) -> str:
     return "".join(f'<div class="npuls-uitlegkaart"><h3>{t}</h3>{inhoud}</div>' for t, inhoud in kaarten)
 
 
+def bepaal_ranglijst(data: pl.DataFrame, ins: dict) -> list[dict]:
+    """De zichtbare groepen over alle data, van hoog naar laag."""
+    rijen = pas_drempels_toe(tel(bereken_eerstejaars(data, ins), "groep"), ins)
+    return sorted((r for r in rijen if not r["verborgen"]), key=lambda r: -r["waarde"])
+
+
+def toon_gok(data: pl.DataFrame, ins: dict) -> None:
+    """Een raadvraag voor de gebruiker: de hoogste, de laagste en een middelste groep, op alfabet."""
+    lijst = bepaal_ranglijst(data, ins)
+    keuze = {id(lijst[0]): lijst[0], id(lijst[-1]): lijst[-1], id(lijst[len(lijst) // 2]): lijst[len(lijst) // 2]}
+    print("Vraag: " + ins["vraag"]["gok"].format(uitsplitsing=ins["uitsplitsing"]["label"]))
+    print("Opties: " + " | ".join(sorted(maak_label(r["groep"]) for r in keuze.values())))
+
+
+def toon_uitkomst(data: pl.DataFrame, ins: dict) -> None:
+    """Wat het dashboard laat zien, en wat de gebruiker daarna kan aanpassen. Voor het gesprek."""
+    lijst = bepaal_ranglijst(data, ins)
+    eerstejaars = bereken_eerstejaars(data, ins)
+    jaren = [r for r in pas_drempels_toe(tel(eerstejaars, "periode"), ins) if not r["verborgen"]]
+    print(f"Hoogst: {maak_label(lijst[0]['groep'])} ({maak_procent(lijst[0]['waarde'])}). "
+          f"Laagst: {maak_label(lijst[-1]['groep'])} ({maak_procent(lijst[-1]['waarde'])}). "
+          f"Alle eerstejaars samen: {maak_procent(eerstejaars['telt'].mean())}.")
+    if jaren:
+        hoog, laag = max(jaren, key=lambda r: r["waarde"]), min(jaren, key=lambda r: r["waarde"])
+        print(f"Over de jaren: het hoogst in {hoog['periode']} ({maak_procent(hoog['waarde'])}), "
+              f"het laagst in {laag['periode']} ({maak_procent(laag['waarde'])}).")
+    print("Aanpassen (label => extra argumenten bij --vanaf dashboard.html):")
+    k = ins["keuzes"]
+    for naam in ins["vraag"]["uitsplitsingen"]:
+        if naam != k["uitsplitsing"]:
+            print(f"- Vergelijk per {ins['alle_uitsplitsingen'][naam]['label']} => --uitsplitsing {naam}")
+    if k.get("volgorde") == "jaar":
+        print("- Zet de vergelijking tussen groepen bovenaan => --volgorde groep")
+    else:
+        print("- Zet de ontwikkeling over de jaren bovenaan => --volgorde jaar")
+
+
 def maak_commando(ins: dict, csv: Path) -> str:
     k = ins["keuzes"]
     return (f"uv run --no-project --with polars python .claude/skills/bouwen_dashboard/assets/maak_dashboard.py {csv.as_posix()} --vraag {k.get('vraag', 'A')} "
@@ -389,6 +427,7 @@ def main() -> None:
     parser.add_argument("--filter", help="bijvoorbeeld vestiging, of geen")
     parser.add_argument("--volgorde", choices=["groep", "jaar"], help="welke view bovenaan staat")
     parser.add_argument("--uit", type=Path, default=Path("dashboard.html"))
+    parser.add_argument("--gok", action="store_true", help="druk alleen een raadvraag af; maakt geen dashboard")
     args = parser.parse_args()
     start = time.perf_counter()
     try:
@@ -397,11 +436,15 @@ def main() -> None:
         ins = stel_in(keuzes, lees_casus(csv))
         ins["keuzes"]["csv"] = csv.as_posix()
         data = lees_data(csv, ins)
+        if args.gok:
+            toon_gok(data, ins)
+            return
         pagina = maak_html(data, csv, ins)
     except Melding as melding:
         sys.exit(f"Niet gelukt: {melding}")
     args.uit.write_text(pagina, encoding="utf-8")
     print(f"Klaar in {time.perf_counter() - start:.1f} s: {args.uit} ({maak_getal(data.height)} rijen gelezen)")
+    toon_uitkomst(data, ins)
 
 
 if __name__ == "__main__":
