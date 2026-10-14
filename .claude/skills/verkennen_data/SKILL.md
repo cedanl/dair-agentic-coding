@@ -69,7 +69,21 @@ met de afgedrukte link:
 
 > **Je dataprofiel staat klaar.** [Open het profiel](<link>) of klik in de verkenner links op `data-profiel.html`.
 >
-> Volgende stap: typ `/schets_dashboard`.
+> Stel me gerust een vraag over je data of het profiel. Klaar om verder te gaan? Typ dan `/schets_dashboard`.
+
+## 4. Vragen over het profiel
+
+Stelt de gebruiker daarna een vraag, dan **lees en leg je alleen uit**. Zo kan er niets veranderen aan wat de
+volgende skill gebruikt.
+
+- Antwoord in hooguit vier zinnen, in gewone taal, uit `data-profiel.html`, het casusbestand en het
+  datawoordenboek naast de data (`data/x.md`). Lees die bestanden met de Read-tool.
+- Draai geen scripts en geen code, ook `verken.py` niet opnieuw, en pas geen bestanden aan. Noem geen getallen
+  die niet in het profiel of het datawoordenboek staan.
+- Vraagt de gebruiker om een nieuwe berekening, een andere vraag of een andere uitsplitsing, zeg dan dat dat
+  in het dashboard komt (*"Dat zie je straks in het dashboard: daar kun je ook per opleiding vergelijken."*)
+  of dat het iets is voor na de workshop. Begin niet opnieuw.
+- Sluit elk antwoord af met: *"Nog een vraag, of verder met `/schets_dashboard`?"*
 
 ## Als er iets misgaat
 

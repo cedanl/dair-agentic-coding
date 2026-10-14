@@ -58,7 +58,7 @@ Geef de link meteen, met deze opbouw in je eigen woorden:
 Vraag met de AskUserQuestion-tool: **Wil je nog iets anders zien?** Opties, in deze volgorde: de eerste twee
 aanpassingen uit de laatste uitvoer (de regels die met `- ` beginnen na *Aanpassen*, het deel vóór `=>` als
 label, de eerste met "(Aanbevolen)"), *Iets anders aanpassen* en *Het is goed zo*. Stop na *Het is goed zo*
-of na drie aanpassingen of wensen samen.
+of na vijf aanpassingen of wensen samen.
 
 **Een vaste aanpassing:**
 
