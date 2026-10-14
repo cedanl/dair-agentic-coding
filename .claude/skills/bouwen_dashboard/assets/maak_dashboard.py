@@ -382,6 +382,33 @@ def toon_uitkomst(data: pl.DataFrame, ins: dict) -> None:
         print("- Zet de ontwikkeling over de jaren bovenaan => --volgorde jaar")
 
 
+def bepaal_vingerafdruk(pagina: str) -> dict:
+    """Wat er na een handmatige aanpassing hetzelfde moet blijven: de cijfers, wat verborgen is, het filter en het label."""
+    tekst = re.sub(r"<style>.*?</style>|style=\"[^\"]*\"", "", pagina, flags=re.S)  # opmaak mag veranderen
+    return {
+        "procenten": sorted(re.findall(r"\d+%", tekst)),
+        "cijfers": sorted(re.findall(r"<strong>([^<]*)</strong>", pagina)),
+        "n": sorted(re.findall(r"n&nbsp;=&nbsp;([0-9.]+)", pagina)),
+        "punten": sorted(re.findall(r'title="([^"]*)"', pagina)),
+        "verborgen": pagina.count("npuls-staaf-verborgen"),
+        "filterwaarden": re.findall(r'data-filter="([^"]*)"', pagina),
+        "cijfertabellen": sorted(re.findall(r"<td>([^<]*%)</td><td>([0-9.]+)</td>", pagina)),
+        "demo": "Dit is demodata" in pagina,
+        "privacy": "terugrekenen" in pagina,
+    }
+
+
+def controleer(pad: Path, ins: dict, data: pl.DataFrame, csv: Path) -> None:
+    """Vergelijkt een met de hand aangepast dashboard met een nieuw gemaakt dashboard op dezelfde keuzes."""
+    aangepast = bepaal_vingerafdruk(pad.read_text(encoding="utf-8"))
+    nieuw = bepaal_vingerafdruk(maak_html(data, csv, ins))
+    fouten = [naam for naam in nieuw if aangepast[naam] != nieuw[naam]]
+    if fouten:
+        sys.exit("Niet goed: de aanpassing raakt " + ", ".join(fouten)
+                 + ". Maak het dashboard opnieuw met --vanaf " + pad.name + " en probeer een kleinere aanpassing.")
+    print("Goed: alle cijfers, verborgen groepen, het filter en de privacyuitleg zijn ongewijzigd.")
+
+
 def maak_commando(ins: dict, csv: Path) -> str:
     k = ins["keuzes"]
     return (f"uv run --no-project --with polars python .claude/skills/bouwen_dashboard/assets/maak_dashboard.py {csv.as_posix()} --vraag {k.get('vraag', 'A')} "
@@ -428,6 +455,8 @@ def main() -> None:
     parser.add_argument("--volgorde", choices=["groep", "jaar"], help="welke view bovenaan staat")
     parser.add_argument("--uit", type=Path, default=Path("dashboard.html"))
     parser.add_argument("--gok", action="store_true", help="druk alleen een raadvraag af; maakt geen dashboard")
+    parser.add_argument("--controleer", action="store_true",
+                        help="controleer een met de hand aangepast dashboard (--vanaf) tegen een nieuw gemaakt dashboard")
     args = parser.parse_args()
     start = time.perf_counter()
     try:
@@ -436,6 +465,9 @@ def main() -> None:
         ins = stel_in(keuzes, lees_casus(csv))
         ins["keuzes"]["csv"] = csv.as_posix()
         data = lees_data(csv, ins)
+        if args.controleer:
+            controleer(Path(args.vanaf or "dashboard.html"), ins, data, csv)
+            return
         if args.gok:
             toon_gok(data, ins)
             return

@@ -89,3 +89,16 @@ def test_aanpassingen_zijn_uitvoerbaar(tmp_path: Path) -> None:
             opnieuw, pagina = maak(tmp_path, "--vanaf", str(tmp_path / "dashboard.html"), *extra)
             assert opnieuw.returncode == 0, opnieuw.stderr
             assert "<h2>" in pagina
+
+
+def test_controle_staat_tekst_toe_maar_geen_cijfers(tmp_path: Path) -> None:
+    maak(tmp_path, "data/demodata_1cho.csv", "--vraag", "A")
+    pad = tmp_path / "dashboard.html"
+    controle = [sys.executable, str(SCRIPT), "--vanaf", str(pad), "--controleer"]
+    pagina = pad.read_text(encoding="utf-8")
+    pad.write_text(pagina.replace("Verschilt het stoppen per sector?", "Waar stoppen de meeste eerstejaars?")
+                   .replace("var(--npuls-blauw); border-radius: 9999px; }", "var(--npuls-oranje); border-radius: 9999px; }"),
+                   encoding="utf-8")
+    assert subprocess.run(controle, capture_output=True, cwd=REPO).returncode == 0
+    pad.write_text(pagina.replace("<strong>23%</strong>", "<strong>25%</strong>", 1), encoding="utf-8")
+    assert subprocess.run(controle, capture_output=True, cwd=REPO).returncode == 1

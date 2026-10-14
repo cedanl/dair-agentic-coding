@@ -3,7 +3,7 @@ name: bouwen_dashboard
 description: >-
   Gebruik wanneer iemand na de schets (schets.html) het dashboard wil laten bouwen — eerst een raadvraag, dan maakt één script uit de keuzes in de schets het dashboard dashboard.html in de hoofdmap (kerncijfers, grafieken, filter, privacydrempel en uitleg, in de Npuls-huisstijl, zonder server), met een link om het met één klik te openen. Daarna kan de gebruiker het dashboard aanpassen met vaste keuzes, en het alleen op verzoek bewaren in GitHub. LET OP — de data verkennen hoort bij `verkennen_data` en de views schetsen bij `schets_dashboard`.
 disable-model-invocation: true
-allowed-tools: Read Bash AskUserQuestion
+allowed-tools: Read Edit Bash AskUserQuestion
 metadata:
   versie: "0.7.0"
 ---
@@ -13,7 +13,8 @@ metadata:
 Deze skill hoort bij een workshop. Het doel is dat de gebruiker enthousiast raakt over werken met skills,
 dus **het dashboard moet in één keer een 10 zijn**. Het script in deze skill is getest: het rekent, past de
 privacydrempels toe, tekent de grafieken in de Npuls-huisstijl en werkt op telefoon en laptop. Volg de route
-precies. Lees geen andere bestanden, schrijf geen eigen code en verander het script niet.
+precies. Lees geen andere bestanden, schrijf geen eigen code en verander het script niet. Alleen bij een
+kleine wens van de gebruiker mag je `dashboard.html` zelf aanpassen (zie *Aanpassen*).
 
 **Toon.** Je bent een agent die meedenkt: kort, warm, in gewone taal en in de ik-vorm. Reageer op wat de
 gebruiker kiest of typt, in je eigen woorden. Hooguit drie zinnen per bericht. Noem geen bestandsnamen of
@@ -63,20 +64,42 @@ Eindig met dit, in je eigen woorden maar met deze opbouw en de afgedrukte link:
 
 ## 4. Aanpassen
 
-Vraag met de AskUserQuestion-tool: **Wil je nog iets anders zien?** Opties: de aanpassingen uit de laatste
-uitvoer (elke regel na *Aanpassen*, het deel vóór `=>` als label, de eerste met "(Aanbevolen)"), en als
-laatste *Het is goed zo*. Bij een aanpassing:
+Vraag met de AskUserQuestion-tool: **Wil je nog iets anders zien?** Opties, in deze volgorde: de eerste twee
+aanpassingen uit de laatste uitvoer (de regels die met `- ` beginnen na *Aanpassen*, het deel vóór `=>` als
+label, de eerste met "(Aanbevolen)"), *Iets anders aanpassen* en *Het is goed zo*. Stop na *Het is goed zo*
+of na drie aanpassingen of wensen samen.
+
+**Een vaste aanpassing:**
 
 1. Zeg in één zin wat je verandert (*"Ik vergelijk nu per opleiding."*).
 2. Draai `uv run --no-project --with polars==1.44.2 python .claude/skills/bouwen_dashboard/assets/maak_dashboard.py --vanaf dashboard.html` met het deel na `=>` erachter (bijvoorbeeld `--uitsplitsing opleiding`),
    en daarna opnieuw `python3 .claude/skills/verkennen_data/assets/toon.py dashboard.html`.
-3. Vertel in één of twee zinnen wat er nu bovenaan staat, met de nieuwe link, en stel de vraag opnieuw met
-   de nieuwe aanpassingen.
+3. Vertel in één of twee zinnen wat er nu bovenaan staat, met de nieuwe link, en stel de vraag opnieuw.
 
-Stop na *Het is goed zo* of na drie aanpassingen. Typt de gebruiker een eigen wens, herhaal dan in één zin
-wat je hoort en kies de aanpassing die er het dichtst bij ligt (*"Je wilt zien hoe het per opleiding zit:
-dat kan ik nu meteen bouwen."*). Past niets, zeg dan eerlijk wat er nu kan, en dat het script later op eigen
-data en met eigen vragen verder te bouwen is.
+Een vaste aanpassing maakt het dashboard opnieuw: kleine wensen van eerder verdwijnen dan. Zeg dat als er al
+een kleine wens was doorgevoerd.
+
+**Iets anders aanpassen, of een eigen wens in eigen woorden:** vraag in het gesprek wat de gebruiker wil
+veranderen, herhaal het in één zin, en kijk of het een kleine of een grote wens is.
+
+- **Klein: tekst, kleur of volgorde in het dashboard.** Een andere titel of uitleg, een kortere ondertitel,
+  een andere kleur uit de Npuls-huisstijl (`--npuls-oranje`, `--npuls-groen`, `--npuls-blauw`, `--npuls-geel`;
+  nooit rood), de views in een andere volgorde, een zin erbij in *Zo lees je dit*. Dit doe je zelf:
+  1. Zeg wat je gaat veranderen en pas `dashboard.html` aan met de Edit-tool. Alleen dat bestand; nooit het
+     script, de schets, het casusbestand of de data.
+  2. Laat elk getal, elk percentage, elke verborgen groep, het filter, het label *Dit is demodata* en de
+     privacyuitleg staan zoals ze zijn, en voeg geen getallen of scripts toe.
+  3. Draai `uv run --no-project --with polars==1.44.2 python .claude/skills/bouwen_dashboard/assets/maak_dashboard.py --vanaf dashboard.html --controleer`. Bij *Goed* geef je opnieuw de link (`toon.py
+     dashboard.html`) en zeg je eerlijk: *"Dit heb ik in je dashboard aangepast. Bouw je het later opnieuw op
+     je eigen data, dan zit deze wijziging er niet in; daarvoor passen we na de workshop het script aan."*
+  4. Bij *Niet goed* draai je `uv run --no-project --with polars==1.44.2 python .claude/skills/bouwen_dashboard/assets/maak_dashboard.py --vanaf dashboard.html` om het dashboard te herstellen, en zeg je dat deze
+     wens net te veel raakt, met een kleinere variant als voorstel. Probeer het niet een tweede keer.
+- **Groot: een nieuwe maat, een ander soort grafiek, andere of extra data, een andere vraag, een
+  voorspelling of een oorzaak.** Neem de wens serieus en zeg in twee zinnen waarom het een mooi idee is en
+  dat het een vervolgstap is: *"Dat is precies het soort vraag waar je na de workshop het script voor
+  uitbreidt; het rekenwerk moet dan eerst goed getest worden. Wat ik nu wel kan: …"* en bied de passende
+  vaste aanpassing aan.
+- Twijfel je of het klein of groot is, behandel het dan als groot.
 
 ## 5. Bewaren
 
