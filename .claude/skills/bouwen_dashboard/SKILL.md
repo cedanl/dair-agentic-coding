@@ -50,8 +50,8 @@ Geef de link meteen, met deze opbouw in je eigen woorden:
 > <Eén zin over wat er bovenaan staat en één over de jaren, uit de afgedrukte regels, zonder oordeel.> Dit
 > is demodata: het laat zien wat het dashboard kan, niet hoe het echt zit.
 >
-> Probeer het filter bovenaan. Groepen met te weinig studenten verdwijnen vanzelf: zo beschermt het
-> dashboard de privacy.
+> <Alleen als het dashboard een filter heeft: "Probeer het filter bovenaan."> Groepen met te weinig studenten
+> verdwijnen vanzelf: zo beschermt het dashboard de privacy.
 
 ## 3. Aanpassen
 

@@ -32,7 +32,10 @@ en stel dan in **één** aanroep van de AskUserQuestion-tool twee vragen:
    de jaren*.
 
 Typt de gebruiker iets eigens, herhaal dan in één zin wat je hoort en kies de optie die er het dichtst bij
-ligt (*"Je wilt per stad kunnen kijken: dat is het filter op vestiging."*). Is de AskUserQuestion-tool niet beschikbaar, stel de vraag dan in het gesprek: de opties als A, B, C (met
+ligt (*"Je wilt per stad kunnen kijken: dat is het filter op vestiging."*). Past geen optie, zoals een ander
+soort grafiek (sankey, kaart) of een filter dat er niet bij staat, kies dan de **aanbevolen** optie en zeg in
+twee zinnen dat het een mooi idee is voor na de workshop, als het script wordt uitgebreid. Verwijs niet naar
+een begeleider. Is de AskUserQuestion-tool niet beschikbaar, stel de vraag dan in het gesprek: de opties als A, B, C (met
 *(aanbevolen)* achter de aanbevolen optie), en stop je bericht daar. Ga pas verder als de gebruiker antwoordt.
 
 ## 2. Schets maken
