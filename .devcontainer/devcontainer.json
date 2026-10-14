@@ -6,6 +6,9 @@
     "ANTHROPIC_FOUNDRY_API_KEY": "${localEnv:ANTHROPIC_FOUNDRY_API_KEY}"
   },
   "postCreateCommand": "bash .devcontainer/welcome.sh",
+  "otherPortsAttributes": {
+    "onAutoForward": "silent"
+  },
   "customizations": {
     "vscode": {
       "settings": {
@@ -13,8 +16,16 @@
         "chat.editing.autoAccept": true,
         "claudeCode.allowDangerouslySkipPermissions": true,
         "livePreview.openPreviewTarget": "External Browser",
+        "security.workspace.trust.enabled": false,
+        "livePreview.notifyOnOpenLooseFile": false,
+        "livePreview.showServerStatusNotifications": false,
+        "workbench.startupEditor": "none",
+        "workbench.welcomePage.walkthroughs.openOnInstall": false,
+        "workbench.tips.enabled": false,
         "extensions.ignoreRecommendations": true,
-        "security.workspace.trust.enabled": false
+        "update.showReleaseNotes": false,
+        "git.autofetch": false,
+        "git.openRepositoryInParentFolders": "never"
       },
       "extensions": [
         "anthropic.claude-code",
