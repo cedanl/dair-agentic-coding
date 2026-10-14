@@ -157,7 +157,7 @@ for k in kolommen:
     waarden = ""
     if uniek <= a.max_waarden and a.demo:
         waarden = ", ".join(f"{w} ({n})" for w, n in q(
-            f"select coalesce(nullif(trim(\"{k}\"), ''), '(leeg)'), count(*) from {bron} group by 1 order by 2 desc"))
+            f"select coalesce(nullif(trim(\"{k}\"), ''), '(leeg)'), count(*) from {bron} group by 1 order by 2 desc, 1"))
     structuur.append((k, uniek, leeg, waarden))
 een_waarde = [k for k, u, _, _ in structuur if u == 1]
 n_leeg = sum(leeg for _, _, leeg, _ in structuur)
@@ -286,7 +286,7 @@ for k, uniek, _, _ in structuur:
     if not 2 <= uniek <= CATEGORIE_MAX:
         continue
     rijen = []
-    for i, (w, n) in enumerate(q(f"select coalesce({waarde(k)}, '(leeg)'), count(*) from {bron} group by 1 order by 2 desc"), 1):
+    for i, (w, n) in enumerate(q(f"select coalesce({waarde(k)}, '(leeg)'), count(*) from {bron} group by 1 order by 2 desc, 1"), 1):
         naam = w if a.demo or w == "(leeg)" else f"waarde {i}"
         rijen.append((naam, procent(n / n_rijen), balk(n / n_rijen)) if n >= a.drempel_cel else (naam, f"minder dan {a.drempel_cel} rijen", ""))
     categorie_kaarten += "<figure>" + tabel(k, ["Waarde", "Aandeel", ""], rijen, html_kolommen={2}) + "</figure>"
