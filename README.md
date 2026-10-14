@@ -6,17 +6,17 @@ Welkom bij de agentic coding sessie. Je hebt geen lokale installatie nodig — a
 
 ## Aan de slag
 
-### Stap 1 — Klik op de groene "Code" knop
+### Stap 1 — Log in op GitHub
 
-Zoek de groene knop rechtsboven in deze pagina en klik erop.
-
-![Stap 1 — Code knop](docs/images/01-repo-pagina.png)
+Ga naar [github.com](https://github.com) en log in met je eigen account. Heb je er nog geen? Maak er dan gratis een aan met **Sign up**.
 
 ---
 
-### Stap 2 — Open de Codespaces tab en maak een Codespace aan
+### Stap 2 — Maak een Codespace aan
 
-Klik op de tab **Codespaces** en daarna op de groene knop **Create codespace on main**.
+Klik op de groene knop **Code**, dan op de tab **Codespaces** en daarna op **Create codespace on main**.
+
+![Stap 2 — Code knop](docs/images/01-repo-pagina.png)
 
 ![Stap 2 — Codespaces dropdown](docs/images/02-codespaces-dropdown.png)
 
@@ -24,37 +24,27 @@ Klik op de tab **Codespaces** en daarna op de groene knop **Create codespace on 
 
 ### Stap 3 — Wacht tot de omgeving klaar is
 
-De Codespace start automatisch op. Dit duurt ongeveer één minuut.
+De Codespace start vanzelf op. Dit duurt twee tot drie minuten. De workshop-key staat al klaar, je hoeft niets in te stellen.
 
 ![Stap 3 — Codespace laadt](docs/images/03-codespace-laadt.png)
 
 ---
 
-### Stap 4 — Voer de workshop-key in (via de terminal)
+### Stap 4 — Open het Claude-paneel
 
-Klik in de menubalk op **Terminal → New Terminal**.
+Klik op het **oranje Claude-icoon** rechtsboven in de editor. Het Claude-paneel opent aan de rechterkant.
 
-> Sneltoets: `Ctrl+`` ` (Windows/Linux) of `Ctrl+`` ` (Mac)
-
-![Stap 4 — Terminal openen](docs/images/04-vscode-terminal.png)
-
-De eerste keer vraagt de terminal om de **workshop-key**, tenzij die al via een Codespace-secret is ingesteld — dan hoef je niets te doen. Vraagt de terminal toch om de key, plak hem en druk op **Enter** (je ziet tijdens het plakken niets verschijnen, dat is normaal). Opnieuw instellen kan altijd met `dair-onboard`.
+![Stap 4 — Claude-knop](docs/images/05-claude-knop.png)
 
 ---
 
-### Stap 5 — Open het Claude-paneel
-
-Klik op het **oranje Claude-icoon** rechtsboven in de editor. Het Claude-paneel opent aan de rechterkant. Je hoeft niets in de terminal te typen.
-
-![Stap 5 — Claude-knop](docs/images/05-claude-knop.png)
-
----
-
-### Stap 6 — Geef Claude een opdracht
+### Stap 5 — Geef Claude een opdracht
 
 Typ je opdracht in het vak onderaan het paneel en druk op **Enter**. Met `/` zie je alle beschikbare commando's en skills. Hieronder staat welke skills je in deze sessie gebruikt.
 
-![Stap 6 — Claude-paneel](docs/images/06-claude-paneel.png)
+![Stap 5 — Claude-paneel](docs/images/06-claude-paneel.png)
+
+> Vraagt een terminal toch om een workshop-key? Roep de begeleider.
 
 ---
 
