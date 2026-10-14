@@ -1,10 +1,13 @@
 """Maakt een HTML-dataprofiel uit een CSV. Draait zonder AI, ook op andere data.
 
-Gebruik:
-    python verken.py data/bestand.csv --begrip begrip.json --uit uitvoer/data-profiel.html
+Gebruik, vanuit de hoofdmap van de repo:
+    python .claude/skills/verkennen_data/assets/verken.py data/demodata_1cho.csv --vraag A --uitsplitsing sector
+        # met een casusbestand naast de data (data/x.casus.json): schrijft data-profiel.html
+    python verken.py data/bestand.csv --overzicht --demo  # alleen de structuur per kolom, in de terminal
+    python verken.py data/bestand.csv --begrip begrip.json  # zonder casus: de tekst uit begrip.json
     python verken.py data/demo.csv --demo               # demodata: label en de namen van waarden
     python verken.py data/echt.csv                      # elke andere data: geen label en geen namen van waarden
-    python verken.py data/bestand.csv --sleutel persoon --sleutel jaar --uitsplitsing groep
+    python verken.py data/bestand.csv --sleutel persoon --sleutel jaar --uitsplitsing-kolom groep
 
 Het script bevat geen waarden uit de data en geen conclusies. Het rekent de structuur uit (rijen,
 kolommen, unieke en ontbrekende waarden, groepsgroottes), controleert de kwaliteit (sleutel, dubbele rijen,
@@ -23,13 +26,20 @@ from pathlib import Path
 
 import duckdb
 
+
+def maak_hoofdletter(tekst):
+    return tekst[:1].upper() + tekst[1:]
+
 p = argparse.ArgumentParser()
 p.add_argument("csv")
 p.add_argument("--begrip", help="JSON met de tekst van de gebruiker: datagebruik, jouw_aanpak, keuzes, eenheid_rij, sleutel, kolommen, definities, casus_ideeen, casus_aanpak")
-p.add_argument("--uit", default="uitvoer/data-profiel.html")
+p.add_argument("--uit", default="data-profiel.html")
+p.add_argument("--vraag", help="A, B of C uit het casusbestand naast de data")
+p.add_argument("--uitsplitsing", dest="uitsplitsing_naam", help="naam van de uitsplitsing uit het casusbestand, bijvoorbeeld sector")
+p.add_argument("--overzicht", action="store_true", help="druk alleen de structuur per kolom af en schrijf geen profiel")
 p.add_argument("--sep", default=";", help="scheidingsteken van de CSV")
 p.add_argument("--demo", action="store_true", help="de data is demodata: toon het demodata-label en de namen van waarden")
-p.add_argument("--uitsplitsing", action="append", default=[], help="kolom om mee uit te splitsen (herhaalbaar)")
+p.add_argument("--uitsplitsing-kolom", dest="uitsplitsing", action="append", default=[], help="kolom om mee uit te splitsen, zonder casus (herhaalbaar)")
 p.add_argument("--sleutel", action="append", default=[], help="kolom die samen met de andere sleutelkolommen één rij uniek maakt (herhaalbaar)")
 p.add_argument("--drempel", type=int, default=30, help="minimale groepsgrootte")
 p.add_argument("--drempel-cel", type=int, default=5, help="minimale teller of rest bij een percentage")
@@ -46,9 +56,48 @@ GETAL = "try_cast(replace(v, ',', '.') as double)"  # een decimale komma telt al
 
 e = html.escape
 con = duckdb.connect()
-bron = f"read_csv('{a.csv}', delim='{a.sep}', header=true, all_varchar=true)"
+# één keer inlezen in het geheugen van DuckDB; elke controle hieronder leest dan die tabel en niet opnieuw het bestand
+con.sql(f"create table data as select * from read_csv('{a.csv}', delim='{a.sep}', header=true, all_varchar=true)")
+bron = "data"
 q = lambda sql: con.sql(sql).fetchall()
 begrip = json.loads(Path(a.begrip).read_text(encoding="utf-8")) if a.begrip else {}
+keuzes = {"csv": Path(a.csv).as_posix()}
+casus_pad = Path(a.csv).with_suffix(".casus.json")
+if casus_pad.is_file() and not a.begrip:
+    # De casus bepaalt de tekst: kolommen, definities en ideeën liggen vast, de keuzes komen uit het commando
+    casus = json.loads(casus_pad.read_text(encoding="utf-8"))
+    vraag_letter = a.vraag or "A"
+    vraag = casus["vragen"][vraag_letter]
+    naam = a.uitsplitsing_naam or vraag["uitsplitsingen"][0]
+    uitsplitsing = casus["uitsplitsingen"][naam]
+    maat = casus["maten"][vraag["maat"]]
+    label = uitsplitsing["label"]
+    a.demo = a.demo or casus.get("demo", False)
+    a.uitsplitsing = [uitsplitsing["kolom"], *a.uitsplitsing]
+    a.drempel, a.drempel_cel = casus["drempels"]["groep"], casus["drempels"]["cel"]
+    keuzes.update(vraag=vraag_letter, uitsplitsing=naam)
+    begrip = {
+        **casus["begrip"],
+        "jouw_aanpak": f"{vraag['vraag']} Uitgesplitst naar {label}.",
+        "keuzes": [
+            {"onderwerp": "Vraag", "keuze": vraag["vraag"], "status": "bevestigd"},
+            {"onderwerp": "Uitsplitsing", "keuze": label, "status": "bevestigd"},
+            {"onderwerp": "Kernmaat", "keuze": maat["definities"][0][0], "status": "bevestigd", "hoofdstuk": "definities"},
+            {"onderwerp": "Privacy", "keuze": f"groepen vanaf {a.drempel}, cellen vanaf {a.drempel_cel}, secundaire onderdrukking",
+             "status": "bevestigd", "hoofdstuk": "privacy"},
+        ],
+        "definities": [{"naam": n, "definitie": t} for n, t in maat["definities"]],
+        "casus_ideeen": {
+            "hypotheses": [{k: v.format(uitsplitsing=label) for k, v in h.items()} for h in vraag["ideeen"]["hypotheses"]],
+            "valkuilen": vraag["ideeen"]["valkuilen"],
+        },
+        "casus_aanpak": [
+            {"idee": f"{maak_hoofdletter(maat['definities'][0][0])} per {label}",
+             "maat": maat["definities"][0][0], "uitsplitsing": label, "kan_niet": "Waarom groepen verschillen: een verschil is geen oorzaak."},
+            {"idee": f"{maak_hoofdletter(maat['definities'][0][0])} per instroomjaar",
+             "maat": maat["definities"][0][0], "uitsplitsing": "instroomjaar", "kan_niet": "Of een verandering doorzet in de jaren die nog niet in de data zitten."},
+        ],
+    }
 
 kolommen = [r[0] for r in q(f"describe select * from {bron}")]
 kolom_begrip = begrip.get("kolommen", {})
@@ -110,6 +159,13 @@ for k in kolommen:
     structuur.append((k, uniek, leeg, waarden))
 een_waarde = [k for k, u, _, _ in structuur if u == 1]
 n_leeg = sum(leeg for _, _, leeg, _ in structuur)
+
+if a.overzicht:
+    print(f"{Path(a.csv).name}: {duizend(n_rijen)} rijen, {len(kolommen)} kolommen")
+    print("kolom | unieke waarden | leeg | voorgesteld type | waarden" + ("" if a.demo else " (alleen bij --demo)"))
+    for k, u, leeg, w in structuur:
+        print(f"{k} | {duizend(u)} | {duizend(leeg)} | {typen[k][0]} | {w}")
+    sys.exit()
 
 # Groepsgroottes per uitsplitsing: alleen aantallen, geen namen van groepen
 groepen_html = ""
@@ -326,6 +382,7 @@ secties = "\n".join(f'<section id="{i}"><h2>{e(t)}</h2>\n{inhoud[i]}\n</section>
 
 doc = f"""<!doctype html>
 <html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="keuzes" content="{e(json.dumps(keuzes, ensure_ascii=False))}">
 <title>Dataprofiel</title>
 <style>
 :root{{--bg:#fff;--fg:#000;--muted:#4b5563;--line:#d1d5db;--accent:#3d68ec;--warn-bg:#fdf3d0;--vlak:#f3f4f6}}
@@ -358,3 +415,9 @@ uit = Path(a.uit)
 uit.parent.mkdir(parents=True, exist_ok=True)
 uit.write_text(doc, encoding="utf-8")
 print(f"Geschreven: {uit}")
+# Vier regels voor het gesprek: wat elke stap heeft opgeleverd, zonder waarden uit de data
+print(f"Stap 1, kolommen: {len(kolommen)} kolommen, waarvan {len(een_waarde)} met één waarde (die kunnen niet uitsplitsen).")
+print(f"Stap 2, definities en privacy: {len(definities)} definities; groepen onder {a.drempel} tonen we niet.")
+print(f"Stap 3, kwaliteit: sleutel {sleutel_tegel}, {'geen' if not n_dubbel else n_dubbel} dubbele rijen, "
+      f"{len(ontbrekend_kolom)} kolommen met lege waarden.")
+print(f"Stap 4, ideeën: {len(ideeen.get('hypotheses', []))} hypotheses en {len(begrip.get('casus_aanpak', []))} aanpakken.")
