@@ -38,6 +38,10 @@ Klik in de menubalk op **Terminal → New Terminal**.
 
 ![Stap 4 — Terminal openen](docs/images/04-vscode-terminal.png)
 
+Verschijnt de vraag **Do you trust the authors of the files in this folder?**, klik dan op **Trust Folder & Continue**. Zonder dat vertrouwen start de terminal niet. De bestanden komen uit de workshop-repo van CEDA.
+
+![Stap 4 — Map vertrouwen](docs/images/04b-vertrouw-map.png)
+
 De eerste keer vraagt de terminal om de **workshop-key**, tenzij die al via een Codespace-secret is ingesteld — dan hoef je niets te doen. Vraagt de terminal toch om de key, plak hem en druk op **Enter** (je ziet tijdens het plakken niets verschijnen, dat is normaal). Opnieuw instellen kan altijd met `dair-onboard`.
 
 ---
