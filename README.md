@@ -28,6 +28,10 @@ De Codespace start vanzelf op. Dit duurt twee tot drie minuten. De workshop-key 
 
 ![Stap 3 — Codespace laadt](docs/images/03-codespace-laadt.png)
 
+Verschijnt de vraag **Do you trust the authors of the files in this folder?**, klik dan op **Trust Folder & Continue**. Zonder dat vertrouwen start de terminal niet. De bestanden komen uit de workshop-repo van CEDA.
+
+![Stap 3 — Map vertrouwen](docs/images/03b-vertrouw-map.png)
+
 ---
 
 ### Stap 4 — Open het Claude-paneel
