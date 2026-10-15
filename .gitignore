@@ -1,6 +1,5 @@
 node_modules/
 package-lock.json
-uitvoer/
 .venv/
 __pycache__/
 .pytest_cache/
@@ -8,5 +7,7 @@ __pycache__/
 # Lokale metainfo bij de demodata: nooit pushen
 data/metadata_1cho.md
 
-# Gebouwd dashboard (komt uit de skill bouwen_dashboard): nooit pushen
-dashboard/
+# Uitkomsten van de skills: kunnen op echte data gedraaid zijn, nooit pushen
+/data-profiel.html
+/schets.html
+/dashboard.html

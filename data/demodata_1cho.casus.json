@@ -1,0 +1,322 @@
+{
+  "toelichting": "Uitwerking van de workshopcasus bij demodata_1cho.csv. De skills verkennen_data, schets_dashboard en bouwen_dashboard lezen dit bestand en nemen de vragen, definities en teksten letterlijk over.",
+  "demo": true,
+  "eenheid": "studenten",
+  "ondertitel": "Eerstejaars bij een hogeschool, per instroomjaar. In de opzet van 1CijferHO.",
+  "scheidingsteken": ";",
+  "kolommen": {
+    "persoon": "persoonsgebonden_nummer",
+    "jaar": "inschrijvingsjaar",
+    "start": "verblijfsjaar_actuele_instelling",
+    "start_waarde": "1",
+    "diplomajaar": "diplomajaar"
+  },
+  "drempels": {
+    "groep": 30,
+    "cel": 5
+  },
+  "uitsplitsingen": {
+    "sector": {
+      "kolom": "croho_onderdeel_actuele_opleiding",
+      "label": "sector"
+    },
+    "opleiding": {
+      "kolom": "opleidingscode_naam_opleiding",
+      "label": "opleiding",
+      "opschonen": "^B "
+    },
+    "vooropleiding": {
+      "kolom": "hoogste_vooropleiding_voor_het_ho_omschrijving_vooropleiding",
+      "label": "vooropleiding"
+    },
+    "geslacht": {
+      "kolom": "geslacht",
+      "label": "geslacht"
+    },
+    "vestiging": {
+      "kolom": "vestigingsnummer_gemeentenaam_volgens_rio",
+      "label": "vestiging"
+    }
+  },
+  "filters": [
+    "vestiging",
+    "geslacht"
+  ],
+  "maten": {
+    "uitval": {
+      "definities": [
+        [
+          "Stopt na het eerste jaar",
+          "Een eerstejaars die het jaar erna niet meer bij de instelling ingeschreven staat. Dat is niet hetzelfde als stoppen met studeren: de student kan elders verder zijn gegaan."
+        ],
+        [
+          "Eerstejaars",
+          "Een student in het eerste jaar bij de instelling. Het instroomjaar is het jaar waarin dat eerste jaar begint."
+        ],
+        [
+          "Welke jaren meetellen",
+          "Alleen instroomjaren waarvan het jaar erna al in de data zit. Het laatste jaar valt daarom weg."
+        ]
+      ],
+      "aannames": [
+        "Wie het jaar erna niet in dit bestand staat, telt als gestopt bij de instelling.",
+        "Elke student telt één keer: in het jaar waarin die begon, in de groep van dat jaar."
+      ],
+      "niet_zeggen": [
+        "Waarom studenten stoppen: daarvoor zijn andere gegevens nodig.",
+        "Of een student elders verder studeert."
+      ],
+      "soort": "uitval"
+    },
+    "diploma": {
+      "definities": [
+        [
+          "Diploma binnen vijf jaar",
+          "Een eerstejaars die binnen vijf studiejaren (het instroomjaar en de vier jaren erna) een bachelordiploma haalt bij de instelling."
+        ],
+        [
+          "Eerstejaars",
+          "Een student in het eerste jaar bij de instelling. Het instroomjaar is het jaar waarin dat eerste jaar begint."
+        ],
+        [
+          "Welke jaren meetellen",
+          "Alleen instroomjaren waarvan alle vijf jaren al in de data zitten. De laatste vier jaren vallen daarom weg."
+        ]
+      ],
+      "aannames": [
+        "Een diploma telt alleen als het bij deze instelling is behaald.",
+        "Elke student telt één keer: in het jaar waarin die begon, in de groep van dat jaar."
+      ],
+      "niet_zeggen": [
+        "Hoe goed een opleiding is: een verschil kan ook komen door wie er instroomt.",
+        "Iets over studenten die na vijf jaar nog een diploma halen."
+      ],
+      "soort": "diploma",
+      "termijn": 5
+    }
+  },
+  "vragen": {
+    "A": {
+      "label": "Wie stopt na het eerste jaar?",
+      "vraag": "Welk deel van de eerstejaars stopt na het eerste jaar?",
+      "uitleg": "Vergelijk sectoren en zie hoe het over de jaren verandert.",
+      "berekening": "uitval",
+      "uitsplitsingen": [
+        "sector",
+        "opleiding",
+        "geslacht"
+      ],
+      "kerncijfer": "Stopt na het eerste jaar",
+      "maat_kort": "het aandeel dat stopt",
+      "titel_groep": "Verschilt het stoppen per {uitsplitsing}?",
+      "titel_jaar": "Verandert het stoppen over de jaren?",
+      "uitleg_groep": "Het aandeel eerstejaars dat het jaar erna niet meer ingeschreven staat, per {uitsplitsing}, alle instroomjaren samen.",
+      "uitleg_jaar": "Hetzelfde aandeel per instroomjaar.",
+      "ideeen": {
+        "hypotheses": [
+          {
+            "vraag": "Stoppen er in de ene {uitsplitsing} meer eerstejaars dan in de andere?",
+            "alternatieve_verklaring": "De groepen verschillen in wie er instroomt, bijvoorbeeld in vooropleiding."
+          },
+          {
+            "vraag": "Is er een jaar waarin minder eerstejaars stopten?",
+            "alternatieve_verklaring": "Een andere regel of een bijzonder jaar, niet de studenten zelf."
+          }
+        ],
+        "valkuilen": [
+          "Niet meer ingeschreven is niet hetzelfde als gestopt met studeren.",
+          "Kleine groepen schommelen sterk; die tonen we niet."
+        ]
+      },
+      "maat": "uitval"
+    },
+    "B": {
+      "label": "Wie haalt binnen vijf jaar een diploma?",
+      "vraag": "Welk deel van de eerstejaars haalt binnen vijf jaar een diploma?",
+      "uitleg": "Vergelijk opleidingen en zie hoe het over de jaren verandert.",
+      "berekening": "diploma",
+      "uitsplitsingen": [
+        "opleiding",
+        "vooropleiding",
+        "sector"
+      ],
+      "kerncijfer": "Diploma binnen vijf jaar",
+      "maat_kort": "het aandeel met een diploma",
+      "titel_groep": "Verschilt het diplomarendement per {uitsplitsing}?",
+      "titel_jaar": "Verandert het diplomarendement over de jaren?",
+      "uitleg_groep": "Het aandeel eerstejaars met een bachelordiploma binnen vijf jaar, per {uitsplitsing}, alle meetellende instroomjaren samen.",
+      "uitleg_jaar": "Hetzelfde aandeel per instroomjaar.",
+      "ideeen": {
+        "hypotheses": [
+          {
+            "vraag": "Halen eerstejaars in de ene {uitsplitsing} vaker een diploma dan in de andere?",
+            "alternatieve_verklaring": "De groepen verschillen in wie er instroomt, of in hoe lang de opleiding duurt."
+          },
+          {
+            "vraag": "Halen recente instroomjaren minder vaak binnen vijf jaar een diploma?",
+            "alternatieve_verklaring": "Een bijzonder jaar, zoals 2020, kan studenten vertraging hebben gegeven."
+          }
+        ],
+        "valkuilen": [
+          "Een diploma elders telt hier niet mee.",
+          "De laatste vier instroomjaren zijn nog niet te meten."
+        ]
+      },
+      "maat": "diploma"
+    },
+    "C": {
+      "label": "Hangt stoppen samen met je vooropleiding?",
+      "vraag": "Stoppen eerstejaars vaker na het eerste jaar bij de ene vooropleiding dan bij de andere?",
+      "uitleg": "Vergelijk vooropleidingen en zie hoe het over de jaren verandert.",
+      "berekening": "uitval",
+      "uitsplitsingen": [
+        "vooropleiding",
+        "sector",
+        "geslacht"
+      ],
+      "kerncijfer": "Stopt na het eerste jaar",
+      "maat_kort": "het aandeel dat stopt",
+      "titel_groep": "Verschilt het stoppen per {uitsplitsing}?",
+      "titel_jaar": "Verandert het stoppen over de jaren?",
+      "uitleg_groep": "Het aandeel eerstejaars dat het jaar erna niet meer ingeschreven staat, per {uitsplitsing}, alle instroomjaren samen.",
+      "uitleg_jaar": "Hetzelfde aandeel per instroomjaar.",
+      "ideeen": {
+        "hypotheses": [
+          {
+            "vraag": "Stoppen eerstejaars met de ene {uitsplitsing} vaker dan met de andere?",
+            "alternatieve_verklaring": "Een vooropleiding hangt samen met de opleiding die iemand kiest; het verschil kan bij de opleiding liggen."
+          },
+          {
+            "vraag": "Is er een jaar waarin minder eerstejaars stopten?",
+            "alternatieve_verklaring": "Een andere regel of een bijzonder jaar, niet de studenten zelf."
+          }
+        ],
+        "valkuilen": [
+          "Niet meer ingeschreven is niet hetzelfde als gestopt met studeren.",
+          "Kleine groepen schommelen sterk; die tonen we niet."
+        ]
+      },
+      "maat": "uitval"
+    }
+  },
+  "begrip": {
+    "datagebruik": "Demodata: fictieve studenten, mag gelezen worden.",
+    "eenheid_rij": "Een student in een inschrijvingsjaar.",
+    "sleutel": [
+      "persoonsgebonden_nummer",
+      "inschrijvingsjaar"
+    ],
+    "kolommen": {
+      "persoonsgebonden_nummer": {
+        "rol": "identificatie",
+        "betekenis": "Nummer dat één student aanwijst.",
+        "let_op": "Nooit tonen; tel er studenten mee."
+      },
+      "inschrijvingsjaar": {
+        "rol": "tijd",
+        "betekenis": "Het jaar waarin het studiejaar begint (2023 is 2023/2024).",
+        "let_op": "Het aantal rijen per jaar groeit doordat er ouderejaars bij komen."
+      },
+      "verblijfsjaar_actuele_instelling": {
+        "rol": "maat",
+        "betekenis": "Het hoeveelste jaar de student bij de instelling ingeschreven staat.",
+        "let_op": "Waarde 1 is het eerste jaar: zo vind je de eerstejaars."
+      },
+      "verblijfsjaar_actuele_opleiding_instelling": {
+        "rol": "maat",
+        "betekenis": "Het hoeveelste jaar de student in dezelfde opleiding zit.",
+        "let_op": "Begint weer bij 1 als iemand van opleiding wisselt."
+      },
+      "diplomajaar": {
+        "rol": "tijd",
+        "betekenis": "Het jaar waarin het diploma is behaald.",
+        "let_op": "Leeg betekent: in die rij geen diploma."
+      },
+      "soort_hoger_onderwijs": {
+        "rol": "categorie",
+        "betekenis": "Hbo of wo.",
+        "let_op": "Eén waarde: kan niet uitsplitsen."
+      },
+      "soort_inschrijving_actuele_instelling": {
+        "rol": "categorie",
+        "betekenis": "Of het de hoofdinschrijving is.",
+        "let_op": "Eén waarde: kan niet uitsplitsen."
+      },
+      "geslacht": {
+        "rol": "categorie",
+        "betekenis": "Geslacht van de student.",
+        "let_op": ""
+      },
+      "opleidingsvorm": {
+        "rol": "categorie",
+        "betekenis": "Voltijd, deeltijd of duaal.",
+        "let_op": "Eén waarde: kan niet uitsplitsen."
+      },
+      "indicatie_internationale_student": {
+        "rol": "categorie",
+        "betekenis": "Of de student als internationale student telt.",
+        "let_op": "Niet hetzelfde als niet-EER."
+      },
+      "indicatie_eer_actueel": {
+        "rol": "categorie",
+        "betekenis": "Of de student een nationaliteit uit de EER heeft (inclusief Nederland).",
+        "let_op": ""
+      },
+      "croho_onderdeel_actuele_opleiding": {
+        "rol": "categorie",
+        "betekenis": "De sector van de opleiding.",
+        "let_op": ""
+      },
+      "soort_diploma_instelling": {
+        "rol": "categorie",
+        "betekenis": "Het soort diploma.",
+        "let_op": "Leeg betekent: geen diploma."
+      },
+      "opleiding_actueel_equivalent": {
+        "rol": "categorie",
+        "betekenis": "Code van de opleiding.",
+        "let_op": "Een code, geen getal; hoort bij de naam van de opleiding."
+      },
+      "type_hoger_onderwijs_binnen_soort_hoger_onderwijs": {
+        "rol": "categorie",
+        "betekenis": "Bachelor of master.",
+        "let_op": "Eén waarde: kan niet uitsplitsen."
+      },
+      "leeftijd_per_peildatum_1_oktober": {
+        "rol": "maat",
+        "betekenis": "Leeftijd aan het begin van het studiejaar.",
+        "let_op": "Lees als tekst om de voorloopnul te houden."
+      },
+      "postcodecijfers_student_op_1_oktober": {
+        "rol": "categorie",
+        "betekenis": "De vier cijfers van de postcode van het woonadres.",
+        "let_op": "Een code, geen getal; kan iemand herkenbaar maken."
+      },
+      "postcodecijfers_van_de_hoogste_vooropl_voor_het_ho": {
+        "rol": "categorie",
+        "betekenis": "Postcodecijfers van het adres bij de vooropleiding.",
+        "let_op": "Een code, geen getal; kan iemand herkenbaar maken."
+      },
+      "opleidingscode_naam_opleiding": {
+        "rol": "categorie",
+        "betekenis": "Naam van de opleiding.",
+        "let_op": "Begint met B voor bachelor."
+      },
+      "vestigingsnummer_gemeentenaam_volgens_rio": {
+        "rol": "categorie",
+        "betekenis": "De plaats waar de opleiding wordt gegeven.",
+        "let_op": ""
+      },
+      "hoogste_vooropleiding_voor_het_ho_omschrijving_vooropleiding": {
+        "rol": "categorie",
+        "betekenis": "De hoogste vooropleiding voor het hoger onderwijs.",
+        "let_op": "Havo en vwo per profiel, mbo per sector."
+      },
+      "eerste_jaar_in_het_hoger_onderwijs": {
+        "rol": "tijd",
+        "betekenis": "Het eerste jaar in het hoger onderwijs, ook elders.",
+        "let_op": "Niet hetzelfde als het eerste jaar bij deze instelling."
+      }
+    }
+  }
+}
