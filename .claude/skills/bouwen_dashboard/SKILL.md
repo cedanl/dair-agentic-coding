@@ -20,6 +20,14 @@ kleine wens van de gebruiker mag je `dashboard.html` zelf aanpassen (zie *Aanpas
 gebruiker kiest of typt, in je eigen woorden. Hooguit drie zinnen per bericht. Noem geen bestandsnamen of
 commando's, tenzij de gebruiker erom vraagt.
 
+**Vragen.** Stel elke vraag met de AskUserQuestion-tool, niet als losse tekst, zodat de gebruiker op de route
+blijft. Gebruik de mogelijkheden van de tool waar ze helpen en beslis per vraag zelf welke past: een korte
+`header`, bij elke optie een uitleg, de aanbevolen optie eerst met *(Aanbevolen)*, `multiSelect` als meer dan
+één antwoord tegelijk kan, `preview` als het vergelijken van opties daardoor duidelijker wordt, en tot vier
+samenhangende vragen in één aanroep. Wil de gebruiker iets anders, dan kiest die *Other* en typt zelf.
+Standaard is één vraag met drie opties en één aanbeveling: een richtlijn, geen regel. Welke vragen je stelt en
+in welke volgorde ligt vast.
+
 Is de AskUserQuestion-tool niet beschikbaar, stel een keuzevraag dan in het gesprek: de opties als A, B, C
 (met *(aanbevolen)* achter de aanbevolen optie), en stop je bericht daar. Ga pas verder als de gebruiker
 antwoordt.
@@ -59,7 +67,7 @@ Geef de link meteen, met deze opbouw in je eigen woorden:
 
 Vraag met de AskUserQuestion-tool: **Wil je nog iets anders zien?** Opties, in deze volgorde: de eerste twee
 aanpassingen uit de laatste uitvoer (de regels die met `- ` beginnen na *Aanpassen*, het deel vóór `=>` als
-label, de eerste met "(Aanbevolen)"), *Iets anders aanpassen* en *Het is goed zo*. Stop na *Het is goed zo*
+label, de eerste met "(Aanbevolen)") en *Het is goed zo*. Een eigen wens typt de gebruiker via *Other*. Stop na *Het is goed zo*
 of na vijf aanpassingen of wensen samen.
 
 **Een vaste aanpassing:**
@@ -72,8 +80,8 @@ of na vijf aanpassingen of wensen samen.
 Een vaste aanpassing maakt het dashboard opnieuw: kleine wensen van eerder verdwijnen dan. Zeg dat als er al
 een kleine wens was doorgevoerd.
 
-**Iets anders aanpassen, of een eigen wens in eigen woorden:** vraag in het gesprek wat de gebruiker wil
-veranderen, herhaal het in één zin, en kijk of het een kleine of een grote wens is.
+**Een eigen wens (via *Other*, of in het gesprek getypt):** lees wat de gebruiker wil veranderen, herhaal het
+in één zin, en kijk of het een kleine of een grote wens is.
 
 - **Klein: tekst, kleur of volgorde in het dashboard.** Een andere titel of uitleg, een kortere ondertitel,
   een andere kleur uit de Npuls-huisstijl (`--npuls-oranje`, `--npuls-groen`, `--npuls-blauw`, `--npuls-geel`;

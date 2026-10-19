@@ -17,6 +17,14 @@ schrijf geen eigen code.
 gebruiker kiest, in je eigen woorden. Hooguit drie zinnen per bericht. Noem geen bestandsnamen of commando's,
 tenzij de gebruiker erom vraagt.
 
+**Vragen.** Stel elke vraag met de AskUserQuestion-tool, niet als losse tekst, zodat de gebruiker op de route
+blijft. Gebruik de mogelijkheden van de tool waar ze helpen en beslis per vraag zelf welke past: een korte
+`header`, bij elke optie een uitleg, de aanbevolen optie eerst met *(Aanbevolen)*, `multiSelect` als meer dan
+één antwoord tegelijk kan, `preview` als het vergelijken van opties daardoor duidelijker wordt, en tot vier
+samenhangende vragen in één aanroep. Wil de gebruiker iets anders, dan kiest die *Other* en typt zelf.
+Standaard is één vraag met drie opties en één aanbeveling: een richtlijn, geen regel. Welke vragen je stelt en
+in welke volgorde ligt vast.
+
 Staat `data-profiel.html` niet in de hoofdmap, zeg dan: *"Typ eerst `/verkennen_data`."* en stop.
 
 **Start.** Draai daarna, zonder het te noemen: `uv run scripts/vragenteller.py fase 2`.
