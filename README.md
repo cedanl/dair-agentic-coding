@@ -2,6 +2,12 @@
 
 Welkom bij de agentic coding sessie. Je hebt geen lokale installatie nodig — alles draait in de browser via GitHub Codespaces.
 
+Na afloop kun je:
+
+- een vraag over data omzetten in een dashboard, samen met Claude;
+- uitleggen hoe de cijfers in je dashboard zijn berekend en welke privacyregels erin zitten;
+- aangeven wat je zelf beslist en wat je aan Claude overlaat.
+
 ---
 
 ## Aan de slag
