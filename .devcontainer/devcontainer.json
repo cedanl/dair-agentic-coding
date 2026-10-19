@@ -38,6 +38,19 @@
         "git.autofetch": false,
         "git.openRepositoryInParentFolders": "never",
         "chat.disableAIFeatures": true,
+        "files.exclude": {
+          ".devcontainer": true,
+          ".entire": true,
+          ".gitattributes": true,
+          ".github": true,
+          ".gitignore": true,
+          "docs": true,
+          "package.json": true,
+          "PLANNING.md": true,
+          "scripts": true,
+          "**/__pycache__": true,
+          "**/.pytest_cache": true
+        },
         "workbench.editorAssociations": {
           "*.md": "vscode.markdown.preview.editor"
         },
