@@ -26,11 +26,14 @@ if state["rondes"] >= MAX_RONDES:
     print(json.dumps({"hookSpecificOutput": {
         "hookEventName": "PostToolUse",
         "additionalContext": (
-            f"Je hebt in fase {state['fase']} {MAX_RONDES} keer gevraagd. Stel geen nieuwe vraag meer. "
-            "Start nu het spiegelmoment: vat in twee of drie zinnen samen wat de gebruiker tot nu toe "
-            "koos en waarom, en vraag of dat klopt met hun eigen inzicht. Zeg daarna dat ze hun "
-            "resultaat kort live presenteren aan de groep en dat we daarna door gaan naar de volgende "
-            "fase. Ga pas verder als de gebruiker aangeeft dat het zover is."
+            f"Je hebt in fase {state['fase']} {MAX_RONDES} keer gevraagd. "
+            "Stel geen vragen en gebruik geen tools meer. Toon nu precies dit bericht, in gewoon Nederlands "
+            "en zonder extra uitleg:\n\n"
+            "**Even pauze: kijk op van je scherm.**\n\n"
+            "Dit heb je tot nu toe gekozen:\n"
+            "- (maximaal drie korte punten, in jouw woorden en met het waarom)\n\n"
+            "De speaker pakt nu het woord. Typ **door** zodra de speaker zegt dat je verder mag.\n\n"
+            "Doe daarna niets tot de gebruiker 'door' typt."
         ),
     }}))
 STATE.write_text(json.dumps(state))
