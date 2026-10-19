@@ -6,6 +6,17 @@
     "ANTHROPIC_FOUNDRY_API_KEY": "${localEnv:ANTHROPIC_FOUNDRY_API_KEY}"
   },
   "postCreateCommand": "bash .devcontainer/welcome.sh",
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "4gb",
+    "storage": "16gb"
+  },
+  "portsAttributes": {
+    "8765": {
+      "label": "Dashboard",
+      "onAutoForward": "silent"
+    }
+  },
   "otherPortsAttributes": {
     "onAutoForward": "silent"
   },
