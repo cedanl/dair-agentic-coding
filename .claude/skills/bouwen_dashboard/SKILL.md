@@ -100,8 +100,8 @@ Zeg tot slot, zonder vraag: *"Wil je weten wat er is gerekend? Open `dashboard-b
 verkenner: daar staat precies hoe de cijfers zijn berekend. Deze Codespace is tijdelijk. Wil je je dashboard
 houden, klik dan met de rechtermuisknop op `dashboard.html` (en het rekenbestand erbij) en kies **Download**.
 Er gaat niets naar GitHub."*
-Sluit af met: *"Onderaan het dashboard staat het commando waarmee het opnieuw draait op je eigen data, zonder
-AI."*
+Zeg dan: *"Onderaan het dashboard staat het commando waarmee het opnieuw draait op je eigen data, zonder AI."*
+Sluit af met: *"Typ `/review-reflect` als je de sessie wilt beoordelen. Dat is anoniem."*
 
 ## Als er iets misgaat
 
