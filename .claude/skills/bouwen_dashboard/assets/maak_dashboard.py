@@ -7,8 +7,9 @@ Gebruik, vanuit de hoofdmap van de repo:
         --uitsplitsing sector --filter vestiging
 
 De vraag, de definities en de teksten komen uit het casusbestand naast de data (data/x.csv -> data/x.casus.json).
-De berekeningen staan hieronder en zijn getest: tel eerstejaars, en per eerstejaars of die het jaar erna gestopt
-is of binnen een termijn een diploma haalde. De privacydrempels worden toegepast voordat er iets in het bestand
+De berekeningen staan in berekeningen.py, naast dit script, en zijn getest: tel eerstejaars, en per eerstejaars of
+die het jaar erna gestopt is of binnen een termijn een diploma haalde. Het dashboard krijgt een kopie mee als
+dashboard-berekeningen.py, zodat de deelnemer ziet wat er is gerekend. De privacydrempels worden toegepast voordat er iets in het bestand
 komt: in het dashboard staan alleen uitkomsten per groep, nooit rijen.
 """
 
@@ -21,12 +22,15 @@ import html
 import json
 import math
 import re
+import shutil
 import string
 import sys
 import time
 from pathlib import Path
 
 import polars as pl
+
+from berekeningen import bereken_eerstejaars, pas_drempels_toe, tel
 
 HIER = Path(__file__).resolve().parent
 e = html.escape
@@ -122,56 +126,6 @@ def lees_data(pad: Path, ins: dict) -> pl.DataFrame:
     except MemoryError as fout:
         raise Melding(f"{pad.name} is te groot om in te lezen. Sla alleen de kolommen "
                       f"{', '.join(ins['kolommen'])} op in een kleiner bestand.") from fout
-
-
-# ── Berekeningen ────────────────────────────────────────────────────────────
-
-
-def bereken_eerstejaars(data: pl.DataFrame, ins: dict) -> pl.DataFrame:
-    """Per eerstejaars één rij: persoon, instroomjaar (periode), groep en of die meetelt in de teller."""
-    k = ins["k"]
-    d = data.with_columns(pl.col(k["jaar"]).cast(pl.Int32, strict=False).alias("_jaar"))
-    laatste = d["_jaar"].max()
-    groep = pl.col(ins["uitsplitsing"]["kolom"]).fill_null("onbekend").str.strip_chars()
-    if ins["uitsplitsing"].get("opschonen"):
-        groep = groep.str.replace(ins["uitsplitsing"]["opschonen"], "")
-    instroom = (d.filter(pl.col(k["start"]).str.strip_chars() == k["start_waarde"])
-                .select(pl.col(k["persoon"]).alias("persoon"), pl.col("_jaar").alias("periode"), groep.alias("groep"))
-                .unique(subset="persoon", keep="first"))
-    if ins["maat"]["soort"] == "uitval":
-        terug = (d.select(pl.col(k["persoon"]).alias("persoon"), (pl.col("_jaar") - 1).alias("periode"))
-                 .unique().with_columns(pl.lit(True).alias("terug")))
-        return (instroom.filter(pl.col("periode") + 1 <= laatste)
-                .join(terug, on=["persoon", "periode"], how="left")
-                .with_columns(pl.col("terug").is_null().alias("telt")).drop("terug"))
-    termijn = ins["maat"]["termijn"]
-    diploma = (d.select(pl.col(k["persoon"]).alias("persoon"),
-                        pl.col(k["diplomajaar"]).cast(pl.Int32, strict=False).alias("diplomajaar"))
-               .group_by("persoon").agg(pl.col("diplomajaar").min()))
-    return (instroom.filter(pl.col("periode") + termijn - 1 <= laatste)
-            .join(diploma, on="persoon", how="left")
-            .with_columns(((pl.col("diplomajaar") - pl.col("periode")) <= termijn - 1).fill_null(False).alias("telt"))
-            .drop("diplomajaar"))
-
-
-def tel(eerstejaars: pl.DataFrame, per: str) -> list[dict]:
-    return (eerstejaars.group_by(per).agg(pl.col("telt").sum().alias("teller"), pl.len().alias("noemer"))
-            .sort(per).to_dicts())
-
-
-def pas_drempels_toe(rijen: list[dict], ins: dict) -> list[dict]:
-    """Verbergt kleine groepen, en ook de kleinste zichtbare als er precies één verborgen is."""
-    for r in rijen:
-        r["n"] = r["noemer"]
-        r["verborgen"] = r["noemer"] < ins["groep"] or r["teller"] < ins["cel"] or r["noemer"] - r["teller"] < ins["cel"]
-        r["waarde"] = r["teller"] / r["noemer"] if r["noemer"] else 0.0
-    zichtbaar = [r for r in rijen if not r["verborgen"]]
-    if len(rijen) - len(zichtbaar) == 1 and zichtbaar:
-        min(zichtbaar, key=lambda r: r["n"])["verborgen"] = True
-    for r in rijen:
-        if r["verborgen"]:
-            r["waarde"] = None  # een verborgen waarde komt niet in het bestand
-    return rijen
 
 
 # ── Tekst ───────────────────────────────────────────────────────────────────
@@ -463,6 +417,7 @@ def main() -> None:
     except Melding as melding:
         sys.exit(f"Niet gelukt: {melding}")
     args.uit.write_text(pagina, encoding="utf-8")
+    shutil.copyfile(HIER / "berekeningen.py", args.uit.with_name("dashboard-berekeningen.py"))
     print(f"Klaar in {time.perf_counter() - start:.1f} s: {args.uit} ({maak_getal(data.height)} rijen gelezen)")
     toon_uitkomst(data, ins)
 

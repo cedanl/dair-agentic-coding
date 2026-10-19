@@ -96,8 +96,10 @@ veranderen, herhaal het in één zin, en kijk of het een kleine of een grote wen
 
 ## 4. Meenemen
 
-Zeg tot slot, zonder vraag: *"Deze Codespace is tijdelijk. Wil je je dashboard houden, klik dan met de
-rechtermuisknop op `dashboard.html` in de verkenner links en kies **Download**. Er gaat niets naar GitHub."*
+Zeg tot slot, zonder vraag: *"Wil je weten wat er is gerekend? Open `dashboard-berekeningen.py` in de
+verkenner: daar staat precies hoe de cijfers zijn berekend. Deze Codespace is tijdelijk. Wil je je dashboard
+houden, klik dan met de rechtermuisknop op `dashboard.html` (en het rekenbestand erbij) en kies **Download**.
+Er gaat niets naar GitHub."*
 Sluit af met: *"Onderaan het dashboard staat het commando waarmee het opnieuw draait op je eigen data, zonder
 AI."*
 
