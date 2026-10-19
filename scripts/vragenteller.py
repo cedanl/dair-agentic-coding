@@ -27,6 +27,9 @@ if time.time() - state["laatst"] > MAX_STILTE:
     STATE.unlink()
     sys.exit(0)
 
+if state["fase"] == 0:  # de intake heeft vaste vragen en geen spiegelmoment
+    sys.exit(0)
+
 state["laatst"] = time.time()
 state["rondes"] += 1
 if state["rondes"] >= MAX_RONDES:

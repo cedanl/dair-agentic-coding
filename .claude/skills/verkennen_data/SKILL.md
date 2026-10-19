@@ -29,9 +29,6 @@ Eerst drie vragen, dan ga ik aan de slag."* Stel dan met de AskUserQuestion-tool
 `label`, met "(Aanbevolen)" achter A. Uitleg: het veld `uitleg`. Houd in al je berichten, ook in de volgende
 skills, de `toon` van de gekozen doelgroep aan. Kort en in gewone taal blijft gelden.
 
-Draai direct na dit antwoord, zonder het te noemen: `uv run scripts/vragenteller.py fase 1`. De doelgroep hoort
-bij fase 0 en telt niet mee voor de rondes van fase 1.
-
 Reageer in één zin op de keuze (*"Dan houd ik het concreet per groep."*) en stel de volgende vraag, ook met de
 tool:
 
@@ -53,6 +50,9 @@ kan. Is de AskUserQuestion-tool niet beschikbaar, stel de vraag dan in het gespr
 *(aanbevolen)* achter de aanbevolen optie), en stop je bericht daar. Ga pas verder als de gebruiker antwoordt.
 
 ## 2. Vier stappen
+
+Draai eerst, zonder het te noemen: `uv run scripts/vragenteller.py fase 1`. De drie vragen hierboven horen bij
+fase 0 en tellen niet mee voor de rondes.
 
 Draai de vier stappen als **vier losse commando's**, vanuit de hoofdmap, met de gekozen letter en
 uitsplitsing (zoals `A` en `sector`). Zet vóór elk commando één zin in de ik-vorm over wat je gaat doen, en
