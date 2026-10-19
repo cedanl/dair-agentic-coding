@@ -5,21 +5,29 @@ Skills draaien `vragenteller.py fase N` bij de start van een fase. De PostToolUs
 .claude/settings.json draait het script zonder argumenten na elke AskUserQuestion.
 """
 import json
+import os
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 MAX_RONDES = 3
-STATE = Path(tempfile.gettempdir()) / "dair-vragenteller.json"
+MAX_STILTE = 2 * 3600  # een fase ouder dan dit is voorbij; voorkomt een teller uit een eerdere sessie
+STATE = Path(os.environ.get("DAIR_VRAGENTELLER_STATE") or Path(tempfile.gettempdir()) / "dair-vragenteller.json")
 
 if sys.argv[1:2] == ["fase"]:
-    STATE.write_text(json.dumps({"fase": int(sys.argv[2]), "rondes": 0}))
+    STATE.write_text(json.dumps({"fase": int(sys.argv[2]), "rondes": 0, "laatst": time.time()}))
     sys.exit(0)
 
 if not STATE.exists():
     sys.exit(0)
 
 state = json.loads(STATE.read_text())
+if time.time() - state["laatst"] > MAX_STILTE:
+    STATE.unlink()
+    sys.exit(0)
+
+state["laatst"] = time.time()
 state["rondes"] += 1
 if state["rondes"] >= MAX_RONDES:
     state["rondes"] = 0
