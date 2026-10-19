@@ -1,7 +1,7 @@
 ---
-name: bouwen_dashboard
+name: 3-bouwen
 description: >-
-  Gebruik wanneer iemand na de schets (schets.html) het dashboard wil laten bouwen — zonder vragen vooraf maakt één script uit de keuzes in de schets het dashboard dashboard.html in de hoofdmap (kerncijfers, grafieken, filter, privacydrempel en uitleg, in de Npuls-huisstijl, zonder server), met een link om het met één klik te openen. Daarna kan de gebruiker het dashboard aanpassen met vaste keuzes, en uitleggen hoe hij het meeneemt. LET OP — de data verkennen hoort bij `verkennen_data` en de views schetsen bij `schets_dashboard`.
+  Gebruik wanneer iemand na de schets (schets.html) het dashboard wil laten bouwen — zonder vragen vooraf maakt één script uit de keuzes in de schets het dashboard dashboard.html in de hoofdmap (kerncijfers, grafieken, filter, privacydrempel en uitleg, in de Npuls-huisstijl, zonder server), met een link om het met één klik te openen. Daarna kan de gebruiker het dashboard aanpassen met vaste keuzes, en uitleggen hoe hij het meeneemt. LET OP — de data verkennen hoort bij `1-verkennen` en de views schetsen bij `2-schetsen`.
 disable-model-invocation: true
 allowed-tools: Read Edit Bash AskUserQuestion
 metadata:
@@ -32,7 +32,7 @@ Is de AskUserQuestion-tool niet beschikbaar, stel een keuzevraag dan in het gesp
 (met *(aanbevolen)* achter de aanbevolen optie), en stop je bericht daar. Ga pas verder als de gebruiker
 antwoordt.
 
-Staat `schets.html` niet in de hoofdmap, zeg dan: *"Typ eerst `/schets_dashboard`."* en stop.
+Staat `schets.html` niet in de hoofdmap, zeg dan: *"Typ eerst `/2-schetsen`."* en stop.
 
 Alle commando's draai je vanuit de hoofdmap, precies zoals ze hier staan.
 
@@ -109,7 +109,7 @@ verkenner: daar staat precies hoe de cijfers zijn berekend. Deze Codespace is ti
 houden, klik dan met de rechtermuisknop op `dashboard.html` (en het rekenbestand erbij) en kies **Download**.
 Er gaat niets naar GitHub."*
 Zeg dan: *"Onderaan het dashboard staat het commando waarmee het opnieuw draait op je eigen data, zonder AI."*
-Sluit af met: *"Typ `/review-reflect` als je de sessie wilt beoordelen. Dat is anoniem."*
+Sluit af met: *"Typ `/4-review` als je de sessie wilt beoordelen. Dat is anoniem."*
 
 ## Als er iets misgaat
 

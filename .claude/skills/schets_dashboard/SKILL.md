@@ -1,6 +1,6 @@
 ---
-name: schets_dashboard
-description: Gebruik wanneer iemand na het dataprofiel (data-profiel.html) het dashboard wil schetsen — één vraagronde (filter en volgorde), dan maakt één script schets.html in de hoofdmap met de twee views op papier, zonder data en zonder getallen, en krijgt de gebruiker een link om het met één klik te openen. LET OP — de data verkennen hoort bij `verkennen_data` en het dashboard bouwen bij `bouwen_dashboard`.
+name: 2-schetsen
+description: Gebruik wanneer iemand na het dataprofiel (data-profiel.html) het dashboard wil schetsen — één vraagronde (filter en volgorde), dan maakt één script schets.html in de hoofdmap met de twee views op papier, zonder data en zonder getallen, en krijgt de gebruiker een link om het met één klik te openen. LET OP — de data verkennen hoort bij `1-verkennen` en het dashboard bouwen bij `3-bouwen`.
 disable-model-invocation: true
 allowed-tools: Read Bash AskUserQuestion
 metadata:
@@ -25,7 +25,7 @@ samenhangende vragen in één aanroep. Wil de gebruiker iets anders, dan kiest d
 Standaard is één vraag met drie opties en één aanbeveling: een richtlijn, geen regel. Welke vragen je stelt en
 in welke volgorde ligt vast.
 
-Staat `data-profiel.html` niet in de hoofdmap, zeg dan: *"Typ eerst `/verkennen_data`."* en stop.
+Staat `data-profiel.html` niet in de hoofdmap, zeg dan: *"Typ eerst `/1-verkennen`."* en stop.
 
 **Start.** Draai daarna, zonder het te noemen: `uv run scripts/vragenteller.py fase 2`.
 
@@ -69,7 +69,7 @@ uit het tweede:
 > Bovenaan komt *<view 1>*, daaronder *<view 2>*, met een filter op <filter>. Nog zonder getallen: die
 > komen pas in het dashboard.
 >
-> Volgende stap: typ `/bouwen_dashboard`.
+> Volgende stap: typ `/3-bouwen`.
 
 ## Als er iets misgaat
 

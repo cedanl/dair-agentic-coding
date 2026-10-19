@@ -32,10 +32,10 @@ LIJN = ('<svg viewBox="0 0 300 120" role="img" aria-label="Schets van een lijndi
 
 def lees_keuzes(pad: Path) -> dict:
     if not pad.is_file():
-        sys.exit(f"{pad} niet gevonden. Draai eerst /verkennen_data.")
+        sys.exit(f"{pad} niet gevonden. Draai eerst /1-verkennen.")
     gevonden = re.search(r'<meta name="keuzes" content="([^"]*)"', pad.read_text(encoding="utf-8"))
     if not gevonden:
-        sys.exit(f"{pad} bevat geen keuzes. Draai /verkennen_data opnieuw.")
+        sys.exit(f"{pad} bevat geen keuzes. Draai /1-verkennen opnieuw.")
     return json.loads(html.unescape(gevonden.group(1)))
 
 

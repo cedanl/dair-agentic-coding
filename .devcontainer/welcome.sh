@@ -18,25 +18,21 @@ for cli in claude entire; do
   if command -v "$cli" &>/dev/null; then
     echo -e "  ${GREEN}✔${RESET}  $cli beschikbaar"
   else
-    echo -e "  $cli niet gevonden — neem contact op met de begeleider."
+    echo -e "  $cli niet gevonden. Roep de begeleider."
   fi
 done
 
 if [[ -n "${ANTHROPIC_FOUNDRY_API_KEY:-}" ]]; then
-  echo -e "  ${GREEN}✔${RESET}  Foundry-key via Codespace-secret"
+  echo -e "  ${GREEN}✔${RESET}  Workshop-key staat klaar"
 else
-  echo -e "  Stel de workshop-key in met: ${CYAN}dair-onboard${RESET}"
+  echo -e "  Geen workshop-key gevonden. Roep de begeleider."
 fi
 
 echo ""
 echo -e "  ${BOLD}Aan de slag:${RESET}"
 echo ""
-echo -e "  Je hebt twee manieren om te werken:\n"
-echo -e "  1. ${BOLD}VSCode Claude Code extension${RESET} (aanbevolen)"
-echo -e "     Open het Claude paneel in de linker balk"
-echo -e "     De extension is al geïnstalleerd in deze workspace\n"
-echo -e "  2. ${BOLD}Terminal CLI${RESET}"
-echo -e "     Open een terminal en typ: ${CYAN}claude${RESET}\n"
-echo -e "  Typ ${CYAN}/help${RESET} voor alle beschikbare commands."
-echo -e "  Workshop-key (opnieuw) instellen: ${CYAN}dair-onboard${RESET}"
+echo -e "  1. Klik op het ${BOLD}oranje Claude-icoon${RESET} rechtsboven in de editor."
+echo -e "  2. Typ ${CYAN}/1-verkennen${RESET} in het vak onderaan het paneel en druk op Enter."
+echo ""
+echo -e "  Met ${CYAN}/${RESET} zie je alle beschikbare skills."
 echo ""

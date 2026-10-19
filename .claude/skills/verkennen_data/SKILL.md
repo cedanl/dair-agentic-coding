@@ -1,6 +1,6 @@
 ---
-name: verkennen_data
-description: Gebruik wanneer iemand de workshopdata wil verkennen voor er een dashboard komt — twee keuzevragen (welke vraag, waarop vergelijken), dan vier zichtbare stappen (kolommen, definities en privacy, datakwaliteit, ideeën en aannames) die samen het dataprofiel data-profiel.html in de hoofdmap maken, met een link om het met één klik te openen. Alles wat over de data gaat, staat in het casusbestand naast de data. LET OP — de views schetsen hoort bij `schets_dashboard` en het dashboard bouwen bij `bouwen_dashboard`.
+name: 1-verkennen
+description: Gebruik wanneer iemand de workshopdata wil verkennen voor er een dashboard komt — drie keuzevragen (voor wie, welke vraag, waarop vergelijken), dan vier zichtbare stappen (kolommen, definities en privacy, datakwaliteit, ideeën en aannames) die samen het dataprofiel data-profiel.html in de hoofdmap maken, met een link om het met één klik te openen. Alles wat over de data gaat, staat in het casusbestand naast de data. LET OP — de views schetsen hoort bij `2-schetsen` en het dashboard bouwen bij `3-bouwen`.
 disable-model-invocation: true
 allowed-tools: Read Bash AskUserQuestion
 metadata:
@@ -89,7 +89,7 @@ met de afgedrukte link:
 
 > **Je dataprofiel staat klaar.** [Open het profiel](<link>) of klik in de verkenner links op `data-profiel.html`.
 >
-> Stel me gerust een vraag over je data of het profiel. Klaar om verder te gaan? Typ dan `/schets_dashboard`.
+> Stel me gerust een vraag over je data of het profiel. Klaar om verder te gaan? Typ dan `/2-schetsen`.
 
 ## 4. Vragen over het profiel
 
@@ -103,7 +103,7 @@ volgende skill gebruikt.
 - Vraagt de gebruiker om een nieuwe berekening, een andere vraag of een andere uitsplitsing, zeg dan dat dat
   in het dashboard komt (*"Dat zie je straks in het dashboard: daar kun je ook per opleiding vergelijken."*)
   of dat het iets is voor na de workshop. Begin niet opnieuw.
-- Sluit elk antwoord af met: *"Nog een vraag, of verder met `/schets_dashboard`?"*
+- Sluit elk antwoord af met: *"Nog een vraag, of verder met `/2-schetsen`?"*
 
 ## Als er iets misgaat
 

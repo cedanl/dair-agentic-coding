@@ -1,5 +1,5 @@
 ---
-name: review-reflect
+name: 4-review
 description: Geeft de link naar het review-formulier van de DAIR agentic-coding sessie (voxpop). Gebruik aan het einde van de sessie, of wanneer iemand "review", "feedback geven", "reflectie" of "afronden" zegt.
 disable-model-invocation: true
 ---
