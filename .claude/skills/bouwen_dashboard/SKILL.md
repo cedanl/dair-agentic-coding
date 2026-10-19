@@ -28,6 +28,8 @@ Staat `schets.html` niet in de hoofdmap, zeg dan: *"Typ eerst `/schets_dashboard
 
 Alle commando's draai je vanuit de hoofdmap, precies zoals ze hier staan.
 
+**Start.** Draai eerst, zonder het te noemen: `uv run scripts/vragenteller.py fase 3`.
+
 ## 1. Bouwen
 
 Zeg in één zin: *"Ik bouw nu je dashboard: ik tel de eerstejaars, verberg groepen die te klein zijn en zet

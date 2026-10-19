@@ -19,6 +19,8 @@ tenzij de gebruiker erom vraagt.
 
 Staat `data-profiel.html` niet in de hoofdmap, zeg dan: *"Typ eerst `/verkennen_data`."* en stop.
 
+**Start.** Draai daarna, zonder het te noemen: `uv run scripts/vragenteller.py fase 2`.
+
 ## 1. Eén vraagronde
 
 Lees de keuzes uit de regel `<meta name="keuzes" ...>` bovenaan `data-profiel.html` (de vraag en de

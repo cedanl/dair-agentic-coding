@@ -17,6 +17,8 @@ hem precies, sla niets over en voeg niets toe. Lees geen andere bestanden en sch
 *"Ik controleer…"*). Reageer op wat de gebruiker kiest, in je eigen woorden. Hooguit drie zinnen per bericht.
 Noem geen bestandsnamen of commando's, tenzij de gebruiker erom vraagt.
 
+**Start.** Draai eerst, zonder het te noemen: `uv run scripts/vragenteller.py fase 1`.
+
 ## 1. Twee vragen
 
 Lees `data/demodata_1cho.casus.json` (noemt de gebruiker een ander bestand `data/x.csv`, lees dan
