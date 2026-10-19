@@ -66,7 +66,7 @@ Een skill is een werkwijze die Claude volgt. Je start er een met `/` en de naam.
 
 **Een HTML-bestand openen in Codespaces.** Klik met de rechtermuisknop op het bestand in de verkenner en kies **Show Preview**. De pagina opent in een nieuw tabblad van je browser; vraagt GitHub om door te gaan, klik dan op *Continue*. Zie je in plaats daarvan *This content is blocked*, dan opent de preview nog binnen VS Code: druk op `Ctrl+Shift+P` (Mac: `Cmd+Shift+P`) en kies **Live Preview: Show Preview (External Browser)**. Staat *Show Preview* er niet tussen, installeer dan de extensie **Live Preview** van Microsoft (`ms-vscode.live-server`) via het Extensions-paneel (`Ctrl+Shift+X`).
 
-**Andere skills.** De drie skills verwijzen naar skills die CEDA ook in eigen projecten gebruikt en die in deze repo staan: `grafiekkeuze` (welke grafiek past), `vormgever-npuls-huisstijl` (de Npuls-stijl) en `ship` (bewaren in git). Je hoeft ze niet zelf te starten. `check-style` en `simplify-ceda` (de code nakijken) zijn optioneel en kosten veel tijd: wil je dat Claude je code nakijkt, typ ze dan zelf.
+**Andere skills.** De drie skills verwijzen naar skills die CEDA ook in eigen projecten gebruikt en die in deze repo staan: `grafiekkeuze` (welke grafiek past), `vormgever-npuls-huisstijl` (de Npuls-stijl) en `ship` (bewaren in git). Je hoeft ze niet zelf te starten.
 
 **Bewaren.** Claude slaat niets op in GitHub zonder dat je erom vraagt. Wil je je werk bewaren in je eigen GitHub-account, zeg dan "bewaar". Claude laat eerst zien wat er wordt opgeslagen en waar, en wacht op je akkoord. Lukt het opslaan niet, dan kun je de bestanden downloaden (rechtsklik op het bestand, *Download*).
 
