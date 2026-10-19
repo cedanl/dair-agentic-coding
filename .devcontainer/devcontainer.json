@@ -21,6 +21,9 @@
     "onAutoForward": "silent"
   },
   "customizations": {
+    "codespaces": {
+      "openFiles": ["README.md"]
+    },
     "vscode": {
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash",
@@ -38,6 +41,9 @@
         "git.autofetch": false,
         "git.openRepositoryInParentFolders": "never",
         "chat.disableAIFeatures": true,
+        "workbench.editorAssociations": {
+          "*.md": "vscode.markdown.preview.editor"
+        },
         "workbench.colorTheme": "Default Light Modern",
         "workbench.colorCustomizations": {
           "titleBar.activeBackground": "#3D68EC",
