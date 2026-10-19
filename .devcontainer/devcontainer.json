@@ -25,7 +25,20 @@
         "extensions.ignoreRecommendations": true,
         "update.showReleaseNotes": false,
         "git.autofetch": false,
-        "git.openRepositoryInParentFolders": "never"
+        "git.openRepositoryInParentFolders": "never",
+        "chat.disableAIFeatures": true,
+        "workbench.colorTheme": "Default Light Modern",
+        "workbench.colorCustomizations": {
+          "titleBar.activeBackground": "#3D68EC",
+          "titleBar.activeForeground": "#FFFFFF",
+          "titleBar.inactiveBackground": "#D6E2FD",
+          "titleBar.inactiveForeground": "#5C5C66",
+          "statusBar.background": "#3D68EC",
+          "statusBar.foreground": "#FFFFFF",
+          "statusBar.noFolderBackground": "#3D68EC",
+          "statusBarItem.remoteBackground": "#2B4FC0",
+          "statusBarItem.remoteForeground": "#FFFFFF"
+        }
       },
       "extensions": [
         "anthropic.claude-code",
