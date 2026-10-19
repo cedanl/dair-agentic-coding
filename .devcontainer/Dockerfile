@@ -66,6 +66,10 @@ RUN chmod 755 /usr/local/bin/dair-onboard
 
 COPY dashboard-requirements.txt test-requirements.txt /opt/dair/
 
+# Web search en WebFetch staan uit in de workshop: de skills volgen een vaste route. Beheerde instellingen wegen
+# zwaarder dan die van de gebruiker of het project en gelden alleen in dit image.
+COPY managed-settings.json /etc/claude-code/managed-settings.json
+
 WORKDIR /workspace
 USER ${USERNAME}
 
