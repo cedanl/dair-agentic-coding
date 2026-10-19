@@ -17,13 +17,23 @@ hem precies, sla niets over en voeg niets toe. Lees geen andere bestanden en sch
 *"Ik controleer…"*). Reageer op wat de gebruiker kiest, in je eigen woorden. Hooguit drie zinnen per bericht.
 Noem geen bestandsnamen of commando's, tenzij de gebruiker erom vraagt.
 
-**Start.** Draai eerst, zonder het te noemen: `uv run scripts/vragenteller.py fase 1`.
+**Start.** Draai eerst, zonder het te noemen: `uv run scripts/vragenteller.py fase 0`.
 
-## 1. Twee vragen
+## 1. Drie vragen
 
 Lees `data/demodata_1cho.casus.json` (noemt de gebruiker een ander bestand `data/x.csv`, lees dan
 `data/x.casus.json`). Begin met één zin: *"Ik heb de data gevonden: fictieve studenten van een hogeschool.
-Eerst twee vragen, dan ga ik aan de slag."* Stel dan met de AskUserQuestion-tool:
+Eerst drie vragen, dan ga ik aan de slag."* Stel dan met de AskUserQuestion-tool:
+
+**Voor wie maak je dit?** Opties: de drie `doelgroepen` uit de casus, in de volgorde A, B, C. Label: het veld
+`label`, met "(Aanbevolen)" achter A. Uitleg: het veld `uitleg`. Houd in al je berichten, ook in de volgende
+skills, de `toon` van de gekozen doelgroep aan. Kort en in gewone taal blijft gelden.
+
+Draai direct na dit antwoord, zonder het te noemen: `uv run scripts/vragenteller.py fase 1`. De doelgroep hoort
+bij fase 0 en telt niet mee voor de rondes van fase 1.
+
+Reageer in één zin op de keuze (*"Dan houd ik het concreet per groep."*) en stel de volgende vraag, ook met de
+tool:
 
 **Wat wil je weten?** Opties: de drie `vragen` uit de casus, in de volgorde A, B, C. Label: het veld
 `label`, met "(Aanbevolen)" achter A. Uitleg: het veld `uitleg`. Vierde optie: *Leg dit eerst uit*. Kiest de
@@ -31,7 +41,7 @@ gebruiker die, leg dan in drie zinnen uit dat jij met de data een dashboard gaat
 beantwoordt, en stel de vraag opnieuw zonder die optie.
 
 Reageer in één zin op de keuze (*"Mooie vraag: daar kan een dashboard echt iets laten zien."*) en stel de
-tweede vraag, ook met de tool: **Waarop wil je het vergelijken?** Opties: de drie `uitsplitsingen` bij de
+derde vraag, ook met de tool: **Waarop wil je het vergelijken?** Opties: de drie `uitsplitsingen` bij de
 gekozen vraag, in die volgorde, met het `label` uit `uitsplitsingen` en "(Aanbevolen)" achter de eerste.
 
 ## Eigen antwoorden

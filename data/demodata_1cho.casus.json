@@ -95,6 +95,23 @@
       "termijn": 5
     }
   },
+  "doelgroepen": {
+    "A": {
+      "label": "Studieadviseur",
+      "uitleg": "Wil weten welke studenten extra begeleiding nodig hebben.",
+      "toon": "Concreet en per groep: wat kun je ermee voor een student."
+    },
+    "B": {
+      "label": "Opleidingsmanager",
+      "uitleg": "Wil weten hoe de eigen opleiding het doet ten opzichte van andere.",
+      "toon": "Vergelijkend, met aandacht voor de ontwikkeling over de jaren."
+    },
+    "C": {
+      "label": "Bestuur of directie",
+      "uitleg": "Wil het grote plaatje in één blik.",
+      "toon": "Kort en op hoofdlijnen, zonder details."
+    }
+  },
   "vragen": {
     "A": {
       "label": "Wie stopt na het eerste jaar?",
