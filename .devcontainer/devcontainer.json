@@ -21,9 +21,6 @@
     "onAutoForward": "silent"
   },
   "customizations": {
-    "codespaces": {
-      "openFiles": ["README.md"]
-    },
     "vscode": {
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash",
