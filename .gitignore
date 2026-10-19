@@ -14,3 +14,6 @@ data/metadata_1cho.md
 .DS_Store
 uitvoer/.DS_Store
 uitvoer/verkennen-wasm/.DS_Store
+
+# Interne planning van de branch: blijft lokaal, niet voor deelnemers
+/PLANNING.md
