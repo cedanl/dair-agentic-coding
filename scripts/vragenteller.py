@@ -44,7 +44,8 @@ if state["rondes"] >= MAX_RONDES:
             "Dit heb je tot nu toe gekozen:\n"
             "- (maximaal drie korte punten, in jouw woorden en met het waarom)\n\n"
             "De speaker pakt nu het woord. Typ **door** zodra de speaker zegt dat je verder mag.\n\n"
-            "Doe daarna niets tot de gebruiker 'door' typt."
+            "Doe daarna niets tot de gebruiker 'door' typt. Typt de gebruiker 'door', ga dan verder met de "
+            "volgende stap van de skill waar je mee bezig was."
         ),
     }}))
 STATE.write_text(json.dumps(state))
