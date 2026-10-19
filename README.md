@@ -68,7 +68,7 @@ Een skill is een werkwijze die Claude volgt. Je start er een met `/` en de naam.
 
 **Andere skills.** De drie skills verwijzen naar skills die CEDA ook in eigen projecten gebruikt en die in deze repo staan: `grafiekkeuze` (welke grafiek past), `vormgever-npuls-huisstijl` (de Npuls-stijl) en `ship` (bewaren in git). Je hoeft ze niet zelf te starten.
 
-**Bewaren.** Claude slaat niets op in GitHub zonder dat je erom vraagt. Wil je je werk bewaren in je eigen GitHub-account, zeg dan "bewaar". Claude laat eerst zien wat er wordt opgeslagen en waar, en wacht op je akkoord. Lukt het opslaan niet, dan kun je de bestanden downloaden (rechtsklik op het bestand, *Download*).
+**Meenemen.** Claude zet niets in GitHub. Je Codespace is tijdelijk: wil je je werk houden, klik dan met de rechtermuisknop op het bestand in de verkenner en kies *Download*.
 
 **De data.** De demodata (fictieve studenten) staat in `data/demodata_1cho.csv`. Heb je uitleg bij de data (een codebook, een omschrijving van de kolommen, een definitie), geef die dan aan Claude wanneer `verkennen_data` daarom vraagt. Heb je dat niet, dan leidt Claude de betekenis af uit de kolomnamen en vraagt het jou om te bevestigen. De skills zelf kennen geen 1CHO en werken ook met andere data. Het dashboard begint met een uploadscherm, zoals in een echte toepassing. Voor de workshop staat het bestand daar al klaar: je hoeft niets te downloaden of te uploaden, alleen op *Doorgaan* te klikken. Welk bestand het dashboard gebruikt, staat in het startcommando dat Claude je geeft.
 

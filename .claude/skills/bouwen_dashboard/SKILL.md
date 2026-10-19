@@ -1,7 +1,7 @@
 ---
 name: bouwen_dashboard
 description: >-
-  Gebruik wanneer iemand na de schets (schets.html) het dashboard wil laten bouwen — zonder vragen vooraf maakt één script uit de keuzes in de schets het dashboard dashboard.html in de hoofdmap (kerncijfers, grafieken, filter, privacydrempel en uitleg, in de Npuls-huisstijl, zonder server), met een link om het met één klik te openen. Daarna kan de gebruiker het dashboard aanpassen met vaste keuzes, en het alleen op verzoek bewaren in GitHub. LET OP — de data verkennen hoort bij `verkennen_data` en de views schetsen bij `schets_dashboard`.
+  Gebruik wanneer iemand na de schets (schets.html) het dashboard wil laten bouwen — zonder vragen vooraf maakt één script uit de keuzes in de schets het dashboard dashboard.html in de hoofdmap (kerncijfers, grafieken, filter, privacydrempel en uitleg, in de Npuls-huisstijl, zonder server), met een link om het met één klik te openen. Daarna kan de gebruiker het dashboard aanpassen met vaste keuzes, en uitleggen hoe hij het meeneemt. LET OP — de data verkennen hoort bij `verkennen_data` en de views schetsen bij `schets_dashboard`.
 disable-model-invocation: true
 allowed-tools: Read Edit Bash AskUserQuestion
 metadata:
@@ -94,33 +94,17 @@ veranderen, herhaal het in één zin, en kijk of het een kleine of een grote wen
   vaste aanpassing aan.
 - Twijfel je of het klein of groot is, behandel het dan als groot.
 
-## 4. Bewaren
+## 4. Meenemen
 
-Vraag tot slot met de AskUserQuestion-tool: **Wil je dit bewaren in je eigen GitHub?** met de opties *Nog
-niet* (aanbevolen) en *Nu bewaren*. Kiest de gebruiker *Nu bewaren* of typt de gebruiker 'bewaar', volg dan
-*Bewaren, alleen op verzoek*. Sluit af met: *"Onderaan het dashboard staat het commando waarmee het opnieuw
-draait op je eigen data, zonder AI."*
+Zeg tot slot, zonder vraag: *"Deze Codespace is tijdelijk. Wil je je dashboard houden, klik dan met de
+rechtermuisknop op `dashboard.html` in de verkenner links en kies **Download**. Er gaat niets naar GitHub."*
+Sluit af met: *"Onderaan het dashboard staat het commando waarmee het opnieuw draait op je eigen data, zonder
+AI."*
 
 ## Als er iets misgaat
 
 Geeft een commando een fout, draai het één keer opnieuw. Gaat het weer mis, toon dan de melding en zeg:
 *"Roep een begeleider erbij."* Probeer geen eigen oplossing.
-
-## Bewaren, alleen op verzoek
-
-Commit en push alleen als de gebruiker erom vraagt, en nooit zonder bevestiging.
-
-1. **Laat zien wat er gebeurt.** De uitkomsten (`data-profiel.html`, `schets.html`, `dashboard.html`) staan
-   bewust in `.gitignore`: ze kunnen op echte data gedraaid zijn. Wil de gebruiker ze toch bewaren, noem dan
-   de bestanden en de repo waar ze heen gaan. Heeft de gebruiker geen schrijfrechten op die repo, zeg dan dat
-   GitHub een kopie (fork) in het eigen account van de gebruiker maakt, en dat die kopie **openbaar** is als
-   de oorspronkelijke repo openbaar is. Vraag om akkoord met de AskUserQuestion-tool (*Doorgaan* of
-   *Annuleren*).
-2. **Na akkoord:** lees `.claude/skills/ship/SKILL.md` en volg die om te committen en te pushen. In een
-   Codespace regelt `GITHUB_TOKEN` de toegang tot de repo: laat die staan, ook waar `ship` aanraadt hem te
-   unsetten.
-3. **Weigert de push:** omzeil dat niet en vraag geen token. Zeg dat het werk lokaal gecommit is en geef de
-   klikroute om de bestanden te downloaden: rechtsklik op het bestand in de verkenner en *Download*.
 
 ## Na de workshop
 
