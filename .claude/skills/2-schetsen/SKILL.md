@@ -29,6 +29,8 @@ vraag stelt of iets draait. Dat geldt vooral als het antwoord niet precies één
 waarom (*"Je koos alle drie: ik maak het voor de studieadviseur, want één doelgroep houdt het dashboard
 helder."*), en wat niet kan (*"Een kaart kan het dashboard niet maken; ik noteer het als idee voor later."*).
 Kiest de gebruiker *Leg dit eerst uit*, leg dan eerst uit en stel pas daarna de vraag opnieuw.
+Stel je direct daarna een nieuwe vraag met de tool, zet de bevestiging dan **ook vooraan in de vraagtekst**, zodat
+hij nooit wegvalt: *"Je koos alle drie; ik neem de studieadviseur. Wat wil je weten?"*
 
 **Vragen.** Stel elke vraag met de AskUserQuestion-tool, niet als losse tekst, zodat de gebruiker op de route
 blijft. Gebruik de mogelijkheden van de tool waar ze helpen en beslis per vraag zelf welke past: een korte
