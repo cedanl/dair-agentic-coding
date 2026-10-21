@@ -111,9 +111,12 @@ wensen voor `3-bouwen` over tekst of kleur met *(jouw wens)*, en *Ik wil iets an
 typt de gebruiker via *Other*. Meer vragen stel je in deze skill niet.
 
 - **Ja, het is goed:** ga naar *Meenemen en afsluiten*.
-- **Iets anders zien (vergelijkingen, filters, wat bovenaan staat, de titel):** dat hoort in de schets. Zeg:
-  *"Dat pas je aan in de schets: typ `/2-schetsen`, verander wat je wilt, en typ daarna weer `/3-bouwen`. Je
-  keuzes blijven bewaard."* en stop.
+- **Iets anders zien (vergelijkingen, filters, wat bovenaan staat, de titel):** dat hoort in de schets. Stel
+  hierover **geen** vragen meer, ook niet als het iets eerders tegenspreekt: noteer de wens precies zoals de
+  gebruiker hem zegt met `python3 scripts/keuzes.py wens "<wens>" --voor 2-schetsen`, en leg uit waarom je
+  terug gaat: *"Het dashboard volgt je schets precies, zodat je altijd weet waar de keuzes staan. Daarom
+  verander je dit in de schets. Ik heb je wens al genoteerd: typ `/2-schetsen`, dan pas ik hem daar als eerste
+  toe. Daarna typ je weer `/3-bouwen`."* en stop.
 - **Een kleine wens: tekst of kleur.** Een andere uitleg, een kortere ondertitel, een andere kleur uit de
   Npuls-huisstijl (`--npuls-oranje`, `--npuls-groen`, `--npuls-blauw`, `--npuls-geel`; nooit rood), een zin
   erbij in *Zo lees je dit*. Dit doe je zelf, hooguit twee keer:
