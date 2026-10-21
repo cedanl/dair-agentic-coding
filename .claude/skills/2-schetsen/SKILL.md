@@ -1,6 +1,6 @@
 ---
 name: 2-schetsen
-description: Gebruik wanneer iemand na het dataprofiel (data-profiel.html) het dashboard wil schetsen — één vraagronde (filter en volgorde), dan maakt één script schets.html in de hoofdmap met de twee views op papier, zonder data en zonder getallen, en krijgt de gebruiker een link om het met één klik te openen. Daarna past de gebruiker de schets aan (vergelijkingen, filters, wat bovenaan staat, titel) tot hij goed is: het dashboard volgt de schets. LET OP — de data verkennen hoort bij `1-verkennen` en het dashboard bouwen bij `3-bouwen`.
+description: Gebruik wanneer iemand na het dataprofiel (data-profiel.html) het dashboard wil schetsen — één vraagronde (filter en volgorde), dan maakt één script schets.html in de hoofdmap: het dashboard in grijs, met de echte groepen en jaren maar zonder getallen, en krijgt de gebruiker een link om het met één klik te openen. Daarna past de gebruiker de schets aan (vergelijkingen, filters, wat bovenaan staat, titel) tot hij goed is: het dashboard volgt de schets. LET OP — de data verkennen hoort bij `1-verkennen` en het dashboard bouwen bij `3-bouwen`.
 disable-model-invocation: true
 allowed-tools: Read Bash AskUserQuestion
 metadata:
@@ -75,7 +75,7 @@ Staat `data-profiel.html` niet in de hoofdmap, zeg dan: *"Typ eerst `/1-verkenne
 
 **Is er al een schets?** Staat `schets.html` al in de hoofdmap (de gebruiker komt terug, bijvoorbeeld vanuit
 `/3-bouwen`), stel dan de vragen uit *Eén vraagronde* **niet** opnieuw. Zeg: *"Je schets van net staat er
-nog, met je keuzes en je titel. Ik zet hem opnieuw klaar."* Draai `python3
+nog, met je keuzes en je titel. Ik zet hem opnieuw klaar."* Draai `uv run --no-project --with polars==1.44.2 python
 .claude/skills/2-schetsen/assets/maak_schets.py` zonder extra's (hij tekent precies wat in `mijn-keuzes.json`
 staat), pas daarna de open wensen voor `2-schetsen` één voor één toe met de vaste aanpassingen uit *Schets
 aanpassen*, en ga verder bij *Laten zien*.
@@ -116,7 +116,7 @@ klopt, dan pas bouwen."*). Draai dan, vanuit de hoofdmap, met de gekozen filters
 `jaar`):
 
 ```bash
-python3 .claude/skills/2-schetsen/assets/maak_schets.py --filter vestiging --volgorde groep
+uv run --no-project --with polars==1.44.2 python .claude/skills/2-schetsen/assets/maak_schets.py --filter vestiging --volgorde groep
 python3 .claude/skills/1-verkennen/assets/toon.py schets.html
 ```
 
@@ -130,7 +130,7 @@ link uit het tweede:
 > ### 👉 [Open je schets](<link>)
 >
 > Bovenaan komt *<view 1>*, daaronder *<view 2>*, met een filter op <filter>. <Alleen bij meer
-> vergelijkingen: "In het dashboard wissel je met één klik tussen <vergelijkingen>."> Nog zonder getallen: die
+> vergelijkingen: "In het dashboard wissel je met één klik tussen <vergelijkingen>."> Het ziet eruit als je dashboard, met de echte groepen en jaren, alleen nog zonder getallen: die
 > komen pas in het dashboard.
 
 ## 4. Schets aanpassen
@@ -147,7 +147,7 @@ AskUserQuestion-tool: **Wil je iets veranderen aan de schets?** Opties, in deze 
 dan de eerste twee regels uit de **laatste** uitvoer na *Aanpassen* (het deel vóór `=>` **letterlijk** als label,
 ook wat tussen haakjes staat, zonder "(Aanbevolen)"). Een eigen wens typt de gebruiker via *Other*.
 
-- **Een vaste aanpassing:** zeg in één zin wat je verandert, draai `python3
+- **Een vaste aanpassing:** zeg in één zin wat je verandert, draai `uv run --no-project --with polars==1.44.2 python
   .claude/skills/2-schetsen/assets/maak_schets.py` met het deel na `=>` erachter, en daarna
   opnieuw `toon.py schets.html`. Het script past de schets én `mijn-keuzes.json` aan.
 - **Een andere titel:** draai `maak_schets.py --titel "<titel>"` (met `--titel standaard`

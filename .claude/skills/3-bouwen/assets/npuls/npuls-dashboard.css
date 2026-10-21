@@ -53,6 +53,12 @@ h3 { font-size: 1rem; margin: 0 0 4px; }
 .npuls-balk { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin-bottom: 24px; }
 .npuls-balk:empty { display: none; }
 .npuls-demo { background: var(--npuls-geel); border-radius: 9999px; padding: 8px 20px; font-weight: 600; margin: 0; }
+/* Schets: dezelfde pagina in grijs, zonder getallen */
+.npuls-demo.npuls-schets { background: var(--npuls-grijs-200); }
+.npuls-schets-pagina .npuls-staaf, .npuls-schets-pagina .npuls-punt { background: var(--npuls-grijs-tekst); }
+.npuls-schets-pagina .npuls-lijn-vlak .lijn polyline { stroke: var(--npuls-grijs-tekst); stroke-dasharray: 6 6; }
+.npuls-schets-pagina .npuls-tegel.hoofd strong { color: var(--npuls-grijs-tekst); }
+.npuls-balk select:disabled { opacity: .6; cursor: not-allowed; }
 .npuls-balk label { font-weight: 600; margin-left: auto; }
 .npuls-balk select {
   font-size: 1rem; padding: 8px 16px; border: 2px solid var(--npuls-blauw); border-radius: 9999px;

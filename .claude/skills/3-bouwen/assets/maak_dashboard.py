@@ -202,6 +202,15 @@ def maak_schaal(hoogste: float) -> float:
 
 def toon_staaf(rijen: list[dict], ins: dict) -> tuple[str, str]:
     te_weinig = f"te weinig {ins['eenheid']}"
+    if ins.get("schets"):  # echte groepen, op alfabet en even lang: de volgorde zou al een uitkomst verraden
+        items = "".join(
+            f'<li><div class="npuls-staaf-kop"><span>{e(maak_label(r["groep"]))}</span><span><strong>?</strong></span></div>'
+            '<div class="npuls-staaf-spoor"><div class="npuls-staaf" style="width:60%"></div></div></li>'
+            if not r["verborgen"] else
+            f'<li class="npuls-staaf-verborgen"><div class="npuls-staaf-kop"><span>{e(maak_label(r["groep"]))}</span>'
+            f"<span>{te_weinig}</span></div></li>" for r in sorted(rijen, key=lambda r: r["groep"]))
+        return (f'<ul class="npuls-staven">{items}</ul>',
+                "Hier staat straks welke groep het hoogst en welke het laagst uitkomt, met het percentage erbij.")
     zichtbaar = sorted((r for r in rijen if not r["verborgen"]), key=lambda r: -r["waarde"])
     verborgen = sorted((r for r in rijen if r["verborgen"]), key=lambda r: r["groep"])
     top = maak_schaal(max((r["waarde"] for r in zichtbaar), default=0))
@@ -232,8 +241,10 @@ def toon_staaf(rijen: list[dict], ins: dict) -> tuple[str, str]:
 def toon_lijn(rijen: list[dict], ins: dict) -> tuple[str, str]:
     """Lijn in een SVG die meerekt met de breedte; punten, labels en assen zijn HTML, zodat tekst scherp blijft."""
     perioden = [r["periode"] for r in rijen]
+    if ins.get("schets"):  # echte jaren, een vlakke lijn: de vorm komt pas met de getallen
+        rijen = [{**r, "waarde": 0.5} for r in rijen]
     zichtbaar = [r for r in rijen if not r["verborgen"]]
-    top = maak_schaal(max((r["waarde"] for r in zichtbaar), default=0))
+    top = 1.0 if ins.get("schets") else maak_schaal(max((r["waarde"] for r in zichtbaar), default=0))
 
     def x(i: int) -> float:
         return 50.0 if len(perioden) == 1 else 4 + 92 * i / (len(perioden) - 1)
@@ -263,15 +274,20 @@ def toon_lijn(rijen: list[dict], ins: dict) -> tuple[str, str]:
                 onder = " onder" if (r is laag and laag is not hoog) or y(r["waarde"]) < 15 else ""
                 labels += (f'<span class="npuls-punt-label{kant}{onder}" style="left:{x(i):.2f}%;top:{y(r["waarde"]):.2f}%">'
                            f"{maak_procent(r['waarde'])}</span>")
+    if ins.get("schets"):
+        punten, labels = re.sub(r' title="[^"]*"', "", punten), ""
     rasters = "".join(f'<line x1="0" x2="100" y1="{v}" y2="{v}" vector-effect="non-scaling-stroke"/>' for v in (0, 50, 100))
-    y_labels = "".join(f'<span style="top:{100 - f * 100:.0f}%">{maak_procent(top * f)}</span>' for f in (0, 0.5, 1))
+    y_labels = "".join(f'<span style="top:{100 - f * 100:.0f}%">{"?" if ins.get("schets") and f else maak_procent(top * f)}</span>'
+                       for f in (0, 0.5, 1))
     x_labels = "".join(f'<span style="left:{x(i):.2f}%"><b class="lang">{p}</b><b class="kort">&#8217;{str(p)[-2:]}</b></span>'
                        for i, p in enumerate(perioden))
     grafiek = (f'<div class="npuls-lijn" aria-hidden="true"><div class="npuls-lijn-y">{y_labels}</div>'
                f'<div class="npuls-lijn-vlak"><svg viewBox="0 0 100 100" preserveAspectRatio="none">'
                f'<g class="raster">{rasters}</g><g class="lijn">{lijnen}</g></svg>{punten}{labels}</div>'
                f'<div class="npuls-lijn-x">{x_labels}</div></div>')
-    if len(zichtbaar) >= 2:
+    if ins.get("schets"):
+        zin = "Hier staat straks hoe het percentage over de jaren verandert, en in welk jaar het het hoogst en het laagst was."
+    elif len(zichtbaar) >= 2:
         hoog, laag = max(zichtbaar, key=lambda r: r["waarde"]), min(zichtbaar, key=lambda r: r["waarde"])
         zin = (f"Van {maak_procent(zichtbaar[0]['waarde'])} in {zichtbaar[0]['periode']} naar "
                f"{maak_procent(zichtbaar[-1]['waarde'])} in {zichtbaar[-1]['periode']}. Het hoogst in {hoog['periode']} "
@@ -288,6 +304,8 @@ def toon_lijn(rijen: list[dict], ins: dict) -> tuple[str, str]:
 
 def toon_cijfers(view: dict, rijen: list[dict], ins: dict) -> str:
     """De getallen achter de grafiek als tabel, voor wie ze wil nalezen of een schermlezer gebruikt."""
+    if ins.get("schets"):
+        return ""
     kop = "Groep" if view["per"] == "groep" else "Instroomjaar"
     regels = ""
     for r in rijen:
@@ -321,9 +339,11 @@ def toon_blok(data: pl.DataFrame, ins: dict) -> str:
                 "Kies een andere waarde.</div>")
     perioden = eerstejaars["periode"].unique().sort().to_list()
     verborgen_totaal = teller < ins["cel"] or noemer - teller < ins["cel"]
-    tegels = (f'<div class="npuls-tegel hoofd"><strong>{"–" if verborgen_totaal else maak_procent(teller / noemer)}</strong>'
+    kern = "?" if ins.get("schets") else "–" if verborgen_totaal else maak_procent(teller / noemer)
+    tegels = (f'<div class="npuls-tegel hoofd"><strong>{kern}</strong>'
               f"<span>{e(ins['vraag']['kerncijfer'])}</span></div>"
-              f'<div class="npuls-tegel"><strong>{maak_getal(noemer)}</strong><span>Eerstejaars die meetellen</span></div>'
+              f'<div class="npuls-tegel"><strong>{"?" if ins.get("schets") else maak_getal(noemer)}</strong>'
+              "<span>Eerstejaars die meetellen</span></div>"
               f'<div class="npuls-tegel"><strong>{perioden[0]}–{perioden[-1]}</strong><span>Instroomjaren</span></div>')
     views = ""
     for soort in ins["views"]:
@@ -442,12 +462,16 @@ def maak_keuzelijst(id_: str, label: str, opties: list[tuple[str, str]], rol: st
             + "".join(f'<option value="{e(w)}">{e(t)}</option>' for w, t in opties) + "</select>")
 
 
-def maak_html(data: pl.DataFrame, csv: Path, ins: dict) -> str:
-    """Eén blok per combinatie van filterwaarden, vooraf berekend; de keuzelijsten tonen alleen het gekozen blok."""
+def maak_html(data: pl.DataFrame, csv: Path, ins: dict, meta: dict | None = None) -> str:
+    """Eén blok per combinatie van filterwaarden, vooraf berekend; de keuzelijsten tonen alleen het gekozen blok.
+
+    Met ins["schets"] dezelfde pagina zonder getallen: één blok voor alle data en filters die je nog niet kunt kiezen.
+    """
+    schets = ins.get("schets", False)
     waarden_per_filter = [["alle", *sorted(w for w in data[f["kolom"]].unique().to_list() if w is not None)]
                           for f in ins["filters"]]
     blokken = []
-    for combinatie in itertools.product(*waarden_per_filter):
+    for combinatie in [tuple("alle" for _ in ins["filters"])] if schets else itertools.product(*waarden_per_filter):
         deel = data
         for f, w in zip(ins["filters"], combinatie, strict=True):
             if w != "alle":
@@ -460,7 +484,7 @@ def maak_html(data: pl.DataFrame, csv: Path, ins: dict) -> str:
             (n, maak_label(u["label"])) for n, u in ins["uitsplitsingen"]], "data-wissel"))
     for i, (f, waarden) in enumerate(zip(ins["filters"], waarden_per_filter, strict=True)):
         keuzelijsten.append(maak_keuzelijst("filter" if i == 0 else f"filter{i + 1}", maak_label(f["label"]), [
-            (w, "Alles" if w == "alle" else maak_label(w)) for w in waarden], "data-filterkeuze"))
+            (w, "Alles" if w == "alle" else maak_label(w)) for w in waarden], "data-filterkeuze" + (" disabled" if schets else "")))
     filter_html = "".join(keuzelijsten)
     vandaag = datetime.date.today()
     personen = data[ins["k"]["persoon"]].n_unique()
@@ -471,14 +495,23 @@ def maak_html(data: pl.DataFrame, csv: Path, ins: dict) -> str:
     # Een eigen titel komt uit de schets; de vraag zelf blijft dan in de ondertitel staan
     titel = ins["keuzes"].get("titel") or ins["vraag"]["vraag"]
     ondertitel = ins["ondertitel"] if titel == ins["vraag"]["vraag"] else f"{ins['vraag']['vraag']} {ins['ondertitel']}"
+    if schets:
+        voet = ("<p>Dit is een schets: zo komt je dashboard eruit te zien. De groepen en jaren zijn echt, de getallen "
+                "komen pas als je het dashboard bouwt. De filters werken dan ook.</p>")
+    else:
+        voet = (f"<p>{bron}</p><p>De berekeningen staan in <code>dashboard-berekeningen.py</code>, naast dit bestand.</p>"
+                f"<p>Draait opnieuw op je eigen data met: <code>{e(maak_commando(ins, csv))}</code></p>")
+    demo = '<p class="npuls-demo">Dit is demodata</p>' if ins["demo"] else ""
+    if schets:
+        demo = '<p class="npuls-demo npuls-schets">Schets: nog zonder getallen</p>' + demo
     sjabloon = string.Template((HIER / "dashboard-sjabloon.html").read_text(encoding="utf-8"))
     return sjabloon.substitute(
-        keuzes=e(json.dumps(ins["keuzes"], ensure_ascii=False)), titel=e(titel), logo=logo,
+        keuzes=e(json.dumps(meta or ins["keuzes"], ensure_ascii=False)), logo=logo,
+        titel=e(f"Schets: {titel}" if schets else titel), label="Schets van je dashboard" if schets else "Dashboard",
         css=(HIER / "npuls/npuls-dashboard.css").read_text(encoding="utf-8"),
         vraag=e(titel), ondertitel=e(ondertitel),
-        demo='<p class="npuls-demo">Dit is demodata</p>' if ins["demo"] else "",
-        filter=filter_html, blokken="".join(blokken), zo_lees_je_dit=toon_zo_lees_je_dit(ins), bron=bron,
-        commando=e(maak_commando(ins, csv)),
+        pagina="npuls-pagina npuls-schets-pagina" if schets else "npuls-pagina",
+        demo=demo, filter=filter_html, blokken="".join(blokken), zo_lees_je_dit=toon_zo_lees_je_dit(ins), voet=voet,
     )
 
 

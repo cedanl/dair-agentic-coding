@@ -1,35 +1,25 @@
-"""Maakt schets.html: de views van het dashboard op papier, zonder data en zonder getallen.
+"""Maakt schets.html: het dashboard in grijs, met de echte groepen en jaren maar zonder getallen.
 
 Gebruik, vanuit de hoofdmap van de repo:
 
-    python .claude/skills/2-schetsen/assets/maak_schets.py --filter vestiging --volgorde groep
-    python .claude/skills/2-schetsen/assets/maak_schets.py --vanaf schets.html --filter geen   (schets aanpassen)
+    uv run --no-project --with polars==1.44.2 python .claude/skills/2-schetsen/assets/maak_schets.py \
+        --filter vestiging --volgorde groep
 
-Neemt de vraag en de uitsplitsing over uit data-profiel.html (of uit een eerdere schets) en de teksten uit het
-casusbestand naast de data. Drukt af welke aanpassingen nog iets nieuws laten zien.
-Alleen de standaardbibliotheek: draait zonder installatie.
+Neemt de keuzes over uit mijn-keuzes.json (of uit data-profiel.html) en de teksten uit het casusbestand naast de
+data. De pagina komt uit maak_dashboard.py, zodat schets en dashboard er hetzelfde uitzien. Drukt af welke
+aanpassingen nog iets nieuws laten zien.
 """
 
 import argparse
 import html
 import json
 import re
-import string
 import sys
 from pathlib import Path
 
 HIER = Path(__file__).resolve().parent
-e = html.escape
-
-# Plaatjes met vormen van gelijke lengte: een verschil in lengte zou lezen als een uitkomst
-STAAF = ('<svg viewBox="0 0 300 120" role="img" aria-label="Schets van een horizontaal staafdiagram">'
-         + "".join(f'<text x="0" y="{12 + i * 28}">{e(label)}</text><rect class="vorm" x="0" y="{16 + i * 28}" width="260" height="8" rx="4"/>'
-                   for i, label in enumerate(["groep", "groep", "groep", "groep"]))
-         + "</svg>")
-LIJN = ('<svg viewBox="0 0 300 120" role="img" aria-label="Schets van een lijndiagram">'
-        '<line class="as" x1="20" x2="296" y1="100" y2="100"/><line class="as" x1="20" x2="20" y1="8" y2="100"/>'
-        '<polyline class="lijn" points="30,54 90,54 150,54 210,54 290,54"/>'
-        '<text x="24" y="116">eerste jaar</text><text x="230" y="116">laatste jaar</text></svg>')
+sys.path.insert(0, str(HIER.parents[1] / "3-bouwen/assets"))
+import maak_dashboard as dashboard  # noqa: E402
 
 
 def lees_keuzes(pad: Path) -> dict:
@@ -145,46 +135,28 @@ def main() -> None:
     if not filters and gevraagd == "standaard":  # alleen als er nog nooit een filter is gekozen
         filters = [f for f in casus["filters"] if f not in namen][:1]
     filter_naam = ",".join(filters) or "geen"
-    maat = casus["maten"][vraag["maat"]]
     keuzes.update(uitsplitsing=",".join(namen), filter=filter_naam, volgorde=volgorde, titel=titel)
     keuzes["gezien"] = list(dict.fromkeys([*keuzes.get("gezien", []), bepaal_stand(keuzes)]))
 
-    groep = (vraag["titel_groep"].format(uitsplitsing=label), vraag["uitleg_groep"].format(uitsplitsing=label),
-             f"Horizontaal staafdiagram, van hoog naar laag (vergelijken, lange labels)", STAAF,
-             f"Groepen met minder dan {casus['drempels']['groep']} {casus['eenheid']}.")
-    jaar = (vraag["titel_jaar"], vraag["uitleg_jaar"], "Lijn (ontwikkeling in de tijd)", LIJN,
-            maat["definities"][-1][1])
-    views = [jaar, groep] if volgorde == "jaar" else [groep, jaar]
-    views_html = "".join(
-        f'<section class="view"><h3><span class="nr">{i}</span>{e(titel)}</h3>'
-        f"<figure>{plaatje}<figcaption>Schets, geen data</figcaption></figure>"
-        f"<dl><dt>Wat je ziet</dt><dd>{e(uitleg)}</dd><dt>Grafiek</dt><dd>{e(soort)}</dd>"
-        f"<dt>Valt weg</dt><dd>{e(weg)}</dd></dl></section>"
-        for i, (titel, uitleg, soort, plaatje, weg) in enumerate(views, 1))
+    # Dezelfde pagina als het dashboard, met de echte groepen en jaren maar zonder getallen
+    csv = Path(keuzes["csv"])
+    try:
+        ins = dashboard.stel_in(keuzes, casus)
+        pagina = dashboard.maak_html(dashboard.lees_data(csv, ins), csv, {**ins, "schets": True}, meta=keuzes)
+    except dashboard.Melding as melding:
+        sys.exit(f"Niet gelukt: {melding}")
+    args.uit.write_text(pagina, encoding="utf-8")
+    views = [vraag["titel_jaar"], vraag["titel_groep"].format(uitsplitsing=label)]
+    if volgorde == "groep":
+        views.reverse()
     filter_label = " en ".join(casus["uitsplitsingen"][f]["label"] for f in filters) or "geen"
     vergelijken = " of ".join(casus["uitsplitsingen"][n]["label"] for n in namen)
     if len(namen) > 1:
         vergelijken += " (wissel met één klik in het dashboard)"
-    rijen = [("Titel", titel or vraag["vraag"]), ("Vraag", vraag["vraag"]), ("Uitgesplitst naar", vergelijken),
-             ("Filter", filter_label),
-             ("Bovenaan", "vergelijken tussen groepen" if volgorde == "groep" else "ontwikkeling over de jaren"),
-             (maat["definities"][0][0], maat["definities"][0][1]),
-             ("Kerncijfer", vraag["kerncijfer"])]
-    niet = [*maat["niet_zeggen"], "Waarom groepen verschillen: een verschil is geen oorzaak."]
-    if casus.get("demo"):
-        niet.append("Iets over de werkelijkheid: dit is demodata.")
-
-    sjabloon = string.Template((HIER / "schets-sjabloon.html").read_text(encoding="utf-8"))
-    args.uit.write_text(sjabloon.substitute(
-        keuzes=e(json.dumps(keuzes, ensure_ascii=False)), vraag=e(titel or vraag["vraag"]), ondertitel=e(casus["ondertitel"]),
-        demo='<p class="demo">Dit is demodata</p>' if casus.get("demo") else "", views=views_html,
-        keuzes_tabel="".join(f"<tr><td>{e(a)}</td><td>{e(b)}</td></tr>" for a, b in rijen),
-        niet="".join(f"<li>{e(n)}</li>" for n in niet),
-    ), encoding="utf-8")
     if args.keuzes.is_file():
         schrijf_mijn_keuzes(args.keuzes, keuzes)
     print(f"Geschreven: {args.uit}")
-    print(f"Titel: {titel or vraag['vraag']}  View 1: {views[0][0]}  View 2: {views[1][0]}  "
+    print(f"Titel: {titel or vraag['vraag']}  View 1: {views[0]}  View 2: {views[1]}  "
           f"Vergelijken: {vergelijken}  Filter: {filter_label}")
     for regel in let_op:
         print(f"Let op: {regel}")

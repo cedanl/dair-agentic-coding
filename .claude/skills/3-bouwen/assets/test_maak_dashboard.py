@@ -160,6 +160,10 @@ def test_uit_de_keuzes_of_uit_de_schets_geeft_hetzelfde_dashboard(tmp_path: Path
     schets = subprocess.run([sys.executable, str(SCRIPT.parents[2] / "2-schetsen/assets/maak_schets.py")],
                             capture_output=True, text=True, cwd=tmp_path)
     assert schets.returncode == 0 and "Let op: geslacht is al een vergelijking" in schets.stdout, schets.stderr
+    # De schets ziet eruit als het dashboard, met de echte groepen, maar zonder één uitkomst
+    getekend = re.sub(r"<style>.*?</style>|style=\"[^\"]*\"", "", (tmp_path / "schets.html").read_text(encoding="utf-8"), flags=re.S)
+    assert "Mbo zorg en welzijn niveau 4" in getekend and 'data-wissel' in getekend
+    assert re.findall(r"\d+%", getekend) == ["0%"] and "n&nbsp;=" not in getekend and "<td>" not in getekend
     pagina = {}
     for bron in ("mijn-keuzes.json", "schets.html"):
         uit = tmp_path / f"uit-{bron}.html"
