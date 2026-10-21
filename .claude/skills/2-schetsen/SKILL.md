@@ -137,7 +137,8 @@ link uit het tweede:
 
 **Eerst de link, dan de vraag.** Stel de vraag hieronder pas als de gebruiker de schets heeft kunnen zien: de
 link uit *Laten zien* (of na een aanpassing de nieuwe link) staat altijd vlak boven de vraag, in hetzelfde
-bericht. Zonder link geen vraag.
+bericht. Zonder link geen vraag. Zet de link voor de zekerheid ook in de vraagtekst zelf: *"Bekijk je schets: <link>. Wil je
+iets veranderen?"*
 
 Dit is hét moment om te veranderen: het dashboard wordt straks precies zoals deze schets. Vraag met de
 AskUserQuestion-tool: **Wil je iets veranderen aan de schets?** Opties, in deze volgorde: open wensen voor

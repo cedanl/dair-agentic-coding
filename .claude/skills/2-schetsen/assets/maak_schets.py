@@ -54,7 +54,8 @@ def toon_aanpassingen(keuzes: dict, casus: dict, vraag: dict) -> None:
     label = lambda n: casus["uitsplitsingen"][n]["label"]  # noqa: E731
     mogelijk = []
     if len(namen) < MAX_VERGELIJKINGEN:
-        mogelijk += [(f"Vergelijk ook per {label(n)}", f"--uitsplitsing {','.join([*namen, n])}",
+        mogelijk += [(f"Vergelijk ook per {label(n)}" + (" (in plaats van het filter erop)" if n in filters else ""),
+                      f"--uitsplitsing {','.join([*namen, n])}",
                       {"uitsplitsing": ",".join([*namen, n]), "filter": ",".join(f for f in filters if f != n) or "geen"})
                      for n in vraag["uitsplitsingen"] if n not in namen]
     mogelijk += [(f"Vergelijk niet meer per {label(n)}", f"--uitsplitsing {','.join(m for m in namen if m != n)}",
