@@ -79,7 +79,7 @@ if casus_pad.is_file() and not a.begrip:
     # Gaat de vraag over één vergelijking (zoals vooropleiding bij C), dan staat die er altijd bij, vooraan
     if vraag.get("kern"):
         namen = [vraag["kern"], *(n for n in namen if n != vraag["kern"])]
-    onbekend_naam = [n for n in namen if n not in casus["uitsplitsingen"]]
+    onbekend_naam = [n for n in namen if casus["uitsplitsingen"].get(n, {"alleen_filter": True}).get("alleen_filter")]
     if onbekend_naam:
         sys.exit(f"Onbekende uitsplitsing: {', '.join(onbekend_naam)}. Kies uit: {', '.join(casus['uitsplitsingen'])}")
     naam = namen[0]

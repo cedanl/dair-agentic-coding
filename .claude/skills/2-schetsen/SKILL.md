@@ -88,12 +88,14 @@ meeneemt (*"Je wilt weten welk deel van de eerstejaars stopt, per sector. Ik zet
 en stel dan twee vragen met de AskUserQuestion-tool, **elk in een eigen aanroep**: eerst de
 eerste, en pas na het antwoord de tweede.
 
-1. **Waarop wil je kunnen filteren?** Opties: de `filters` uit de casus behalve de gekozen uitsplitsingen, met
-   hun `label` en "(Aanbevolen)" achter de eerste, en *Geen filter*. Elke andere kolom uit `uitsplitsingen` mag
-   ook een filter zijn (bijvoorbeeld opleiding of vooropleiding), zolang je er niet al op vergelijkt: noemt de
-   gebruiker die via *Other*, gebruik hem dan gewoon. Zeg er bij veel waarden bij dat het keuzemenu lang wordt. Zet `multiSelect` aan: hooguit twee
-   filters samen. Zet in de vraag: *"Kies er één of twee en klik dan op Submit."* Kiest de gebruiker *Geen filter* samen met een filter, of meer dan twee, vraag dan in één zin
-   wat de bedoeling is.
+1. **Waarop wil je kunnen filteren?** Opties: de eerste vier `filters` uit de casus die geen gekozen vergelijking
+   zijn, in die volgorde, met hun `label` en "(Aanbevolen)" achter de eerste (meestal instroomjaar). Elke andere
+   kolom uit `uitsplitsingen` mag ook een filter zijn, zolang je er niet al op vergelijkt: noemt de gebruiker die
+   via *Other*, gebruik hem dan gewoon. Zeg er bij veel waarden bij dat het keuzemenu lang wordt. Zet
+   `multiSelect` aan: hooguit twee filters samen. Zet in de vraag: *"Kies er één of twee en klik dan op Submit.
+   Geen filter of een ander filter? Typ het bij Other."* Kiest de gebruiker meer dan twee, vraag dan in één zin
+   welke twee. Het filter op instroomjaar geldt voor de kerncijfers en de groepen; de lijn over de jaren laat
+   altijd alle jaren zien.
 2. **Wat wil je bovenaan zien?** Opties: *De vergelijking tussen groepen* (aanbevolen) en *De ontwikkeling over
    de jaren*.
 
@@ -112,11 +114,11 @@ een begeleider. Is de AskUserQuestion-tool niet beschikbaar, stel de vraag dan i
 ## 2. Schets maken
 
 Zeg in één zin wat je doet (*"Ik schets nu de twee grafieken, nog zonder getallen: eerst kijken of de opzet
-klopt, dan pas bouwen."*). Draai dan, vanuit de hoofdmap, met de gekozen filters (`vestiging`, `geslacht`, beide als `vestiging,geslacht`, of `geen`) en volgorde (`groep` of
+klopt, dan pas bouwen."*). Draai dan, vanuit de hoofdmap, met de gekozen filters (bijvoorbeeld `instroomjaar`, twee als `instroomjaar,vestiging`, of `geen`) en volgorde (`groep` of
 `jaar`):
 
 ```bash
-uv run --no-project --with polars==1.44.2 python .claude/skills/2-schetsen/assets/maak_schets.py --filter vestiging --volgorde groep
+uv run --no-project --with polars==1.44.2 python .claude/skills/2-schetsen/assets/maak_schets.py --filter instroomjaar --volgorde groep
 python3 .claude/skills/1-verkennen/assets/toon.py schets.html
 ```
 

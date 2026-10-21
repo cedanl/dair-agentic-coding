@@ -115,7 +115,7 @@ def stel_in(keuzes: dict, casus: dict) -> dict:
     # Gaat de vraag over één vergelijking (zoals vooropleiding bij C), dan staat die er altijd bij, vooraan
     if vraag.get("kern"):
         namen = [vraag["kern"], *(n for n in namen if n != vraag["kern"])]
-    onbekend = [n for n in namen if n not in casus["uitsplitsingen"]]
+    onbekend = [n for n in namen if casus["uitsplitsingen"].get(n, {"alleen_filter": True}).get("alleen_filter")]
     if onbekend:
         raise Melding(f"Onbekende uitsplitsing '{', '.join(onbekend)}'. Kies uit: {', '.join(casus['uitsplitsingen'])}")
     if len(namen) > MAX_VERGELIJKINGEN:
@@ -328,11 +328,20 @@ def toon_view(view: dict, eerstejaars: pl.DataFrame, ins: dict, wissel: str = ""
             f'{grafiek}<p class="npuls-samenvatting">{e(zin)}</p>{toon_cijfers(view, rijen, ins)}</section>')
 
 
-def toon_blok(data: pl.DataFrame, ins: dict) -> str:
-    """Kerncijfers en de views voor één filterkeuze. Bij meer vergelijkingen één groepsview per vergelijking."""
+def kies_instroom(eerstejaars: pl.DataFrame, instroom: str | None) -> pl.DataFrame:
+    return eerstejaars if instroom is None else eerstejaars.filter(pl.col("periode") == int(instroom))
+
+
+def toon_blok(data: pl.DataFrame, ins: dict, instroom: str | None = None) -> str:
+    """Kerncijfers en de views voor één filterkeuze. Bij meer vergelijkingen één groepsview per vergelijking.
+
+    Het filter op instroomjaar werkt pas na het rekenen (stoppen en diploma's kijken naar de jaren erna), en
+    alleen op de kerncijfers en de groepen: de lijn laat altijd alle jaren zien.
+    """
     if data.is_empty():  # een combinatie van filters zonder één student
         return f'<div class="npuls-melding">In deze selectie zitten geen {ins["eenheid"]}. Kies een andere waarde.</div>'
-    eerstejaars = bereken_eerstejaars(data, ins)
+    alle_jaren = bereken_eerstejaars(data, ins)
+    eerstejaars = kies_instroom(alle_jaren, instroom)
     teller, noemer = int(eerstejaars["telt"].sum()), eerstejaars.height
     if noemer < ins["groep"]:
         return (f'<div class="npuls-melding">In deze selectie zitten te weinig {ins["eenheid"]} om iets te tonen. '
@@ -344,17 +353,23 @@ def toon_blok(data: pl.DataFrame, ins: dict) -> str:
               f"<span>{e(ins['vraag']['kerncijfer'])}</span></div>"
               f'<div class="npuls-tegel"><strong>{"?" if ins.get("schets") else maak_getal(noemer)}</strong>'
               "<span>Eerstejaars die meetellen</span></div>"
-              f'<div class="npuls-tegel"><strong>{perioden[0]}–{perioden[-1]}</strong><span>Instroomjaren</span></div>')
+              + (f'<div class="npuls-tegel"><strong>{instroom}</strong><span>Instroomjaar</span></div>' if instroom else
+                 f'<div class="npuls-tegel"><strong>{perioden[0]}–{perioden[-1]}</strong><span>Instroomjaren</span></div>'))
+    groep_views, jaar_view = ins["groep_views"], ins["jaar_view"]
+    if instroom:
+        groep_views = {n: {**v, "uitleg": re.sub(r"alle (meetellende )?instroomjaren samen", f"instroomjaar {instroom}",
+                                                  v["uitleg"])} for n, v in groep_views.items()}
+        jaar_view = {**jaar_view, "uitleg": jaar_view["uitleg"] + " Het filter op instroomjaar geldt hier niet: je ziet alle jaren."}
     views = ""
     for soort in ins["views"]:
         if soort == "jaar":
-            views += toon_view(ins["jaar_view"], eerstejaars, ins)
+            views += toon_view(jaar_view, alle_jaren, ins)
         elif len(ins["uitsplitsingen"]) == 1:
-            views += toon_view(ins["groep_views"][ins["uitsplitsingen"][0][0]], eerstejaars, ins)
+            views += toon_view(groep_views[ins["uitsplitsingen"][0][0]], eerstejaars, ins)
         else:
             for naam, uitsplitsing in ins["uitsplitsingen"]:
-                per = bereken_eerstejaars(data, {**ins, "uitsplitsing": uitsplitsing})
-                views += toon_view(ins["groep_views"][naam], per, {**ins, "uitsplitsing": uitsplitsing},
+                per = kies_instroom(bereken_eerstejaars(data, {**ins, "uitsplitsing": uitsplitsing}), instroom)
+                views += toon_view(groep_views[naam], per, {**ins, "uitsplitsing": uitsplitsing},
                                    f' data-uitsplitsing="{e(naam)}"')
     return f'<div class="npuls-tegels">{tegels}</div>{views}'
 
@@ -468,16 +483,21 @@ def maak_html(data: pl.DataFrame, csv: Path, ins: dict, meta: dict | None = None
     Met ins["schets"] dezelfde pagina zonder getallen: één blok voor alle data en filters die je nog niet kunt kiezen.
     """
     schets = ins.get("schets", False)
-    waarden_per_filter = [["alle", *sorted(w for w in data[f["kolom"]].unique().to_list() if w is not None)]
+    # Instroomjaar kent alleen de jaren die meetellen; de andere filters alle waarden in de kolom
+    instroomjaren = [str(p) for p in bereken_eerstejaars(data, ins)["periode"].unique().sort().to_list()]
+    waarden_per_filter = [["alle", *(instroomjaren if f.get("alleen_filter") else
+                                     sorted(w for w in data[f["kolom"]].unique().to_list() if w is not None))]
                           for f in ins["filters"]]
     blokken = []
     for combinatie in [tuple("alle" for _ in ins["filters"])] if schets else itertools.product(*waarden_per_filter):
-        deel = data
+        deel, instroom = data, None
         for f, w in zip(ins["filters"], combinatie, strict=True):
-            if w != "alle":
+            if w != "alle" and f.get("alleen_filter"):
+                instroom = w
+            elif w != "alle":
                 deel = deel.filter(pl.col(f["kolom"]) == w)
         sleutel = "|".join(combinatie) or "alle"
-        blokken.append(f'<div data-filter="{e(sleutel)}">{toon_blok(deel, ins)}</div>')
+        blokken.append(f'<div data-filter="{e(sleutel)}">{toon_blok(deel, ins, instroom)}</div>')
     keuzelijsten = []
     if len(ins["uitsplitsingen"]) > 1:
         keuzelijsten.append(maak_keuzelijst("uitsplitsing", "Vergelijk per", [

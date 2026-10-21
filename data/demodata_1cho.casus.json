@@ -36,11 +36,20 @@
     "vestiging": {
       "kolom": "vestigingsnummer_gemeentenaam_volgens_rio",
       "label": "vestiging"
+    },
+    "instroomjaar": {
+      "kolom": "inschrijvingsjaar",
+      "label": "instroomjaar",
+      "alleen_filter": true
     }
   },
   "filters": [
+    "instroomjaar",
     "vestiging",
-    "geslacht"
+    "geslacht",
+    "sector",
+    "opleiding",
+    "vooropleiding"
   ],
   "maten": {
     "uitval": {

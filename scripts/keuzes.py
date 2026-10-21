@@ -54,8 +54,9 @@ def normaliseer(sleutel: str, waarde: str, casus: dict) -> str:
     if sleutel in ("vergelijken", "filter"):
         if sleutel == "filter" and waarde.strip().lower() in ("geen", "geen filter", ""):
             return "geen"
-        return ",".join(dict.fromkeys(zoek(w, casus["uitsplitsingen"]) for w in waarde.replace(" en ", ",").split(",")
-                                      if w.strip()))
+        # Instroomjaar is alleen een filter: de lijn over de jaren laat het al als vergelijking zien
+        opties = {n: u for n, u in casus["uitsplitsingen"].items() if sleutel == "filter" or not u.get("alleen_filter")}
+        return ",".join(dict.fromkeys(zoek(w, opties) for w in waarde.replace(" en ", ",").split(",") if w.strip()))
     if sleutel == "bovenaan":
         return "jaar" if "jaar" in waarde.lower() else "groep"
     return "" if waarde.strip().lower() == "standaard" else waarde.strip()

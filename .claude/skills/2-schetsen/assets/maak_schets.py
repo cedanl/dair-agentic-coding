@@ -104,7 +104,7 @@ def main() -> None:
     casus = json.loads(Path(keuzes["csv"]).with_suffix(".casus.json").read_text(encoding="utf-8"))
     vraag = casus["vragen"][keuzes["vraag"]]
     namen = list(dict.fromkeys(n.strip() for n in (args.uitsplitsing or keuzes["uitsplitsing"]).split(",") if n.strip()))
-    onbekend = [n for n in namen if n not in casus["uitsplitsingen"]]
+    onbekend = [n for n in namen if casus["uitsplitsingen"].get(n, {"alleen_filter": True}).get("alleen_filter")]
     if onbekend:
         sys.exit(f"Onbekende uitsplitsing: {', '.join(onbekend)}. Kies uit: {', '.join(casus['uitsplitsingen'])}")
     # Gaat de vraag over één vergelijking (zoals vooropleiding bij C), dan staat die er altijd bij, vooraan
