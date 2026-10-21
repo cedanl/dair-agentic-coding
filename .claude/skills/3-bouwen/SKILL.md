@@ -88,11 +88,10 @@ Wil je straks iets anders zien, dan pas je de schets aan met `/2-schetsen`."* Dr
 
 ```bash
 uv run --no-project --with polars==1.44.2 python .claude/skills/3-bouwen/assets/maak_dashboard.py
-python3 .claude/skills/1-verkennen/assets/toon.py dashboard.html
 ```
 
-Het eerste commando drukt af wat het dashboard laat zien (hoogst, laagst, over de jaren). Het tweede drukt de
-link af. De regels onder *Aanpassen* gebruik je in deze skill niet: veranderen doe je in de schets. Het script bouwt uit
+Het commando drukt af wat het dashboard laat zien (hoogst, laagst, over de jaren), en als laatste regel de
+linkregel `### 👉 [Open je dashboard](...)`. De regels onder *Aanpassen* gebruik je in deze skill niet: veranderen doe je in de schets. Het script bouwt uit
 `mijn-keuzes.json` en controleert eerst of de schets precies hetzelfde zegt. Zegt het *"je schets en je keuzes
 zijn niet meer gelijk"*, leg dan uit dat de schets eerst bijgewerkt moet worden, zodat je dashboard precies
 wordt wat je in de schets ziet, en vraag de gebruiker `/2-schetsen` te typen.
@@ -100,7 +99,7 @@ wordt wat je in de schets ziet, en vraag de gebruiker `/2-schetsen` te typen.
 ## 2. Laten zien
 
 Geef de link meteen, met deze opbouw. De regel `### 👉 [Open je dashboard](<link>)` neem je **letterlijk** over,
-met de link uit `toon.py`; de rest mag in je eigen woorden:
+uit de uitvoer; de rest mag in je eigen woorden:
 
 > **Je dashboard staat klaar.** Klik op de link om het te openen:
 >

@@ -138,8 +138,8 @@ Noem geen uitkomsten of percentages: die komen pas in het dashboard.
 
 ## 3. Afsluiten
 
-Draai `python3 .claude/skills/1-verkennen/assets/toon.py data-profiel.html` en eindig met precies dit,
-met de afgedrukte link:
+Draai `python3 .claude/skills/1-verkennen/assets/toon.py data-profiel.html` en eindig met precies dit.
+De linkregel neem je **letterlijk** over uit de uitvoer:
 
 > **Je dataprofiel staat klaar.** Klik op de link om het te openen:
 >

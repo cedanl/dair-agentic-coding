@@ -6,7 +6,7 @@ Gebruik, vanuit de hoofdmap van de repo:
 
 Een browser kan een bestand in een Codespace alleen via een webadres openen. Daarom start dit script (als dat
 nog niet draait) een kleine webserver op poort 8765 die uitsluitend data-profiel.html, schets.html en
-dashboard.html uit de hoofdmap serveert, en drukt het de link af: in Codespaces het doorgestuurde adres
+dashboard.html uit de hoofdmap serveert, en drukt het de linkregel af die Claude letterlijk overneemt: in Codespaces het doorgestuurde adres
 (https://<codespace>-8765.app.github.dev/...), op een eigen computer http://localhost:8765/... De poort is
 privé: alleen wie in de Codespace is ingelogd, kan de pagina zien. Alleen de standaardbibliotheek.
 """
@@ -20,7 +20,8 @@ import time
 from pathlib import Path
 
 POORT = 8765
-BESTANDEN = {"data-profiel.html", "schets.html", "dashboard.html"}
+KNOPPEN = {"data-profiel.html": "Open je dataprofiel", "schets.html": "Open je schets", "dashboard.html": "Open je dashboard"}
+BESTANDEN = set(KNOPPEN)
 
 
 class Alleen(http.server.SimpleHTTPRequestHandler):
@@ -71,6 +72,13 @@ def maak_link(naam: str) -> str:
     return f"http://localhost:{POORT}/{naam}"
 
 
+def maak_regel(naam: str) -> str:
+    """Start zo nodig de webserver en geeft de klikbare regel voor in het gesprek."""
+    if not poort_bezet():
+        start_server()
+    return f"### 👉 [{KNOPPEN[naam]}]({maak_link(naam)})"
+
+
 def main() -> None:
     if sys.argv[1:] == ["--server"]:
         http.server.ThreadingHTTPServer(("127.0.0.1", POORT), Alleen).serve_forever()
@@ -80,9 +88,8 @@ def main() -> None:
     naam = Path(sys.argv[1]).name
     if not Path(naam).is_file():
         sys.exit(f"{naam} staat niet in de hoofdmap. Draai eerst de skill die het maakt.")
-    if not poort_bezet():
-        start_server()
-    print(maak_link(naam))
+    sys.stdout.reconfigure(encoding="utf-8")
+    print(maak_regel(naam))
 
 
 if __name__ == "__main__":

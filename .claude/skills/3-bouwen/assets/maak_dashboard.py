@@ -22,6 +22,7 @@ import html
 import itertools
 import json
 import math
+import os
 import re
 import shutil
 import string
@@ -565,6 +566,12 @@ def main() -> None:
     shutil.copyfile(HIER / "berekeningen.py", args.uit.with_name("dashboard-berekeningen.py"))
     print(f"Klaar in {time.perf_counter() - start:.1f} s: {args.uit} ({maak_getal(data.height)} rijen gelezen)")
     toon_uitkomst(data, ins)
+    if args.uit.resolve() == Path("dashboard.html").resolve() and not os.environ.get("DAIR_GEEN_LINK"):
+        sys.path.insert(0, str(HIER.parents[1] / "1-verkennen/assets"))
+        import toon
+        sys.stdout.reconfigure(encoding="utf-8")
+        print("Link (zet deze regel letterlijk in je bericht, vlak boven je vraag):")
+        print(toon.maak_regel("dashboard.html"))
 
 
 if __name__ == "__main__":

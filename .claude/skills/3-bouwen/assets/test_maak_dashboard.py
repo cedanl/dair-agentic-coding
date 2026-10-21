@@ -7,6 +7,7 @@ hetzelfde dashboard geven.
 """
 
 import json
+import os
 import re
 import subprocess
 import sys
@@ -18,6 +19,7 @@ import pytest
 REPO = Path(__file__).resolve().parents[4]
 SCRIPT = Path(__file__).resolve().parent / "maak_dashboard.py"
 DATA = REPO / "data" / "demodata_1cho.csv"
+os.environ["DAIR_GEEN_LINK"] = "1"  # geen webserver starten tijdens de tests
 
 
 def maak(tmp_path: Path, *args: str) -> tuple[subprocess.CompletedProcess, str]:

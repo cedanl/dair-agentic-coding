@@ -13,6 +13,7 @@ aanpassingen nog iets nieuws laten zien.
 import argparse
 import html
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -20,6 +21,9 @@ from pathlib import Path
 HIER = Path(__file__).resolve().parent
 sys.path.insert(0, str(HIER.parents[1] / "3-bouwen/assets"))
 import maak_dashboard as dashboard  # noqa: E402
+
+sys.path.insert(0, str(HIER.parents[1] / "1-verkennen/assets"))
+import toon  # noqa: E402
 
 
 def lees_keuzes(pad: Path) -> dict:
@@ -161,6 +165,10 @@ def main() -> None:
     for regel in let_op:
         print(f"Let op: {regel}")
     toon_aanpassingen(keuzes, casus, vraag)
+    if args.uit.resolve() == Path("schets.html").resolve() and not os.environ.get("DAIR_GEEN_LINK"):
+        sys.stdout.reconfigure(encoding="utf-8")
+        print("Link (zet deze regel letterlijk in je bericht, vlak boven je vraag):")
+        print(toon.maak_regel("schets.html"))
 
 
 if __name__ == "__main__":

@@ -119,13 +119,14 @@ klopt, dan pas bouwen."*). Draai dan, vanuit de hoofdmap, met de gekozen filters
 
 ```bash
 uv run --no-project --with polars==1.44.2 python .claude/skills/2-schetsen/assets/maak_schets.py --filter instroomjaar --volgorde groep
-python3 .claude/skills/1-verkennen/assets/toon.py schets.html
 ```
+
+De laatste regel van de uitvoer is de linkregel `### 👉 [Open je schets](...)`.
 
 ## 3. Laten zien
 
-Geef de schets meteen, met de twee views, de titel en het filter uit de uitvoer van het eerste commando en de
-link uit het tweede:
+Geef de schets meteen, met de twee views, de titel en het filter uit de uitvoer. De linkregel onderaan de
+uitvoer neem je **letterlijk** over, als eigen regel:
 
 > **Je schets staat klaar.** Klik op de link om hem te openen:
 >
@@ -150,8 +151,8 @@ dan de eerste twee regels uit de **laatste** uitvoer na *Aanpassen* (het deel v�
 ook wat tussen haakjes staat, zonder "(Aanbevolen)"). Een eigen wens typt de gebruiker via *Other*.
 
 - **Een vaste aanpassing:** zeg in één zin wat je verandert, draai `uv run --no-project --with polars==1.44.2 python
-  .claude/skills/2-schetsen/assets/maak_schets.py` met het deel na `=>` erachter, en daarna
-  opnieuw `toon.py schets.html`. Het script past de schets én `mijn-keuzes.json` aan.
+  .claude/skills/2-schetsen/assets/maak_schets.py` met het deel na `=>` erachter. Het script past de
+  schets én `mijn-keuzes.json` aan en drukt onderaan opnieuw de linkregel af.
 - **Een andere titel:** draai `maak_schets.py --titel "<titel>"` (met `--titel standaard`
   komt de vraag terug als titel). De titel blijft ook in het dashboard staan.
 - **Een andere wens:** kies de vaste aanpassing die er het dichtst bij ligt en zeg welke. Kan de schets het niet
