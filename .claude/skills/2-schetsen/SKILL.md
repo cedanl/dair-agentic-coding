@@ -166,7 +166,10 @@ goed*, na *Geen nieuwe vaste aanpassingen meer* of na vijf aanpassingen.
 
 Eindig met precies dit:
 
-> **Je schets is klaar.** Typ `/3-bouwen`: ik bouw het dashboard precies zoals deze schets.
+> **Je schets is klaar.** Straks bouw ik het dashboard precies zoals deze schets.
+>
+> **Even pauze: kijk op van je scherm.** De speaker neemt het nu over. Typ `/3-bouwen` zodra de speaker
+> zegt dat je verder mag.
 
 ## Als er iets misgaat
 

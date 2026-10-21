@@ -27,7 +27,9 @@ if time.time() - state["laatst"] > MAX_STILTE:
     STATE.unlink()
     sys.exit(0)
 
-if state["fase"] == 0:  # de intake heeft vaste vragen en geen spiegelmoment
+# De intake heeft vaste vragen; schetsen en bouwen eindigen zelf met een pauze en het volgende commando.
+# Een pauze midden in die skills zou om "door" vragen terwijl de deelnemer gewoon verder kan.
+if state["fase"] in (0, 2, 3):
     sys.exit(0)
 
 state["laatst"] = time.time()
