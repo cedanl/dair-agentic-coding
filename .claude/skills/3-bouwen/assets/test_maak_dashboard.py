@@ -97,7 +97,40 @@ def test_controle_staat_tekst_toe_maar_geen_cijfers(tmp_path: Path) -> None:
 
 def test_een_aanpassing_komt_niet_terug(tmp_path: Path) -> None:
     resultaat, _ = maak(tmp_path, "data/demodata_1cho.csv", "--vraag", "A", "--uitsplitsing", "sector")
-    assert "--uitsplitsing opleiding" in resultaat.stdout
-    opnieuw, _ = maak(tmp_path, "--vanaf", str(tmp_path / "dashboard.html"), "--uitsplitsing", "opleiding")
-    aanbod = [r for r in opnieuw.stdout.splitlines() if r.startswith("- ")]
-    assert aanbod and not any("--uitsplitsing sector" in r or "--uitsplitsing opleiding" in r for r in aanbod)
+    assert "--uitsplitsing sector,opleiding" in resultaat.stdout
+    maak(tmp_path, "--vanaf", str(tmp_path / "dashboard.html"), "--volgorde", "jaar")
+    terug, _ = maak(tmp_path, "--vanaf", str(tmp_path / "dashboard.html"), "--volgorde", "groep")
+    aanbod = [r for r in terug.stdout.splitlines() if r.startswith("- ")]
+    assert aanbod and not any("--volgorde" in r for r in aanbod)
+
+
+def test_meer_vergelijkingen_worden_een_wissel(tmp_path: Path) -> None:
+    resultaat, pagina = maak(tmp_path, "data/demodata_1cho.csv", "--vraag", "A", "--uitsplitsing", "sector,opleiding")
+    assert resultaat.returncode == 0, resultaat.stderr
+    assert '<select id="uitsplitsing" data-wissel>' in pagina
+    alles = pagina.split('data-filter="alle"')[1].split('data-filter="')[0]
+    assert 'data-uitsplitsing="sector"' in alles and 'data-uitsplitsing="opleiding"' in alles
+
+
+def test_twee_filters_geven_elke_combinatie(tmp_path: Path) -> None:
+    resultaat, pagina = maak(tmp_path, "data/demodata_1cho.csv", "--vraag", "A", "--uitsplitsing", "sector",
+                             "--filter", "vestiging,geslacht")
+    assert resultaat.returncode == 0, resultaat.stderr
+    d = pl.read_csv(DATA, separator=";", infer_schema=False)
+    vestigingen = d["vestigingsnummer_gemeentenaam_volgens_rio"].drop_nulls().n_unique()
+    geslachten = d["geslacht"].drop_nulls().n_unique()
+    assert len(re.findall(r'<div data-filter="[^"]*\|[^"]*">', pagina)) == (vestigingen + 1) * (geslachten + 1)
+    assert '<select id="filter2" data-filterkeuze>' in pagina
+
+
+def test_te_veel_keuzes_geeft_een_melding(tmp_path: Path) -> None:
+    resultaat, _ = maak(tmp_path, "data/demodata_1cho.csv", "--vraag", "A",
+                        "--uitsplitsing", "sector,opleiding,geslacht,vooropleiding")
+    assert resultaat.returncode == 1 and "hooguit 3 vergelijkingen" in resultaat.stderr
+
+
+def test_dashboard_blijft_klein_bij_de_meeste_keuzes(tmp_path: Path) -> None:
+    resultaat, pagina = maak(tmp_path, "data/demodata_1cho.csv", "--vraag", "B",
+                             "--uitsplitsing", "opleiding,vooropleiding,sector", "--filter", "vestiging,geslacht")
+    assert resultaat.returncode == 0, resultaat.stderr
+    assert len(pagina.encode("utf-8")) < 1_000_000

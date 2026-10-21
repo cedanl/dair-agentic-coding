@@ -59,8 +59,10 @@ uitsplitsing) en de `filters` en `uitsplitsingen` uit het casusbestand naast de 
 meeneemt (*"Je wilt weten welk deel van de eerstejaars stopt, per sector. Ik zet twee grafieken op papier."*)
 en stel dan in **één** aanroep van de AskUserQuestion-tool twee vragen:
 
-1. **Waarop wil je kunnen filteren?** Opties: de `filters` uit de casus behalve de gekozen uitsplitsing, met
-   hun `label` en "(Aanbevolen)" achter de eerste, en *Geen filter*.
+1. **Waarop wil je kunnen filteren?** Opties: de `filters` uit de casus behalve de gekozen uitsplitsingen, met
+   hun `label` en "(Aanbevolen)" achter de eerste, en *Geen filter*. Zet `multiSelect` aan: hooguit twee
+   filters samen. Kiest de gebruiker *Geen filter* samen met een filter, of meer dan twee, vraag dan in één zin
+   wat de bedoeling is.
 2. **Wat wil je bovenaan zien?** Opties: *De vergelijking tussen groepen* (aanbevolen) en *De ontwikkeling over
    de jaren*.
 
@@ -76,7 +78,7 @@ een begeleider. Is de AskUserQuestion-tool niet beschikbaar, stel de vraag dan i
 ## 2. Schets maken
 
 Zeg in één zin wat je doet (*"Ik schets nu de twee grafieken, nog zonder getallen: eerst kijken of de opzet
-klopt, dan pas bouwen."*). Draai dan, vanuit de hoofdmap, met de gekozen filter (`vestiging`, `geslacht` of `geen`) en volgorde (`groep` of
+klopt, dan pas bouwen."*). Draai dan, vanuit de hoofdmap, met de gekozen filters (`vestiging`, `geslacht`, beide als `vestiging,geslacht`, of `geen`) en volgorde (`groep` of
 `jaar`):
 
 ```bash
@@ -93,7 +95,8 @@ uit het tweede:
 >
 > ### 👉 [Open je schets](<link>)
 >
-> Bovenaan komt *<view 1>*, daaronder *<view 2>*, met een filter op <filter>. Nog zonder getallen: die
+> Bovenaan komt *<view 1>*, daaronder *<view 2>*, met een filter op <filter>. <Alleen bij meer
+> vergelijkingen: "In het dashboard wissel je met één klik tussen <vergelijkingen>."> Nog zonder getallen: die
 > komen pas in het dashboard.
 >
 > Volgende stap: typ `/3-bouwen`.

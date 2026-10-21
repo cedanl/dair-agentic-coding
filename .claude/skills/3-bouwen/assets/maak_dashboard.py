@@ -19,6 +19,7 @@ import argparse
 import base64
 import datetime
 import html
+import itertools
 import json
 import math
 import re
@@ -34,6 +35,7 @@ from berekeningen import bereken_eerstejaars, pas_drempels_toe, tel
 
 HIER = Path(__file__).resolve().parent
 e = html.escape
+MAX_VERGELIJKINGEN, MAX_FILTERS = 3, 2
 MAANDEN = ["januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september",
            "oktober", "november", "december"]
 
@@ -86,31 +88,40 @@ def stel_in(keuzes: dict, casus: dict) -> dict:
     vraag = casus["vragen"].get(keuzes.get("vraag", "A"))
     if vraag is None:
         raise Melding(f"Onbekende vraag '{keuzes.get('vraag')}'. Kies uit: {', '.join(casus['vragen'])}")
-    naam = keuzes.get("uitsplitsing") or vraag["uitsplitsingen"][0]
-    if naam not in casus["uitsplitsingen"]:
-        raise Melding(f"Onbekende uitsplitsing '{naam}'. Kies uit: {', '.join(casus['uitsplitsingen'])}")
-    uitsplitsing = casus["uitsplitsingen"][naam]
-    filter_naam = keuzes.get("filter") or "standaard"
-    if filter_naam not in casus["uitsplitsingen"] and filter_naam != "geen" or filter_naam == naam:
-        filter_naam = next(f for f in casus["filters"] if f != naam)
-    filter_ = casus["uitsplitsingen"].get(filter_naam) if filter_naam != "geen" else None
+    # Meer vergelijkingen en filters mogen, met komma's: "sector,opleiding". De eerste vergelijking staat vooraan.
+    namen = list(dict.fromkeys(n.strip() for n in str(keuzes.get("uitsplitsing") or vraag["uitsplitsingen"][0]).split(",")
+                               if n.strip()))
+    onbekend = [n for n in namen if n not in casus["uitsplitsingen"]]
+    if onbekend:
+        raise Melding(f"Onbekende uitsplitsing '{', '.join(onbekend)}'. Kies uit: {', '.join(casus['uitsplitsingen'])}")
+    if len(namen) > MAX_VERGELIJKINGEN:
+        raise Melding(f"Kies hooguit {MAX_VERGELIJKINGEN} vergelijkingen; meer past niet overzichtelijk in één dashboard.")
+    gevraagd = str(keuzes.get("filter") or "standaard")
+    filter_namen = [] if gevraagd == "geen" else [
+        f for f in dict.fromkeys(gevraagd.split(",")) if f in casus["uitsplitsingen"] and f not in namen]
+    if not filter_namen and gevraagd != "geen":
+        filter_namen = [f for f in casus["filters"] if f not in namen][:1]
+    if len(filter_namen) > MAX_FILTERS:
+        raise Melding(f"Kies hooguit {MAX_FILTERS} filters; meer past niet overzichtelijk in één dashboard.")
+    uitsplitsingen = [(n, casus["uitsplitsingen"][n]) for n in namen]
+    filters = [casus["uitsplitsingen"][f] for f in filter_namen]
     maat = casus["maten"][vraag["maat"]]
     k = casus["kolommen"]
-    kolommen = [k["persoon"], k["jaar"], k["start"], uitsplitsing["kolom"]]
+    kolommen = [k["persoon"], k["jaar"], k["start"], *(u["kolom"] for _, u in uitsplitsingen)]
     if maat["soort"] == "diploma":
         kolommen.append(k["diplomajaar"])
-    if filter_:
-        kolommen.append(filter_["kolom"])
-    groep_view = {"soort": "staaf", "per": "groep",
-                  "titel": vraag["titel_groep"].format(uitsplitsing=uitsplitsing["label"]),
-                  "uitleg": vraag["uitleg_groep"].format(uitsplitsing=uitsplitsing["label"])}
+    kolommen += [f["kolom"] for f in filters]
+    groep_views = {n: {"soort": "staaf", "per": "groep",
+                       "titel": vraag["titel_groep"].format(uitsplitsing=u["label"]),
+                       "uitleg": vraag["uitleg_groep"].format(uitsplitsing=u["label"])} for n, u in uitsplitsingen}
     jaar_view = {"soort": "lijn", "per": "periode", "titel": vraag["titel_jaar"], "uitleg": vraag["uitleg_jaar"]}
-    views = [jaar_view, groep_view] if keuzes.get("volgorde") == "jaar" else [groep_view, jaar_view]
-    keuzes = {**keuzes, "uitsplitsing": naam, "filter": filter_naam}
+    views = ["jaar", "groep"] if keuzes.get("volgorde") == "jaar" else ["groep", "jaar"]
+    keuzes = {**keuzes, "uitsplitsing": ",".join(namen), "filter": ",".join(filter_namen) or "geen"}
     keuzes["gezien"] = list(dict.fromkeys([*keuzes.get("gezien", []), bepaal_stand(keuzes)]))
     return {
         "keuzes": keuzes,
-        "vraag": vraag, "maat": maat, "uitsplitsing": uitsplitsing, "filter": filter_, "views": views,
+        "vraag": vraag, "maat": maat, "uitsplitsing": uitsplitsingen[0][1], "uitsplitsingen": uitsplitsingen,
+        "filters": filters, "views": views, "groep_views": groep_views, "jaar_view": jaar_view,
         "kolommen": list(dict.fromkeys(kolommen)), "k": k, "eenheid": casus["eenheid"],
         "ondertitel": casus["ondertitel"], "demo": casus.get("demo", False),
         "scheidingsteken": casus.get("scheidingsteken", ";"),
@@ -267,8 +278,15 @@ def toon_cijfers(view: dict, rijen: list[dict], ins: dict) -> str:
             f"<tbody>{regels}</tbody></table></div></details>")
 
 
+def toon_view(view: dict, eerstejaars: pl.DataFrame, ins: dict, wissel: str = "") -> str:
+    rijen = pas_drempels_toe(tel(eerstejaars, view["per"]), ins)
+    grafiek, zin = (toon_staaf if view["soort"] == "staaf" else toon_lijn)(rijen, ins)
+    return (f'<section class="npuls-view"{wissel}><h2>{e(view["titel"])}</h2><p class="npuls-uitleg">{e(view["uitleg"])}</p>'
+            f'{grafiek}<p class="npuls-samenvatting">{e(zin)}</p>{toon_cijfers(view, rijen, ins)}</section>')
+
+
 def toon_blok(data: pl.DataFrame, ins: dict) -> str:
-    """Kerncijfers en de views voor één filterwaarde."""
+    """Kerncijfers en de views voor één filterkeuze. Bij meer vergelijkingen één groepsview per vergelijking."""
     eerstejaars = bereken_eerstejaars(data, ins)
     teller, noemer = int(eerstejaars["telt"].sum()), eerstejaars.height
     if noemer < ins["groep"]:
@@ -281,11 +299,16 @@ def toon_blok(data: pl.DataFrame, ins: dict) -> str:
               f'<div class="npuls-tegel"><strong>{maak_getal(noemer)}</strong><span>Eerstejaars die meetellen</span></div>'
               f'<div class="npuls-tegel"><strong>{perioden[0]}–{perioden[-1]}</strong><span>Instroomjaren</span></div>')
     views = ""
-    for view in ins["views"]:
-        rijen = pas_drempels_toe(tel(eerstejaars, view["per"]), ins)
-        grafiek, zin = (toon_staaf if view["soort"] == "staaf" else toon_lijn)(rijen, ins)
-        views += (f'<section class="npuls-view"><h2>{e(view["titel"])}</h2><p class="npuls-uitleg">{e(view["uitleg"])}</p>'
-                  f'{grafiek}<p class="npuls-samenvatting">{e(zin)}</p>{toon_cijfers(view, rijen, ins)}</section>')
+    for soort in ins["views"]:
+        if soort == "jaar":
+            views += toon_view(ins["jaar_view"], eerstejaars, ins)
+        elif len(ins["uitsplitsingen"]) == 1:
+            views += toon_view(ins["groep_views"][ins["uitsplitsingen"][0][0]], eerstejaars, ins)
+        else:
+            for naam, uitsplitsing in ins["uitsplitsingen"]:
+                per = bereken_eerstejaars(data, {**ins, "uitsplitsing": uitsplitsing})
+                views += toon_view(ins["groep_views"][naam], per, {**ins, "uitsplitsing": uitsplitsing},
+                                   f' data-uitsplitsing="{e(naam)}"')
     return f'<div class="npuls-tegels">{tegels}</div>{views}'
 
 
@@ -331,8 +354,14 @@ def toon_aanpassingen(ins: dict) -> None:
     """Alleen aanpassingen naar een stand die de gebruiker nog niet heeft gezien, zodat geen keuze terugkomt."""
     k = ins["keuzes"]
     volgorde = k.get("volgorde") or "groep"
-    mogelijk = [(f"Vergelijk per {ins['alle_uitsplitsingen'][naam]['label']}", f"--uitsplitsing {naam}",
-                 {**k, "uitsplitsing": naam}) for naam in ins["vraag"]["uitsplitsingen"] if naam != k["uitsplitsing"]]
+    namen = k["uitsplitsing"].split(",")
+    mogelijk = []
+    if len(namen) < MAX_VERGELIJKINGEN:
+        for naam in ins["vraag"]["uitsplitsingen"]:
+            if naam not in namen and naam not in k["filter"].split(","):
+                erbij = ",".join([*namen, naam])
+                mogelijk.append((f"Vergelijk ook per {ins['alle_uitsplitsingen'][naam]['label']}",
+                                 f"--uitsplitsing {erbij}", {**k, "uitsplitsing": erbij}))
     if volgorde == "jaar":
         mogelijk.append(("Zet de vergelijking tussen groepen bovenaan", "--volgorde groep", {**k, "volgorde": "groep"}))
     else:
@@ -380,18 +409,31 @@ def maak_commando(ins: dict, csv: Path) -> str:
             + (f" --volgorde {k['volgorde']}" if k.get("volgorde") else ""))
 
 
+def maak_keuzelijst(id_: str, label: str, opties: list[tuple[str, str]], rol: str) -> str:
+    return (f'<label for="{id_}">{e(label)}</label><select id="{id_}" {rol}>'
+            + "".join(f'<option value="{e(w)}">{e(t)}</option>' for w, t in opties) + "</select>")
+
+
 def maak_html(data: pl.DataFrame, csv: Path, ins: dict) -> str:
-    blokken, opties = [], []
-    waarden = ["alle"]
-    if ins["filter"]:
-        waarden += sorted(w for w in data[ins["filter"]["kolom"]].unique().to_list() if w is not None)
-    for w in waarden:
-        deel = data if w == "alle" else data.filter(pl.col(ins["filter"]["kolom"]) == w)
-        label = "Alles" if w == "alle" else maak_label(w)
-        opties.append(f'<option value="{e(w)}">{e(label)}</option>')
-        blokken.append(f'<div data-filter="{e(w)}">{toon_blok(deel, ins)}</div>')
-    filter_html = (f'<label for="filter">{e(maak_label(ins["filter"]["label"]))}</label>'
-                   f'<select id="filter">{"".join(opties)}</select>') if ins["filter"] else ""
+    """Eén blok per combinatie van filterwaarden, vooraf berekend; de keuzelijsten tonen alleen het gekozen blok."""
+    waarden_per_filter = [["alle", *sorted(w for w in data[f["kolom"]].unique().to_list() if w is not None)]
+                          for f in ins["filters"]]
+    blokken = []
+    for combinatie in itertools.product(*waarden_per_filter):
+        deel = data
+        for f, w in zip(ins["filters"], combinatie, strict=True):
+            if w != "alle":
+                deel = deel.filter(pl.col(f["kolom"]) == w)
+        sleutel = "|".join(combinatie) or "alle"
+        blokken.append(f'<div data-filter="{e(sleutel)}">{toon_blok(deel, ins)}</div>')
+    keuzelijsten = []
+    if len(ins["uitsplitsingen"]) > 1:
+        keuzelijsten.append(maak_keuzelijst("uitsplitsing", "Vergelijk per", [
+            (n, maak_label(u["label"])) for n, u in ins["uitsplitsingen"]], "data-wissel"))
+    for i, (f, waarden) in enumerate(zip(ins["filters"], waarden_per_filter, strict=True)):
+        keuzelijsten.append(maak_keuzelijst("filter" if i == 0 else f"filter{i + 1}", maak_label(f["label"]), [
+            (w, "Alles" if w == "alle" else maak_label(w)) for w in waarden], "data-filterkeuze"))
+    filter_html = "".join(keuzelijsten)
     vandaag = datetime.date.today()
     personen = data[ins["k"]["persoon"]].n_unique()
     bron = (f"Bron: {e(csv.name)}, {maak_getal(data.height)} rijen, {maak_getal(personen)} {e(ins['eenheid'])}. "

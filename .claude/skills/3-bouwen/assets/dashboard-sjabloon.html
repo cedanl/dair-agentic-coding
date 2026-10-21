@@ -21,16 +21,20 @@ $blokken
 <footer><p>$bron</p><p>De berekeningen staan in <code>dashboard-berekeningen.py</code>, naast dit bestand.</p><p>Draait opnieuw op je eigen data met: <code>$commando</code></p></footer>
 </div>
 <script>
-// Toont bij elke keuze in het filter alleen het blok met dezelfde waarde. Alle cijfers zijn vooraf
-// berekend en door de privacydrempel gegaan: dit script rekent niets uit en leest geen data.
+// Toont alleen het blok bij de gekozen filterwaarden, en bij meer vergelijkingen alleen de gekozen vergelijking.
+// Alle cijfers zijn vooraf berekend en door de privacydrempel gegaan: dit script rekent niets uit en leest geen data.
 (function () {
-  var keuze = document.getElementById("filter");
+  var filters = document.querySelectorAll("select[data-filterkeuze]");
+  var wissel = document.querySelector("select[data-wissel]");
   var blokken = document.querySelectorAll("[data-filter]");
+  var vergelijkingen = document.querySelectorAll("[data-uitsplitsing]");
   function toon() {
-    var waarde = keuze ? keuze.value : "alle";
+    var waarde = Array.prototype.map.call(filters, function (f) { return f.value; }).join("|") || "alle";
     blokken.forEach(function (blok) { blok.hidden = blok.getAttribute("data-filter") !== waarde; });
+    vergelijkingen.forEach(function (view) { view.hidden = view.getAttribute("data-uitsplitsing") !== wissel.value; });
   }
-  if (keuze) { keuze.addEventListener("change", toon); }
+  filters.forEach(function (f) { f.addEventListener("change", toon); });
+  if (wissel) { wissel.addEventListener("change", toon); }
   toon();
 })();
 </script>

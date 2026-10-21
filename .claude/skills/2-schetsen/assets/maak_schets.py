@@ -42,7 +42,7 @@ def lees_keuzes(pad: Path) -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Maakt schets.html uit de keuzes in data-profiel.html.")
     parser.add_argument("--vanaf", type=Path, default=Path("data-profiel.html"))
-    parser.add_argument("--filter", default="standaard", help="bijvoorbeeld vestiging, geslacht of geen")
+    parser.add_argument("--filter", default="standaard", help="bijvoorbeeld vestiging, geslacht, vestiging,geslacht of geen")
     parser.add_argument("--volgorde", choices=["groep", "jaar"], default="groep", help="welke view bovenaan staat")
     parser.add_argument("--uit", type=Path, default=Path("schets.html"))
     args = parser.parse_args()
@@ -50,11 +50,14 @@ def main() -> None:
     keuzes = lees_keuzes(args.vanaf)
     casus = json.loads(Path(keuzes["csv"]).with_suffix(".casus.json").read_text(encoding="utf-8"))
     vraag = casus["vragen"][keuzes["vraag"]]
-    naam = keuzes["uitsplitsing"]
-    label = casus["uitsplitsingen"][naam]["label"]
-    filter_naam = args.filter
-    if filter_naam not in casus["uitsplitsingen"] and filter_naam != "geen" or filter_naam == naam:
-        filter_naam = next(f for f in casus["filters"] if f != naam)
+    namen = keuzes["uitsplitsing"].split(",")
+    label = casus["uitsplitsingen"][namen[0]]["label"]
+    # Hooguit twee filters, nooit op iets waarop je al vergelijkt; geen geldig filter gekozen: het eerste uit de casus
+    filters = [] if args.filter == "geen" else [
+        f for f in dict.fromkeys(args.filter.split(",")) if f in casus["uitsplitsingen"] and f not in namen][:2]
+    if not filters and args.filter != "geen":
+        filters = [f for f in casus["filters"] if f not in namen][:1]
+    filter_naam = ",".join(filters) or "geen"
     maat = casus["maten"][vraag["maat"]]
     keuzes.update(filter=filter_naam, volgorde=args.volgorde)
 
@@ -70,8 +73,11 @@ def main() -> None:
         f"<dl><dt>Wat je ziet</dt><dd>{e(uitleg)}</dd><dt>Grafiek</dt><dd>{e(soort)}</dd>"
         f"<dt>Valt weg</dt><dd>{e(weg)}</dd></dl></section>"
         for i, (titel, uitleg, soort, plaatje, weg) in enumerate(views, 1))
-    filter_label = casus["uitsplitsingen"][filter_naam]["label"] if filter_naam != "geen" else "geen"
-    rijen = [("Vraag", vraag["vraag"]), ("Uitgesplitst naar", label), ("Filter", filter_label),
+    filter_label = " en ".join(casus["uitsplitsingen"][f]["label"] for f in filters) or "geen"
+    vergelijken = " of ".join(casus["uitsplitsingen"][n]["label"] for n in namen)
+    if len(namen) > 1:
+        vergelijken += " (wissel met één klik in het dashboard)"
+    rijen = [("Vraag", vraag["vraag"]), ("Uitgesplitst naar", vergelijken), ("Filter", filter_label),
              ("Bovenaan", "vergelijken tussen groepen" if args.volgorde == "groep" else "ontwikkeling over de jaren"),
              (maat["definities"][0][0], maat["definities"][0][1]),
              ("Kerncijfer", vraag["kerncijfer"])]
@@ -87,7 +93,7 @@ def main() -> None:
         niet="".join(f"<li>{e(n)}</li>" for n in niet),
     ), encoding="utf-8")
     print(f"Geschreven: {args.uit}")
-    print(f"View 1: {views[0][0]}  View 2: {views[1][0]}  Filter: {filter_label}")
+    print(f"View 1: {views[0][0]}  View 2: {views[1][0]}  Vergelijken: {vergelijken}  Filter: {filter_label}")
 
 
 if __name__ == "__main__":

@@ -65,7 +65,11 @@ beantwoordt, en stel de vraag opnieuw zonder die optie. Leg de keuze vast als `v
 
 Reageer in één zin op de keuze (*"Mooie vraag: daar kan een dashboard echt iets laten zien."*) en stel de
 derde vraag, ook met de tool: **Waarop wil je het vergelijken?** Opties: de drie `uitsplitsingen` bij de
-gekozen vraag, in die volgorde, met het `label` uit `uitsplitsingen` en "(Aanbevolen)" achter de eerste. Leg de keuze vast als `vergelijken`.
+gekozen vraag, in die volgorde, met het `label` uit `uitsplitsingen` en "(Aanbevolen)" achter de eerste. Zet
+`multiSelect` aan en zeg in de vraag dat meer keuzes mogen (*"Kies er één of meer"*). Leg de keuze vast als
+`vergelijken`. Koos de gebruiker er meer, zeg dan in één zin wat dat betekent: *"Je profiel gaat over sector;
+in het dashboard wissel je straks met één klik tussen sector en opleiding."* Het dashboard kan hooguit drie
+vergelijkingen tegelijk; vraagt de gebruiker meer, zeg dat eerlijk en neem de eerste drie.
 
 ## Eigen antwoorden
 
@@ -82,7 +86,8 @@ Draai eerst, zonder het te noemen: `uv run scripts/vragenteller.py fase 1`. De d
 fase 0 en tellen niet mee voor de rondes.
 
 Draai de vier stappen als **vier losse commando's**, vanuit de hoofdmap, met de gekozen letter en
-uitsplitsing (zoals `A` en `sector`). Zet vóór elk commando één zin in de ik-vorm over wat je gaat doen, en
+uitsplitsing (zoals `A` en `sector`; bij meer keuzes met komma's en zonder spaties, de eerste keuze vooraan:
+`sector,opleiding`). Zet vóór elk commando één zin in de ik-vorm over wat je gaat doen, en
 na elk commando één of twee zinnen over wat je zag, in je eigen woorden, op basis van de afgedrukte regels:
 
 ```bash

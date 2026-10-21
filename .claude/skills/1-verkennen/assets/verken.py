@@ -36,7 +36,7 @@ p.add_argument("--begrip", help="JSON met de tekst van de gebruiker: datagebruik
 p.add_argument("--uit", default="data-profiel.html")
 p.add_argument("--vraag", help="A, B of C uit het casusbestand naast de data")
 p.add_argument("--stap", type=int, choices=[1, 2, 3, 4], help="druk alleen de samenvatting van deze stap af; stap 4 schrijft ook het profiel")
-p.add_argument("--uitsplitsing", dest="uitsplitsing_naam", help="naam van de uitsplitsing uit het casusbestand, bijvoorbeeld sector")
+p.add_argument("--uitsplitsing", dest="uitsplitsing_naam", help="naam van de uitsplitsing uit het casusbestand, bijvoorbeeld sector, of meer met komma's: sector,opleiding")
 p.add_argument("--overzicht", action="store_true", help="druk alleen de structuur per kolom af en schrijf geen profiel")
 p.add_argument("--sep", default=";", help="scheidingsteken van de CSV")
 p.add_argument("--demo", action="store_true", help="de data is demodata: toon het demodata-label en de namen van waarden")
@@ -69,14 +69,19 @@ if casus_pad.is_file() and not a.begrip:
     casus = json.loads(casus_pad.read_text(encoding="utf-8"))
     vraag_letter = a.vraag or "A"
     vraag = casus["vragen"][vraag_letter]
-    naam = a.uitsplitsing_naam or vraag["uitsplitsingen"][0]
+    # Meer vergelijkingen mogen ("sector,opleiding"): het profiel gaat over de eerste, het dashboard krijgt ze allemaal
+    namen = list(dict.fromkeys(n.strip() for n in (a.uitsplitsing_naam or vraag["uitsplitsingen"][0]).split(",") if n.strip()))
+    onbekend_naam = [n for n in namen if n not in casus["uitsplitsingen"]]
+    if onbekend_naam:
+        sys.exit(f"Onbekende uitsplitsing: {', '.join(onbekend_naam)}. Kies uit: {', '.join(casus['uitsplitsingen'])}")
+    naam = namen[0]
     uitsplitsing = casus["uitsplitsingen"][naam]
     maat = casus["maten"][vraag["maat"]]
     label = uitsplitsing["label"]
     a.demo = a.demo or casus.get("demo", False)
     a.uitsplitsing = [uitsplitsing["kolom"], *a.uitsplitsing]
     a.drempel, a.drempel_cel = casus["drempels"]["groep"], casus["drempels"]["cel"]
-    keuzes.update(vraag=vraag_letter, uitsplitsing=naam)
+    keuzes.update(vraag=vraag_letter, uitsplitsing=",".join(namen))
     begrip = {
         **casus["begrip"],
         "jouw_aanpak": f"{vraag['vraag']} Uitgesplitst naar {label}.",
