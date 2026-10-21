@@ -55,8 +55,8 @@ klopt, dan pas bouwen."*). Draai dan, vanuit de hoofdmap, met de gekozen filter 
 `jaar`):
 
 ```bash
-python3 .claude/skills/schets_dashboard/assets/maak_schets.py --filter vestiging --volgorde groep
-python3 .claude/skills/verkennen_data/assets/toon.py schets.html
+python3 .claude/skills/2-schetsen/assets/maak_schets.py --filter vestiging --volgorde groep
+python3 .claude/skills/1-verkennen/assets/toon.py schets.html
 ```
 
 ## 3. Afsluiten

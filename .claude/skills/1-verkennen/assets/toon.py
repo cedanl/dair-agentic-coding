@@ -2,7 +2,7 @@
 
 Gebruik, vanuit de hoofdmap van de repo:
 
-    python .claude/skills/verkennen_data/assets/toon.py dashboard.html
+    python .claude/skills/1-verkennen/assets/toon.py dashboard.html
 
 Een browser kan een bestand in een Codespace alleen via een webadres openen. Daarom start dit script (als dat
 nog niet draait) een kleine webserver op poort 8765 die uitsluitend data-profiel.html, schets.html en

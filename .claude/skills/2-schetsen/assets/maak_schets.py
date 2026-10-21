@@ -2,7 +2,7 @@
 
 Gebruik, vanuit de hoofdmap van de repo:
 
-    python .claude/skills/schets_dashboard/assets/maak_schets.py --filter vestiging --volgorde groep
+    python .claude/skills/2-schetsen/assets/maak_schets.py --filter vestiging --volgorde groep
 
 Neemt de vraag en de uitsplitsing over uit data-profiel.html en de teksten uit het casusbestand naast de data.
 Alleen de standaardbibliotheek: draait zonder installatie.

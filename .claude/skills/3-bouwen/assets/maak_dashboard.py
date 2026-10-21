@@ -2,8 +2,8 @@
 
 Gebruik, vanuit de hoofdmap van de repo:
 
-    python .claude/skills/bouwen_dashboard/assets/maak_dashboard.py --vanaf schets.html
-    python .claude/skills/bouwen_dashboard/assets/maak_dashboard.py data/eigen.csv --vraag A \\
+    python .claude/skills/3-bouwen/assets/maak_dashboard.py --vanaf schets.html
+    python .claude/skills/3-bouwen/assets/maak_dashboard.py data/eigen.csv --vraag A \\
         --uitsplitsing sector --filter vestiging
 
 De vraag, de definities en de teksten komen uit het casusbestand naast de data (data/x.csv -> data/x.casus.json).
@@ -357,7 +357,7 @@ def controleer(pad: Path, ins: dict, data: pl.DataFrame, csv: Path) -> None:
 
 def maak_commando(ins: dict, csv: Path) -> str:
     k = ins["keuzes"]
-    return (f"uv run --no-project --with polars python .claude/skills/bouwen_dashboard/assets/maak_dashboard.py {csv.as_posix()} --vraag {k.get('vraag', 'A')} "
+    return (f"uv run --no-project --with polars python .claude/skills/3-bouwen/assets/maak_dashboard.py {csv.as_posix()} --vraag {k.get('vraag', 'A')} "
             f"--uitsplitsing {k['uitsplitsing']} --filter {k['filter']}"
             + (f" --volgorde {k['volgorde']}" if k.get("volgorde") else ""))
 

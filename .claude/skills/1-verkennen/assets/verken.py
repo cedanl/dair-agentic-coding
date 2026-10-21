@@ -1,7 +1,7 @@
 """Maakt een HTML-dataprofiel uit een CSV. Draait zonder AI, ook op andere data.
 
 Gebruik, vanuit de hoofdmap van de repo:
-    python .claude/skills/verkennen_data/assets/verken.py data/demodata_1cho.csv --vraag A --uitsplitsing sector
+    python .claude/skills/1-verkennen/assets/verken.py data/demodata_1cho.csv --vraag A --uitsplitsing sector
         # met een casusbestand naast de data (data/x.casus.json): schrijft data-profiel.html
     python verken.py data/bestand.csv --overzicht --demo  # alleen de structuur per kolom, in de terminal
     python verken.py data/bestand.csv --begrip begrip.json  # zonder casus: de tekst uit begrip.json

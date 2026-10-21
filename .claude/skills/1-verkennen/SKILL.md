@@ -67,7 +67,7 @@ uitsplitsing (zoals `A` en `sector`). Zet vóór elk commando één zin in de ik
 na elk commando één of twee zinnen over wat je zag, in je eigen woorden, op basis van de afgedrukte regels:
 
 ```bash
-uv run --no-project --with duckdb==1.5.6 python .claude/skills/verkennen_data/assets/verken.py data/demodata_1cho.csv --vraag A --uitsplitsing sector --stap 1
+uv run --no-project --with duckdb==1.5.6 python .claude/skills/1-verkennen/assets/verken.py data/demodata_1cho.csv --vraag A --uitsplitsing sector --stap 1
 ```
 
 Daarna hetzelfde met `--stap 2`, `--stap 3` en `--stap 4`. Stap 4 schrijft ook het profiel.
@@ -84,7 +84,7 @@ Noem geen uitkomsten of percentages: die komen pas in het dashboard.
 
 ## 3. Afsluiten
 
-Draai `python3 .claude/skills/verkennen_data/assets/toon.py data-profiel.html` en eindig met precies dit,
+Draai `python3 .claude/skills/1-verkennen/assets/toon.py data-profiel.html` en eindig met precies dit,
 met de afgedrukte link:
 
 > **Je dataprofiel staat klaar.** Klik op de link om het te openen:

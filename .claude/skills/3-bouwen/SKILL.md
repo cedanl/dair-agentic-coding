@@ -44,8 +44,8 @@ Zeg in één zin: *"Ik bouw nu je dashboard: ik tel de eerstejaars, verberg groe
 alles in de Npuls-huisstijl."* Draai dan:
 
 ```bash
-uv run --no-project --with polars==1.44.2 python .claude/skills/bouwen_dashboard/assets/maak_dashboard.py --vanaf schets.html
-python3 .claude/skills/verkennen_data/assets/toon.py dashboard.html
+uv run --no-project --with polars==1.44.2 python .claude/skills/3-bouwen/assets/maak_dashboard.py --vanaf schets.html
+python3 .claude/skills/1-verkennen/assets/toon.py dashboard.html
 ```
 
 Het eerste commando drukt af wat het dashboard laat zien (hoogst, laagst, over de jaren) en welke
@@ -75,8 +75,8 @@ of na vijf aanpassingen of wensen samen.
 **Een vaste aanpassing:**
 
 1. Zeg in één zin wat je verandert (*"Ik vergelijk nu per opleiding."*).
-2. Draai `uv run --no-project --with polars==1.44.2 python .claude/skills/bouwen_dashboard/assets/maak_dashboard.py --vanaf dashboard.html` met het deel na `=>` erachter (bijvoorbeeld `--uitsplitsing opleiding`),
-   en daarna opnieuw `python3 .claude/skills/verkennen_data/assets/toon.py dashboard.html`.
+2. Draai `uv run --no-project --with polars==1.44.2 python .claude/skills/3-bouwen/assets/maak_dashboard.py --vanaf dashboard.html` met het deel na `=>` erachter (bijvoorbeeld `--uitsplitsing opleiding`),
+   en daarna opnieuw `python3 .claude/skills/1-verkennen/assets/toon.py dashboard.html`.
 3. Vertel in één of twee zinnen wat er nu bovenaan staat, met de nieuwe link, en stel de vraag opnieuw.
 
 Een vaste aanpassing maakt het dashboard opnieuw: kleine wensen van eerder verdwijnen dan. Zeg dat als er al
@@ -92,10 +92,10 @@ in één zin, en kijk of het een kleine of een grote wens is.
      script, de schets, het casusbestand of de data.
   2. Laat elk getal, elk percentage, elke verborgen groep, het filter, het label *Dit is demodata* en de
      privacyuitleg staan zoals ze zijn, en voeg geen getallen of scripts toe.
-  3. Draai `uv run --no-project --with polars==1.44.2 python .claude/skills/bouwen_dashboard/assets/maak_dashboard.py --vanaf dashboard.html --controleer`. Bij *Goed* geef je opnieuw de link (`toon.py
+  3. Draai `uv run --no-project --with polars==1.44.2 python .claude/skills/3-bouwen/assets/maak_dashboard.py --vanaf dashboard.html --controleer`. Bij *Goed* geef je opnieuw de link (`toon.py
      dashboard.html`) en zeg je eerlijk: *"Dit heb ik in je dashboard aangepast. Bouw je het later opnieuw op
      je eigen data, dan zit deze wijziging er niet in; daarvoor passen we na de workshop het script aan."*
-  4. Bij *Niet goed* draai je `uv run --no-project --with polars==1.44.2 python .claude/skills/bouwen_dashboard/assets/maak_dashboard.py --vanaf dashboard.html` om het dashboard te herstellen, en zeg je dat deze
+  4. Bij *Niet goed* draai je `uv run --no-project --with polars==1.44.2 python .claude/skills/3-bouwen/assets/maak_dashboard.py --vanaf dashboard.html` om het dashboard te herstellen, en zeg je dat deze
      wens net te veel raakt, met een kleinere variant als voorstel. Probeer het niet een tweede keer.
 - **Groot: een nieuwe maat, een ander soort grafiek, andere of extra data, een andere vraag, een
   voorspelling of een oorzaak.** Neem de wens serieus en zeg in twee zinnen waarom het een mooi idee is en
@@ -106,7 +106,7 @@ in één zin, en kijk of het een kleine of een grote wens is.
 
 ## 4. Meenemen en afsluiten
 
-Draai eerst opnieuw `python3 .claude/skills/verkennen_data/assets/toon.py dashboard.html` voor de link. Eindig
+Draai eerst opnieuw `python3 .claude/skills/1-verkennen/assets/toon.py dashboard.html` voor de link. Eindig
 dan, zonder vraag, met precies dit als **laatste bericht**, in één bericht. Zet er niets meer onder:
 
 > Wil je weten wat er is gerekend? In `dashboard-berekeningen.py` staat precies hoe de cijfers zijn berekend.

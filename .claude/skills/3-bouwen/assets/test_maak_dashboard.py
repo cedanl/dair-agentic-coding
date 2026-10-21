@@ -1,6 +1,6 @@
 """Onderhoudstests voor maak_dashboard.py. Niet voor de workshop: draai ze na een wijziging aan de motor.
 
-    uv run --no-project --with polars==1.44.2 --with pytest==9.1.1 python -m pytest .claude/skills/bouwen_dashboard/assets
+    uv run --no-project --with polars==1.44.2 --with pytest==9.1.1 python -m pytest .claude/skills/3-bouwen/assets
 
 Ze rekenen de uitkomsten op de demodata onafhankelijk na en controleren dat dezelfde keuzes twee keer
 hetzelfde dashboard geven.
