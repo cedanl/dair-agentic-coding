@@ -34,9 +34,13 @@ def main() -> None:
     regel, url, getoond, vlak_boven = None, None, True, False
     for lijn in pad.read_text(encoding="utf-8").splitlines():
         try:
-            bericht = json.loads(lijn).get("message") or {}
+            rij = json.loads(lijn)
         except json.JSONDecodeError:
             continue
+        # alleen het gesprek zelf: geen kopieën van eerdere verzoeken (api-request-blob) of subagents
+        if rij.get("type") not in ("user", "assistant") or rij.get("isSidechain"):
+            continue
+        bericht = rij.get("message") or {}
         blokken = bericht.get("content") if isinstance(bericht.get("content"), list) else []
         if bericht.get("role") == "user":  # nieuw antwoord of nieuwe uitvoer: de link staat niet meer vlak boven
             vlak_boven = False
