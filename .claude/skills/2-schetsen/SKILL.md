@@ -122,6 +122,10 @@ link uit het tweede:
 
 ## 4. Schets aanpassen
 
+**Eerst de link, dan de vraag.** Stel de vraag hieronder pas als de gebruiker de schets heeft kunnen zien: de
+link uit *Laten zien* (of na een aanpassing de nieuwe link) staat altijd vlak boven de vraag, in hetzelfde
+bericht. Zonder link geen vraag.
+
 Dit is hét moment om te veranderen: het dashboard wordt straks precies zoals deze schets. Vraag met de
 AskUserQuestion-tool: **Wil je iets veranderen aan de schets?** Opties, in deze volgorde: open wensen voor
 `2-schetsen` of `3-bouwen` die over de opzet of de titel gaan, met *(jouw wens)*; dan de eerste twee regels uit
