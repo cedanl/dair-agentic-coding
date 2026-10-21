@@ -3,8 +3,10 @@
 Gebruik, vanuit de hoofdmap van de repo:
 
     python .claude/skills/2-schetsen/assets/maak_schets.py --filter vestiging --volgorde groep
+    python .claude/skills/2-schetsen/assets/maak_schets.py --vanaf schets.html --filter geen   (schets aanpassen)
 
-Neemt de vraag en de uitsplitsing over uit data-profiel.html en de teksten uit het casusbestand naast de data.
+Neemt de vraag en de uitsplitsing over uit data-profiel.html (of uit een eerdere schets) en de teksten uit het
+casusbestand naast de data. Drukt af welke aanpassingen nog iets nieuws laten zien.
 Alleen de standaardbibliotheek: draait zonder installatie.
 """
 
@@ -39,37 +41,83 @@ def lees_keuzes(pad: Path) -> dict:
     return json.loads(html.unescape(gevonden.group(1)))
 
 
+MAX_VERGELIJKINGEN, MAX_FILTERS = 3, 2
+
+
+def bepaal_stand(keuzes: dict) -> str:
+    """Welke vergelijkingen, filters en volgorde de schets toont; zo bieden we nooit een eerdere stand opnieuw aan."""
+    return f"{keuzes['uitsplitsing']}|{keuzes['filter']}|{keuzes['volgorde']}"
+
+
+def toon_aanpassingen(keuzes: dict, casus: dict, vraag: dict) -> None:
+    namen, filters = keuzes["uitsplitsing"].split(","), [f for f in keuzes["filter"].split(",") if f != "geen"]
+    label = lambda n: casus["uitsplitsingen"][n]["label"]  # noqa: E731
+    mogelijk = []
+    if len(namen) < MAX_VERGELIJKINGEN:
+        mogelijk += [(f"Vergelijk ook per {label(n)}", f"--uitsplitsing {','.join([*namen, n])}",
+                      {"uitsplitsing": ",".join([*namen, n]), "filter": ",".join(f for f in filters if f != n) or "geen"})
+                     for n in vraag["uitsplitsingen"] if n not in namen]
+    mogelijk += [(f"Vergelijk niet meer per {label(n)}", f"--uitsplitsing {','.join(m for m in namen if m != n)}",
+                  {"uitsplitsing": ",".join(m for m in namen if m != n)})
+                 for n in namen if len(namen) > 1 and n != vraag.get("kern")]
+    if len(filters) < MAX_FILTERS:
+        mogelijk += [(f"Filter ook op {label(f)}", f"--filter {','.join([*filters, f])}", {"filter": ",".join([*filters, f])})
+                     for f in casus["filters"] if f not in filters and f not in namen]
+    mogelijk += [(f"Haal het filter op {label(f)} weg", f"--filter {','.join(g for g in filters if g != f) or 'geen'}",
+                  {"filter": ",".join(g for g in filters if g != f) or "geen"}) for f in filters]
+    andere = "jaar" if keuzes["volgorde"] == "groep" else "groep"
+    mogelijk.append(("Zet de ontwikkeling over de jaren bovenaan" if andere == "jaar" else
+                     "Zet de vergelijking tussen groepen bovenaan", f"--volgorde {andere}", {"volgorde": andere}))
+    nieuw = [(t, x) for t, x, stand in mogelijk if bepaal_stand({**keuzes, **stand}) not in keuzes["gezien"]]
+    print("Aanpassen (label => extra argumenten bij --vanaf schets.html; een eigen titel met --titel \"...\"):")
+    for t, x in nieuw:
+        print(f"- {t} => {x}")
+    if not nieuw:
+        print("Geen nieuwe vaste aanpassingen meer: alles is al eens getoond.")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Maakt schets.html uit de keuzes in data-profiel.html.")
     parser.add_argument("--vanaf", type=Path, default=Path("data-profiel.html"))
-    parser.add_argument("--filter", default="standaard", help="bijvoorbeeld vestiging, geslacht, vestiging,geslacht of geen")
-    parser.add_argument("--volgorde", choices=["groep", "jaar"], default="groep", help="welke view bovenaan staat")
+    parser.add_argument("--uitsplitsing", help="vergelijkingen, bijvoorbeeld sector of sector,opleiding")
+    parser.add_argument("--filter", help="bijvoorbeeld vestiging, geslacht, vestiging,geslacht of geen")
+    parser.add_argument("--volgorde", choices=["groep", "jaar"], help="welke view bovenaan staat")
+    parser.add_argument("--titel", help="een eigen titel; 'standaard' zet de vraag terug als titel")
     parser.add_argument("--uit", type=Path, default=Path("schets.html"))
     args = parser.parse_args()
 
     keuzes = lees_keuzes(args.vanaf)
     casus = json.loads(Path(keuzes["csv"]).with_suffix(".casus.json").read_text(encoding="utf-8"))
     vraag = casus["vragen"][keuzes["vraag"]]
-    namen = keuzes["uitsplitsing"].split(",")
+    namen = list(dict.fromkeys(n.strip() for n in (args.uitsplitsing or keuzes["uitsplitsing"]).split(",") if n.strip()))
+    onbekend = [n for n in namen if n not in casus["uitsplitsingen"]]
+    if onbekend:
+        sys.exit(f"Onbekende uitsplitsing: {', '.join(onbekend)}. Kies uit: {', '.join(casus['uitsplitsingen'])}")
     # Gaat de vraag over één vergelijking (zoals vooropleiding bij C), dan staat die er altijd bij, vooraan
     if vraag.get("kern"):
         namen = [vraag["kern"], *(n for n in namen if n != vraag["kern"])]
+    if len(namen) > MAX_VERGELIJKINGEN:
+        sys.exit(f"Kies hooguit {MAX_VERGELIJKINGEN} vergelijkingen; meer past niet overzichtelijk in één dashboard.")
     label = casus["uitsplitsingen"][namen[0]]["label"]
+    gevraagd = args.filter or keuzes.get("filter") or "standaard"
+    volgorde = args.volgorde or keuzes.get("volgorde") or "groep"
+    titel = keuzes.get("titel", "") if args.titel is None else ("" if args.titel == "standaard" else args.titel.strip())
     # Hooguit twee filters, nooit op iets waarop je al vergelijkt; geen geldig filter gekozen: het eerste uit de casus
-    filters = [] if args.filter == "geen" else [
-        f for f in dict.fromkeys(args.filter.split(",")) if f in casus["uitsplitsingen"] and f not in namen][:2]
-    if not filters and args.filter != "geen":
+    filters = [] if gevraagd == "geen" else [
+        f for f in dict.fromkeys(gevraagd.split(",")) if f in casus["uitsplitsingen"] and f not in namen][:MAX_FILTERS]
+    if not filters and gevraagd != "geen":
         filters = [f for f in casus["filters"] if f not in namen][:1]
     filter_naam = ",".join(filters) or "geen"
     maat = casus["maten"][vraag["maat"]]
-    keuzes.update(uitsplitsing=",".join(namen), filter=filter_naam, volgorde=args.volgorde)
+    keuzes.update(uitsplitsing=",".join(namen), filter=filter_naam, volgorde=volgorde, titel=titel)
+    keuzes["gezien"] = list(dict.fromkeys([*keuzes.get("gezien", []), bepaal_stand(keuzes)]))
 
     groep = (vraag["titel_groep"].format(uitsplitsing=label), vraag["uitleg_groep"].format(uitsplitsing=label),
              f"Horizontaal staafdiagram, van hoog naar laag (vergelijken, lange labels)", STAAF,
              f"Groepen met minder dan {casus['drempels']['groep']} {casus['eenheid']}.")
     jaar = (vraag["titel_jaar"], vraag["uitleg_jaar"], "Lijn (ontwikkeling in de tijd)", LIJN,
             maat["definities"][-1][1])
-    views = [jaar, groep] if args.volgorde == "jaar" else [groep, jaar]
+    views = [jaar, groep] if volgorde == "jaar" else [groep, jaar]
     views_html = "".join(
         f'<section class="view"><h3><span class="nr">{i}</span>{e(titel)}</h3>'
         f"<figure>{plaatje}<figcaption>Schets, geen data</figcaption></figure>"
@@ -80,8 +128,9 @@ def main() -> None:
     vergelijken = " of ".join(casus["uitsplitsingen"][n]["label"] for n in namen)
     if len(namen) > 1:
         vergelijken += " (wissel met één klik in het dashboard)"
-    rijen = [("Vraag", vraag["vraag"]), ("Uitgesplitst naar", vergelijken), ("Filter", filter_label),
-             ("Bovenaan", "vergelijken tussen groepen" if args.volgorde == "groep" else "ontwikkeling over de jaren"),
+    rijen = [("Titel", titel or vraag["vraag"]), ("Vraag", vraag["vraag"]), ("Uitgesplitst naar", vergelijken),
+             ("Filter", filter_label),
+             ("Bovenaan", "vergelijken tussen groepen" if volgorde == "groep" else "ontwikkeling over de jaren"),
              (maat["definities"][0][0], maat["definities"][0][1]),
              ("Kerncijfer", vraag["kerncijfer"])]
     niet = [*maat["niet_zeggen"], "Waarom groepen verschillen: een verschil is geen oorzaak."]
@@ -90,13 +139,15 @@ def main() -> None:
 
     sjabloon = string.Template((HIER / "schets-sjabloon.html").read_text(encoding="utf-8"))
     args.uit.write_text(sjabloon.substitute(
-        keuzes=e(json.dumps(keuzes, ensure_ascii=False)), vraag=e(vraag["vraag"]), ondertitel=e(casus["ondertitel"]),
+        keuzes=e(json.dumps(keuzes, ensure_ascii=False)), vraag=e(titel or vraag["vraag"]), ondertitel=e(casus["ondertitel"]),
         demo='<p class="demo">Dit is demodata</p>' if casus.get("demo") else "", views=views_html,
         keuzes_tabel="".join(f"<tr><td>{e(a)}</td><td>{e(b)}</td></tr>" for a, b in rijen),
         niet="".join(f"<li>{e(n)}</li>" for n in niet),
     ), encoding="utf-8")
     print(f"Geschreven: {args.uit}")
-    print(f"View 1: {views[0][0]}  View 2: {views[1][0]}  Vergelijken: {vergelijken}  Filter: {filter_label}")
+    print(f"Titel: {titel or vraag['vraag']}  View 1: {views[0][0]}  View 2: {views[1][0]}  "
+          f"Vergelijken: {vergelijken}  Filter: {filter_label}")
+    toon_aanpassingen(keuzes, casus, vraag)
 
 
 if __name__ == "__main__":

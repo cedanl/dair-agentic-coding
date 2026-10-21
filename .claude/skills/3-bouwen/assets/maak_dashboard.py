@@ -62,7 +62,7 @@ def bepaal_keuzes(args: argparse.Namespace) -> dict:
     vanaf = args.vanaf or (Path("schets.html") if not args.csv and Path("schets.html").is_file() else None)
     if vanaf:
         keuzes = lees_keuzes(Path(vanaf))
-    for naam in ("csv", "vraag", "uitsplitsing", "filter", "volgorde"):
+    for naam in ("csv", "vraag", "uitsplitsing", "filter", "volgorde", "titel"):
         if getattr(args, naam):
             keuzes[naam] = str(getattr(args, naam))
     if not keuzes.get("csv"):
@@ -410,7 +410,8 @@ def maak_commando(ins: dict, csv: Path) -> str:
     k = ins["keuzes"]
     return (f"uv run --no-project --with polars python .claude/skills/3-bouwen/assets/maak_dashboard.py {csv.as_posix()} --vraag {k.get('vraag', 'A')} "
             f"--uitsplitsing {k['uitsplitsing']} --filter {k['filter']}"
-            + (f" --volgorde {k['volgorde']}" if k.get("volgorde") else ""))
+            + (f" --volgorde {k['volgorde']}" if k.get("volgorde") else "")
+            + (f" --titel {json.dumps(k['titel'], ensure_ascii=False)}" if k.get("titel") else ""))
 
 
 def maak_keuzelijst(id_: str, label: str, opties: list[tuple[str, str]], rol: str) -> str:
@@ -444,11 +445,14 @@ def maak_html(data: pl.DataFrame, csv: Path, ins: dict) -> str:
             f"Gemaakt op {vandaag.day} {MAANDEN[vandaag.month - 1]} {vandaag.year}.")
     logo = "data:image/jpeg;base64," + base64.b64encode(
         (HIER.parents[1] / "vormgever-npuls-huisstijl/assets/logos/npuls_logo.jpg").read_bytes()).decode()
+    # Een eigen titel komt uit de schets; de vraag zelf blijft dan in de ondertitel staan
+    titel = ins["keuzes"].get("titel") or ins["vraag"]["vraag"]
+    ondertitel = ins["ondertitel"] if titel == ins["vraag"]["vraag"] else f"{ins['vraag']['vraag']} {ins['ondertitel']}"
     sjabloon = string.Template((HIER / "dashboard-sjabloon.html").read_text(encoding="utf-8"))
     return sjabloon.substitute(
-        keuzes=e(json.dumps(ins["keuzes"], ensure_ascii=False)), titel=e(ins["vraag"]["vraag"]), logo=logo,
+        keuzes=e(json.dumps(ins["keuzes"], ensure_ascii=False)), titel=e(titel), logo=logo,
         css=(HIER / "npuls/npuls-dashboard.css").read_text(encoding="utf-8"),
-        vraag=e(ins["vraag"]["vraag"]), ondertitel=e(ins["ondertitel"]),
+        vraag=e(titel), ondertitel=e(ondertitel),
         demo='<p class="npuls-demo">Dit is demodata</p>' if ins["demo"] else "",
         filter=filter_html, blokken="".join(blokken), zo_lees_je_dit=toon_zo_lees_je_dit(ins), bron=bron,
         commando=e(maak_commando(ins, csv)),
@@ -463,6 +467,7 @@ def main() -> None:
     parser.add_argument("--uitsplitsing", help="bijvoorbeeld sector")
     parser.add_argument("--filter", help="bijvoorbeeld vestiging, of geen")
     parser.add_argument("--volgorde", choices=["groep", "jaar"], help="welke view bovenaan staat")
+    parser.add_argument("--titel", help="een eigen titel boven het dashboard (standaard: de vraag)")
     parser.add_argument("--uit", type=Path, default=Path("dashboard.html"))
     parser.add_argument("--controleer", action="store_true",
                         help="controleer een met de hand aangepast dashboard (--vanaf) tegen een nieuw gemaakt dashboard")

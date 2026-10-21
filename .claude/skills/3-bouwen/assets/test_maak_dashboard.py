@@ -142,3 +142,9 @@ def test_de_kern_van_de_vraag_staat_er_altijd_bij(tmp_path: Path) -> None:
     assert resultaat.returncode == 0, resultaat.stderr
     wissel = re.search(r'<select id="uitsplitsing" data-wissel>(.*?)</select>', pagina).group(1)
     assert re.findall(r'value="([^"]*)"', wissel) == ["vooropleiding", "sector", "geslacht"]
+
+
+def test_een_eigen_titel_blijft_staan_na_een_aanpassing(tmp_path: Path) -> None:
+    maak(tmp_path, "data/demodata_1cho.csv", "--vraag", "A", "--titel", "Uitval eerstejaars")
+    _, pagina = maak(tmp_path, "--vanaf", str(tmp_path / "dashboard.html"), "--volgorde", "jaar")
+    assert "<h1>Uitval eerstejaars</h1>" in pagina and "Welk deel van de eerstejaars stopt" in pagina

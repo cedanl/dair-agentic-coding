@@ -1,6 +1,6 @@
 ---
 name: 2-schetsen
-description: Gebruik wanneer iemand na het dataprofiel (data-profiel.html) het dashboard wil schetsen — één vraagronde (filter en volgorde), dan maakt één script schets.html in de hoofdmap met de twee views op papier, zonder data en zonder getallen, en krijgt de gebruiker een link om het met één klik te openen. LET OP — de data verkennen hoort bij `1-verkennen` en het dashboard bouwen bij `3-bouwen`.
+description: Gebruik wanneer iemand na het dataprofiel (data-profiel.html) het dashboard wil schetsen — één vraagronde (filter en volgorde), dan maakt één script schets.html in de hoofdmap met de twee views op papier, zonder data en zonder getallen, en krijgt de gebruiker een link om het met één klik te openen. Daarna past de gebruiker de schets aan (vergelijkingen, filters, wat bovenaan staat, titel) tot hij goed is: het dashboard volgt de schets. LET OP — de data verkennen hoort bij `1-verkennen` en het dashboard bouwen bij `3-bouwen`.
 disable-model-invocation: true
 allowed-tools: Read Bash AskUserQuestion
 metadata:
@@ -101,10 +101,10 @@ python3 .claude/skills/2-schetsen/assets/maak_schets.py --filter vestiging --vol
 python3 .claude/skills/1-verkennen/assets/toon.py schets.html
 ```
 
-## 3. Afsluiten
+## 3. Laten zien
 
-Eindig met precies dit, met de twee views en het filter uit de uitvoer van het eerste commando en de link
-uit het tweede:
+Geef de schets meteen, met de twee views, de titel en het filter uit de uitvoer van het eerste commando en de
+link uit het tweede:
 
 > **Je schets staat klaar.** Klik op de link om hem te openen:
 >
@@ -113,8 +113,33 @@ uit het tweede:
 > Bovenaan komt *<view 1>*, daaronder *<view 2>*, met een filter op <filter>. <Alleen bij meer
 > vergelijkingen: "In het dashboard wissel je met één klik tussen <vergelijkingen>."> Nog zonder getallen: die
 > komen pas in het dashboard.
->
-> Volgende stap: typ `/3-bouwen`.
+
+## 4. Schets aanpassen
+
+Dit is hét moment om te veranderen: het dashboard wordt straks precies zoals deze schets. Vraag met de
+AskUserQuestion-tool: **Wil je iets veranderen aan de schets?** Opties, in deze volgorde: open wensen voor
+`2-schetsen` of `3-bouwen` die over de opzet of de titel gaan, met *(jouw wens)*; dan de eerste twee regels uit
+de **laatste** uitvoer na *Aanpassen* (het deel vóór `=>` als label, de eerste met "(Aanbevolen)"); en *De
+schets is goed*. Een eigen wens typt de gebruiker via *Other*.
+
+- **Een vaste aanpassing:** zeg in één zin wat je verandert, draai `python3
+  .claude/skills/2-schetsen/assets/maak_schets.py --vanaf schets.html` met het deel na `=>` erachter, en daarna
+  opnieuw `toon.py schets.html`. Leg het vast met `zet` (`vergelijken`, `filter` of `bovenaan`).
+- **Een andere titel:** draai `maak_schets.py --vanaf schets.html --titel "<titel>"` (met `--titel standaard`
+  komt de vraag terug als titel). De titel blijft ook in het dashboard staan.
+- **Een andere wens:** kies de vaste aanpassing die er het dichtst bij ligt en zeg welke. Kan de schets het niet
+  (een ander soort grafiek, een kaart, een voorspelling), zeg dat in twee zinnen en noteer het als wens voor
+  `later`.
+
+Na elke aanpassing: *"Gedaan: …"* in één zin, de nieuwe link, en dan **Nog iets veranderen aan de schets?** met
+de opties uit de nieuwe uitvoer. Stel nooit twee keer dezelfde vraag met dezelfde opties. Stop na *De schets is
+goed*, na *Geen nieuwe vaste aanpassingen meer* of na vijf aanpassingen.
+
+## 5. Afsluiten
+
+Eindig met precies dit:
+
+> **Je schets is klaar.** Typ `/3-bouwen`: ik bouw het dashboard precies zoals deze schets.
 
 ## Als er iets misgaat
 
