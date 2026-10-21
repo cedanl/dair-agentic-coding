@@ -136,9 +136,10 @@ link uit het tweede:
 ## 4. Schets aanpassen
 
 **Eerst de link, dan de vraag.** Stel de vraag hieronder pas als de gebruiker de schets heeft kunnen zien: de
-link uit *Laten zien* (of na een aanpassing de nieuwe link) staat altijd vlak boven de vraag, in hetzelfde
-bericht. Zonder link geen vraag. Zet de link voor de zekerheid ook in de vraagtekst zelf: *"Bekijk je schets: <link>. Wil je
-iets veranderen?"*
+regel `### 👉 [Open je schets](<link>)` uit *Laten zien* (na een aanpassing met de nieuwe link) staat altijd
+letterlijk in je bericht vlak boven de vraag. Zonder die regel geen vraag. Zet de link **nooit** in de vraagtekst:
+daar is hij niet aan te klikken. De vraagtekst verwijst naar boven: *"Bekijk je schets via de link hierboven. Wil
+je iets veranderen?"*
 
 Dit is hét moment om te veranderen: het dashboard wordt straks precies zoals deze schets. Vraag met de
 AskUserQuestion-tool: **Wil je iets veranderen aan de schets?** Opties, in deze volgorde: open wensen voor
@@ -156,7 +157,8 @@ schets is goed*. Een eigen wens typt de gebruiker via *Other*.
   `later`.
 
 Na elke aanpassing: *"Gedaan: …"* in één zin, **alleen over wat de uitvoer van het script laat zien** (staat er een
-regel *Let op*, zeg dan eerlijk wat er niet is gelukt en waarom), de nieuwe link, en dan **Nog iets veranderen aan de schets?** met
+regel *Let op*, zeg dan eerlijk wat er niet is gelukt en waarom), de regel `### 👉 [Open je schets](<link>)` met de
+nieuwe link, en dan **Nog iets veranderen aan de schets?** met
 de opties uit de nieuwe uitvoer. Stel nooit twee keer dezelfde vraag met dezelfde opties. Stop na *De schets is
 goed*, na *Geen nieuwe vaste aanpassingen meer* of na vijf aanpassingen.
 
