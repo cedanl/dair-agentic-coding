@@ -20,6 +20,13 @@ kleine wens van de gebruiker mag je `dashboard.html` zelf aanpassen (zie *Aanpas
 gebruiker kiest of typt, in je eigen woorden. Hooguit drie zinnen per bericht. Noem geen bestandsnamen of
 commando's, tenzij de gebruiker erom vraagt.
 
+**Bevestigen.** Ga nooit stil verder. Zeg na **elk** antwoord in één zin wat je ermee doet, vóór je de volgende
+vraag stelt of iets draait. Dat geldt vooral als het antwoord niet precies één optie is: meer opties tegelijk,
+"alles", "weet ik niet", "?", een eigen tekst of iets wat de workshop niet kan. Zeg dan welke keuze je maakt en
+waarom (*"Je koos alle drie: ik maak het voor de studieadviseur, want één doelgroep houdt het dashboard
+helder."*), en wat niet kan (*"Een kaart kan het dashboard niet maken; ik noteer het als idee voor later."*).
+Kiest de gebruiker *Leg dit eerst uit*, leg dan eerst uit en stel pas daarna de vraag opnieuw.
+
 **Vragen.** Stel elke vraag met de AskUserQuestion-tool, niet als losse tekst, zodat de gebruiker op de route
 blijft. Gebruik de mogelijkheden van de tool waar ze helpen en beslis per vraag zelf welke past: een korte
 `header`, bij elke optie een uitleg, de aanbevolen optie eerst met *(Aanbevolen)*, `multiSelect` als meer dan
@@ -44,8 +51,10 @@ skill leest het. Sorteer na elk antwoord wat je hoort:
 4. **In strijd met wat er al staat:** vraag het meteen met de AskUserQuestion-tool, met beide als optie
    (*"Eerder koos je X, nu zeg je Y. Wat wil je?"*), en leg alleen het antwoord vast.
 
-Zeg in één zin wat je hebt onthouden en waar het terugkomt (*"Genoteerd: het filter op geslacht komt in de
-schets, de kortere titel in het dashboard."*).
+Zeg na elke keer vastleggen, ook als de gebruiker in één bericht zijn hele verhaal vertelt, in één zin wat je hebt
+onthouden en waar het terugkomt (*"Genoteerd: het filter op geslacht komt in de schets, de kortere titel in
+het dashboard."*). Zeg nooit dat je iets hebt genoteerd zonder het met `keuzes.py` vast te leggen, en zet een
+wens pas op klaar als hij echt in de schets of het dashboard zit.
 
 **Eerder gezegd.** Draai bij de start `python3 scripts/keuzes.py toon` en lees wat er al staat. Houd de `toon`
 van de gekozen doelgroep uit de casus aan. Open wensen voor `3-bouwen` bied je bij *Aanpassen* als eerste aan,
