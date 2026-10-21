@@ -51,9 +51,6 @@
           "**/__pycache__": true,
           "**/.pytest_cache": true
         },
-        "workbench.editorAssociations": {
-          "*.md": "vscode.markdown.preview.editor"
-        },
         "workbench.colorTheme": "Default Light Modern",
         "workbench.colorCustomizations": {
           "titleBar.activeBackground": "#3D68EC",
