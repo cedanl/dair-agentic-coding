@@ -27,15 +27,48 @@ $blokken
   var filters = document.querySelectorAll("select[data-filterkeuze]");
   var wissel = document.querySelector("select[data-wissel]");
   var blokken = document.querySelectorAll("[data-filter]");
-  var vergelijkingen = document.querySelectorAll("[data-uitsplitsing]");
   function toon() {
     var waarde = Array.prototype.map.call(filters, function (f) { return f.value; }).join("|") || "alle";
-    blokken.forEach(function (blok) { blok.hidden = blok.getAttribute("data-filter") !== waarde; });
-    vergelijkingen.forEach(function (view) { view.hidden = view.getAttribute("data-uitsplitsing") !== wissel.value; });
+    blokken.forEach(function (blok) {
+      blok.hidden = blok.getAttribute("data-filter") !== waarde;
+      // Een gekozen instroomjaar neemt de lijn over uit het blok zonder instroomjaar: die is voor elk jaar gelijk
+      if (!blok.hidden) {
+        blok.querySelectorAll("[data-lijn-van]").forEach(function (plek) {
+          var bron = document.querySelector('[data-filter="' + plek.getAttribute("data-lijn-van") + '"] [data-jaarview]');
+          if (!plek.firstChild && bron) { plek.appendChild(bron.cloneNode(true)); }
+        });
+      }
+    });
+    // style.display werkt ook voor de lijnen in de SVG, waar hidden niet werkt
+    if (wissel) {
+      document.querySelectorAll("[data-uitsplitsing]").forEach(function (view) {
+        view.style.display = view.getAttribute("data-uitsplitsing") === wissel.value ? "" : "none";
+      });
+    }
   }
   filters.forEach(function (f) { f.addEventListener("change", toon); });
   if (wissel) { wissel.addEventListener("change", toon); }
   toon();
 })();
+// Vinkjes bij de lijn: een aangevinkte groep krijgt de eerste vrije kleur; zonder kleur is de lijn uit.
+document.addEventListener("change", function (gebeurtenis) {
+  var keuze = gebeurtenis.target.closest(".npuls-lijnkeuze");
+  if (!keuze) { return; }
+  var max = Number(keuze.getAttribute("data-max"));
+  var view = keuze.closest(".npuls-view");
+  var labels = keuze.querySelectorAll("label");
+  var bezet = [];
+  labels.forEach(function (l) { if (l.querySelector("input").checked && l.dataset.kleur) { bezet.push(l.dataset.kleur); } });
+  labels.forEach(function (l) {
+    var aan = l.querySelector("input").checked;
+    if (!aan) { delete l.dataset.kleur; }
+    if (aan && !l.dataset.kleur) {
+      for (var k = 1; k <= max; k++) { if (bezet.indexOf(String(k)) < 0) { l.dataset.kleur = String(k); bezet.push(String(k)); break; } }
+    }
+    var lijn = view.querySelector('g.groep[data-lijn="' + l.dataset.lijn + '"]');
+    if (lijn) { if (l.dataset.kleur) { lijn.setAttribute("data-kleur", l.dataset.kleur); } else { lijn.removeAttribute("data-kleur"); } }
+  });
+  labels.forEach(function (l) { var i = l.querySelector("input"); if (!i.checked) { i.disabled = bezet.length >= max; } });
+});
 </script>
 </body></html>

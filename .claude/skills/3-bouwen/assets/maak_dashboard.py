@@ -239,13 +239,24 @@ def toon_staaf(rijen: list[dict], ins: dict) -> tuple[str, str]:
     return grafiek, zin
 
 
-def toon_lijn(rijen: list[dict], ins: dict) -> tuple[str, str]:
-    """Lijn in een SVG die meerekt met de breedte; punten, labels en assen zijn HTML, zodat tekst scherp blijft."""
+MAX_LIJNEN = 3  # groepslijnen tegelijk naast de lijn van alle eerstejaars; meer wordt onleesbaar
+
+
+def toon_lijn(rijen: list[dict], ins: dict, groepsets: list[tuple[str | None, dict]] | None = None) -> tuple[str, str]:
+    """Lijn in een SVG die meerekt met de breedte; punten, labels en assen zijn HTML, zodat tekst scherp blijft.
+
+    Met groepsets ook een lijn per groep, aan en uit te zetten met vinkjes; de twee grootste groepen staan aan.
+    Eén set per vergelijking: de wisselknop toont alleen de lijnen en vinkjes van de gekozen vergelijking.
+    """
     perioden = [r["periode"] for r in rijen]
+    groepsets = [(naam, {g: reeks for g, reeks in groepen.items() if any(not r["verborgen"] for r in reeks)})
+                 for naam, groepen in groepsets or []]
     if ins.get("schets"):  # echte jaren, een vlakke lijn: de vorm komt pas met de getallen
         rijen = [{**r, "waarde": 0.5} for r in rijen]
     zichtbaar = [r for r in rijen if not r["verborgen"]]
-    top = 1.0 if ins.get("schets") else maak_schaal(max((r["waarde"] for r in zichtbaar), default=0))
+    alle_waarden = [r["waarde"] for r in zichtbaar] + [r["waarde"] for _, groepen in groepsets for reeks in groepen.values()
+                                                       for r in reeks if not r["verborgen"]]
+    top = 1.0 if ins.get("schets") else maak_schaal(max(alle_waarden, default=0))
 
     def x(i: int) -> float:
         return 50.0 if len(perioden) == 1 else 4 + 92 * i / (len(perioden) - 1)
@@ -253,17 +264,44 @@ def toon_lijn(rijen: list[dict], ins: dict) -> tuple[str, str]:
     def y(w: float) -> float:
         return 100 - 100 * w / top
 
-    stukken, stuk, punten = [], [], ""
-    for i, r in enumerate(rijen):
-        if r["verborgen"]:
-            stukken.append(stuk)
-            stuk = []
-            continue
-        stuk.append(f"{x(i):.2f},{y(r['waarde']):.2f}")
-        punten += (f'<span class="npuls-punt" style="left:{x(i):.2f}%;top:{y(r["waarde"]):.2f}%" '
-                   f'title="{r["periode"]}: {maak_procent(r["waarde"])} (n = {maak_getal(r["n"])})"></span>')
-    stukken.append(stuk)
-    lijnen = "".join(f'<polyline points="{" ".join(s)}" vector-effect="non-scaling-stroke"/>' for s in stukken if len(s) > 1)
+    def maak_lijnen(reeks: list[dict]) -> str:
+        """Een verborgen jaar is een gat in de lijn, geen verbinding eroverheen."""
+        stukken, stuk = [], []
+        for i, r in enumerate(reeks):
+            if r["verborgen"]:
+                stukken.append(stuk)
+                stuk = []
+            else:
+                stuk.append(f"{x(i):.1f},{y(r['waarde']):.1f}")
+        stukken.append(stuk)
+        return "".join(f'<polyline points="{" ".join(s)}" vector-effect="non-scaling-stroke"/>' for s in stukken if len(s) > 1)
+
+    punten = "".join(
+        f'<span class="npuls-punt" style="left:{x(i):.2f}%;top:{y(r["waarde"]):.2f}%" '
+        f'title="{r["periode"]}: {maak_procent(r["waarde"])} (n = {maak_getal(r["n"])})"></span>'
+        for i, r in enumerate(rijen) if not r["verborgen"])
+    lijnen = maak_lijnen(rijen)
+    # Per groep een lijn; alleen het percentage per jaar, zonder aantallen, zodat niets terug te rekenen is
+    groepslijnen, keuzes = "", ""
+    for naam, groepen in groepsets:
+        wissel = f' data-uitsplitsing="{e(naam)}"' if naam else ""
+        grootste = sorted(groepen, key=lambda g: -sum(r["noemer"] for r in groepen[g]))[:2]
+        vinkjes = ""
+        for i, (groep, reeks) in enumerate(sorted(groepen.items())):
+            lijn = f"{naam or 'groep'}-{i}"
+            kleur = f' data-kleur="{grootste.index(groep) + 1}"' if groep in grootste and not ins.get("schets") else ""
+            waarden = ", ".join(f"{r['periode']}: {'–' if r['verborgen'] else maak_procent(r['waarde'])}" for r in reeks)
+            if not ins.get("schets"):
+                groepslijnen += (f'<g class="groep" data-lijn="{e(lijn)}"{kleur}{wissel}>'
+                                 f"<title>{e(maak_label(groep))}: {waarden}</title>{maak_lijnen(reeks)}</g>")
+            vinkjes += (f'<label data-lijn="{e(lijn)}"{kleur}><input type="checkbox"{" checked" if kleur else ""}'
+                        f'{" disabled" if ins.get("schets") else ""}> {e(maak_label(groep))}</label>')
+        if vinkjes:
+            uitleg = ("In het dashboard zet je hier per groep een lijn aan." if ins.get("schets") else
+                      f"De blauwe lijn is alle eerstejaars samen. Zet hooguit {MAX_LIJNEN} groepen tegelijk aan. "
+                      f"Een gat in een lijn is een jaar met te weinig {ins['eenheid']}.")
+            keuzes += (f'<fieldset class="npuls-lijnkeuze" data-max="{MAX_LIJNEN}"{wissel}><legend>Toon ook de lijn van'
+                       f'</legend><p>{e(uitleg)}</p><div class="npuls-lijnkeuze-lijst">{vinkjes}</div></fieldset>')
     labels = ""
     if zichtbaar:  # waarde bij het hoogste, het laagste en het laatste punt
         hoog = max(zichtbaar, key=lambda r: r["waarde"])
@@ -284,8 +322,8 @@ def toon_lijn(rijen: list[dict], ins: dict) -> tuple[str, str]:
                        for i, p in enumerate(perioden))
     grafiek = (f'<div class="npuls-lijn" aria-hidden="true"><div class="npuls-lijn-y">{y_labels}</div>'
                f'<div class="npuls-lijn-vlak"><svg viewBox="0 0 100 100" preserveAspectRatio="none">'
-               f'<g class="raster">{rasters}</g><g class="lijn">{lijnen}</g></svg>{punten}{labels}</div>'
-               f'<div class="npuls-lijn-x">{x_labels}</div></div>')
+               f'<g class="raster">{rasters}</g>{groepslijnen}<g class="lijn">{lijnen}</g></svg>{punten}{labels}</div>'
+               f'<div class="npuls-lijn-x">{x_labels}</div></div>{keuzes}')
     if ins.get("schets"):
         zin = "Hier staat straks hoe het percentage over de jaren verandert, en in welk jaar het het hoogst en het laagst was."
     elif len(zichtbaar) >= 2:
@@ -322,10 +360,27 @@ def toon_cijfers(view: dict, rijen: list[dict], ins: dict) -> str:
             f"<tbody>{regels}</tbody></table></div></details>")
 
 
-def toon_view(view: dict, eerstejaars: pl.DataFrame, ins: dict, wissel: str = "") -> str:
+def tel_per_groep_en_jaar(eerstejaars: pl.DataFrame, perioden: list, ins: dict) -> dict[str, list[dict]]:
+    """Per groep een reeks over de jaren. De drempels gelden per jaar over alle groepen, net als in de staven."""
+    reeksen: dict[str, dict] = {}
+    for periode in perioden:
+        for r in pas_drempels_toe(tel(eerstejaars.filter(pl.col("periode") == periode), "groep"), ins):
+            reeksen.setdefault(r["groep"], {})[periode] = r
+    leeg = {"verborgen": True, "waarde": None, "noemer": 0}
+    return {g: [{**rij.get(p, leeg), "periode": p} for p in perioden] for g, rij in reeksen.items()}
+
+
+def toon_view(view: dict, eerstejaars: pl.DataFrame, ins: dict, wissel: str = "",
+              per_vergelijking: list[tuple[str | None, pl.DataFrame]] | None = None) -> str:
     rijen = pas_drempels_toe(tel(eerstejaars, view["per"]), ins)
-    grafiek, zin = (toon_staaf if view["soort"] == "staaf" else toon_lijn)(rijen, ins)
-    return (f'<section class="npuls-view"{wissel}><h2>{e(view["titel"])}</h2><p class="npuls-uitleg">{e(view["uitleg"])}</p>'
+    if view["soort"] == "staaf":
+        grafiek, zin = toon_staaf(rijen, ins)
+    else:
+        perioden = [r["periode"] for r in rijen]
+        groepsets = [(naam, tel_per_groep_en_jaar(df, perioden, ins)) for naam, df in per_vergelijking or []]
+        grafiek, zin = toon_lijn(rijen, ins, groepsets)
+    jaarview = " data-jaarview" if view["soort"] == "lijn" else ""
+    return (f'<section class="npuls-view"{wissel}{jaarview}><h2>{e(view["titel"])}</h2><p class="npuls-uitleg">{e(view["uitleg"])}</p>'
             f'{grafiek}<p class="npuls-samenvatting">{e(zin)}</p>{toon_cijfers(view, rijen, ins)}</section>')
 
 
@@ -333,11 +388,12 @@ def kies_instroom(eerstejaars: pl.DataFrame, instroom: str | None) -> pl.DataFra
     return eerstejaars if instroom is None else eerstejaars.filter(pl.col("periode") == int(instroom))
 
 
-def toon_blok(data: pl.DataFrame, ins: dict, instroom: str | None = None) -> str:
+def toon_blok(data: pl.DataFrame, ins: dict, instroom: str | None = None, lijn_van: str | None = None) -> str:
     """Kerncijfers en de views voor één filterkeuze. Bij meer vergelijkingen één groepsview per vergelijking.
 
     Het filter op instroomjaar werkt pas na het rekenen (stoppen en diploma's kijken naar de jaren erna), en
-    alleen op de kerncijfers en de groepen: de lijn laat altijd alle jaren zien.
+    alleen op de kerncijfers en de groepen: de lijn laat altijd alle jaren zien. Daarom staat de lijn er één keer
+    in, in het blok zonder instroomjaar (lijn_van); de pagina neemt hem over als je een jaar kiest.
     """
     if data.is_empty():  # een combinatie van filters zonder één student
         return f'<div class="npuls-melding">In deze selectie zitten geen {ins["eenheid"]}. Kies een andere waarde.</div>'
@@ -360,11 +416,16 @@ def toon_blok(data: pl.DataFrame, ins: dict, instroom: str | None = None) -> str
     if instroom:
         groep_views = {n: {**v, "uitleg": re.sub(r"alle (meetellende )?instroomjaren samen", f"instroomjaar {instroom}",
                                                   v["uitleg"])} for n, v in groep_views.items()}
+    if any(f.get("alleen_filter") for f in ins["filters"]):
         jaar_view = {**jaar_view, "uitleg": jaar_view["uitleg"] + " Het filter op instroomjaar geldt hier niet: je ziet alle jaren."}
     views = ""
     for soort in ins["views"]:
-        if soort == "jaar":
-            views += toon_view(jaar_view, alle_jaren, ins)
+        if soort == "jaar" and lijn_van:
+            views += f'<div data-lijn-van="{e(lijn_van)}"></div>'
+        elif soort == "jaar":  # één lijn voor alle eerstejaars, plus lijnen per groep die de wisselknop volgen
+            per_vergelijking = [(None, alle_jaren)] if len(ins["uitsplitsingen"]) == 1 else [
+                (naam, bereken_eerstejaars(data, {**ins, "uitsplitsing": u})) for naam, u in ins["uitsplitsingen"]]
+            views += toon_view(jaar_view, alle_jaren, ins, per_vergelijking=per_vergelijking)
         elif len(ins["uitsplitsingen"]) == 1:
             views += toon_view(groep_views[ins["uitsplitsingen"][0][0]], eerstejaars, ins)
         else:
@@ -498,7 +559,10 @@ def maak_html(data: pl.DataFrame, csv: Path, ins: dict, meta: dict | None = None
             elif w != "alle":
                 deel = deel.filter(pl.col(f["kolom"]) == w)
         sleutel = "|".join(combinatie) or "alle"
-        blokken.append(f'<div data-filter="{e(sleutel)}">{toon_blok(deel, ins, instroom)}</div>')
+        # De lijn hangt niet af van het instroomjaar: die staat alleen in het blok met instroomjaar "alle"
+        lijn_van = "|".join("alle" if f.get("alleen_filter") else w
+                            for f, w in zip(ins["filters"], combinatie, strict=True)) if instroom else None
+        blokken.append(f'<div data-filter="{e(sleutel)}">{toon_blok(deel, ins, instroom, lijn_van)}</div>')
     keuzelijsten = []
     if len(ins["uitsplitsingen"]) > 1:
         keuzelijsten.append(maak_keuzelijst("uitsplitsing", "Vergelijk per", [

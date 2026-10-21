@@ -212,7 +212,10 @@ def test_filter_op_instroomjaar_rekent_eerst_en_laat_de_lijn_heel(tmp_path: Path
     gestopt = sum((p, 2017) not in volgend for p in cohort["persoonsgebonden_nummer"])
     blok = re.search(r'<div data-filter="2016">(.*?)(?=<div data-filter=)', pagina, re.S).group(1)
     assert f"<strong>{round(100 * gestopt / cohort.height)}%</strong>" in blok
-    assert blok.count('<b class="lang">') == pagina.count('<b class="lang">') // pagina.count("<div data-filter=")
+    assert '<div data-lijn-van="alle"></div>' in blok  # de lijn staat er één keer in, in het blok zonder jaar
+    # Lijnen per groep, met vinkjes; de twee grootste staan aan, en een groepslijn toont geen aantallen
+    assert pagina.count('<g class="groep"') > 2 and pagina.count('<input type="checkbox" checked>') == 2
+    assert not re.search(r"<title>[^<]*n = ", pagina)
     assert 'value="2023"' not in pagina  # van het laatste jaar is stoppen nog niet te zeggen
     fout, _ = maak(tmp_path, "data/demodata_1cho.csv", "--vraag", "A", "--uitsplitsing", "instroomjaar")
     assert fout.returncode != 0 and "Onbekende uitsplitsing" in fout.stderr

@@ -112,6 +112,23 @@ h3 { font-size: 1rem; margin: 0 0 4px; }
 .npuls-punt-label.rechts.onder { transform: translate(calc(-100% + 6px), 8px); }
 .npuls-punt-label.links { transform: translate(-6px, calc(-100% - 8px)); }
 .npuls-punt-label.links.onder { transform: translate(-6px, 8px); }
+/* Lijn per groep: alleen zichtbaar met een kleur, die de vinkjes geven */
+.npuls-lijn-vlak g.groep { display: none; }
+.npuls-lijn-vlak g.groep[data-kleur] { display: inline; }
+.npuls-lijn-vlak g.groep polyline { fill: none; stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+g.groep[data-kleur="1"] polyline { stroke: var(--npuls-oranje); }
+g.groep[data-kleur="2"] polyline { stroke: var(--npuls-groen); }
+g.groep[data-kleur="3"] polyline { stroke: var(--npuls-zwart); stroke-dasharray: 6 4; }
+.npuls-lijnkeuze { border: 0; margin: 16px 0 0; padding: 0; }
+.npuls-lijnkeuze legend { font-weight: 600; padding: 0; }
+.npuls-lijnkeuze p { color: var(--npuls-grijs-tekst); font-size: 0.875rem; margin: 2px 0 8px; }
+.npuls-lijnkeuze-lijst { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 4px 16px; max-height: 220px; overflow-y: auto; }
+.npuls-lijnkeuze label { display: flex; align-items: center; gap: 8px; font-size: 0.9375rem; padding: 2px 0; }
+.npuls-lijnkeuze label::after { content: ""; width: 20px; height: 4px; border-radius: 2px; margin-left: auto; }
+.npuls-lijnkeuze label[data-kleur="1"]::after { background: var(--npuls-oranje); }
+.npuls-lijnkeuze label[data-kleur="2"]::after { background: var(--npuls-groen); }
+.npuls-lijnkeuze label[data-kleur="3"]::after { background: var(--npuls-zwart); }
+.npuls-lijnkeuze input { accent-color: var(--npuls-blauw); width: 18px; height: 18px; margin: 0; }
 .npuls-lijn-x { grid-column: 2; position: relative; height: 1.6em; color: var(--npuls-grijs-tekst); font-size: 0.8125rem; }
 .npuls-lijn-x span { position: absolute; top: 4px; transform: translateX(-50%); white-space: nowrap; }
 .npuls-lijn-x b { font-weight: 400; }
