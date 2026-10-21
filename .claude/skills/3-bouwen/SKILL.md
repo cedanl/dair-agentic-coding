@@ -115,7 +115,8 @@ Geef de link meteen, met deze opbouw in je eigen woorden:
 
 Vraag met de AskUserQuestion-tool: **Klopt je dashboard?** Opties: *Ja, het is goed* (aanbevolen), open
 wensen voor `3-bouwen` over tekst of kleur met *(jouw wens)*, en *Ik wil iets anders zien*. Een kleine wens
-typt de gebruiker via *Other*. Meer vragen stel je in deze skill niet.
+typt de gebruiker via *Other*. Meer vragen stel je in deze skill niet. Elk antwoord krijgt wel een reactie,
+ook een wens die de gebruiker eerder al noemde: ga nooit zonder antwoord door naar *Meenemen en afsluiten*.
 
 - **Ja, het is goed:** ga naar *Meenemen en afsluiten*.
 - **Iets anders zien (vergelijkingen, filters, wat bovenaan staat, de titel):** dat hoort in de schets. Stel
