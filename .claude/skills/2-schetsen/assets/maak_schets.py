@@ -94,7 +94,10 @@ def main() -> None:
     if onbekend:
         sys.exit(f"Onbekende uitsplitsing: {', '.join(onbekend)}. Kies uit: {', '.join(casus['uitsplitsingen'])}")
     # Gaat de vraag over één vergelijking (zoals vooropleiding bij C), dan staat die er altijd bij, vooraan
+    let_op = []  # wat het script anders doet dan gevraagd; Claude zegt dit eerlijk tegen de deelnemer
     if vraag.get("kern"):
+        if vraag["kern"] not in namen:
+            let_op.append(f"{vraag['kern']} staat er altijd bij, want daar gaat de vraag over.")
         namen = [vraag["kern"], *(n for n in namen if n != vraag["kern"])]
     if len(namen) > MAX_VERGELIJKINGEN:
         sys.exit(f"Kies hooguit {MAX_VERGELIJKINGEN} vergelijkingen; meer past niet overzichtelijk in één dashboard.")
@@ -103,8 +106,18 @@ def main() -> None:
     volgorde = args.volgorde or keuzes.get("volgorde") or "groep"
     titel = keuzes.get("titel", "") if args.titel is None else ("" if args.titel == "standaard" else args.titel.strip())
     # Hooguit twee filters, nooit op iets waarop je al vergelijkt; geen geldig filter gekozen: het eerste uit de casus
-    filters = [] if gevraagd == "geen" else [
-        f for f in dict.fromkeys(gevraagd.split(",")) if f in casus["uitsplitsingen"] and f not in namen][:MAX_FILTERS]
+    filters = []
+    for f in [] if gevraagd == "geen" else [f.strip() for f in dict.fromkeys(gevraagd.split(",")) if f.strip()]:
+        if f == "standaard":
+            continue
+        if f not in casus["uitsplitsingen"]:
+            let_op.append(f"{f} bestaat niet als filter; het valt weg.")
+        elif f in namen:
+            let_op.append(f"{f} is al een vergelijking en kan niet ook een filter zijn; het filter valt weg.")
+        elif len(filters) == MAX_FILTERS:
+            let_op.append(f"Hooguit {MAX_FILTERS} filters; {f} valt weg.")
+        else:
+            filters.append(f)
     if not filters and gevraagd != "geen":
         filters = [f for f in casus["filters"] if f not in namen][:1]
     filter_naam = ",".join(filters) or "geen"
@@ -147,6 +160,8 @@ def main() -> None:
     print(f"Geschreven: {args.uit}")
     print(f"Titel: {titel or vraag['vraag']}  View 1: {views[0][0]}  View 2: {views[1][0]}  "
           f"Vergelijken: {vergelijken}  Filter: {filter_label}")
+    for regel in let_op:
+        print(f"Let op: {regel}")
     toon_aanpassingen(keuzes, casus, vraag)
 
 

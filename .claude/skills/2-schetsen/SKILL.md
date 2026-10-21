@@ -137,7 +137,8 @@ schets is goed*. Een eigen wens typt de gebruiker via *Other*.
   (een ander soort grafiek, een kaart, een voorspelling), zeg dat in twee zinnen en noteer het als wens voor
   `later`.
 
-Na elke aanpassing: *"Gedaan: …"* in één zin, de nieuwe link, en dan **Nog iets veranderen aan de schets?** met
+Na elke aanpassing: *"Gedaan: …"* in één zin, **alleen over wat de uitvoer van het script laat zien** (staat er een
+regel *Let op*, zeg dan eerlijk wat er niet is gelukt en waarom), de nieuwe link, en dan **Nog iets veranderen aan de schets?** met
 de opties uit de nieuwe uitvoer. Stel nooit twee keer dezelfde vraag met dezelfde opties. Stop na *De schets is
 goed*, na *Geen nieuwe vaste aanpassingen meer* of na vijf aanpassingen.
 
