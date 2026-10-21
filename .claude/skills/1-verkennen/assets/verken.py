@@ -71,6 +71,9 @@ if casus_pad.is_file() and not a.begrip:
     vraag = casus["vragen"][vraag_letter]
     # Meer vergelijkingen mogen ("sector,opleiding"): het profiel gaat over de eerste, het dashboard krijgt ze allemaal
     namen = list(dict.fromkeys(n.strip() for n in (a.uitsplitsing_naam or vraag["uitsplitsingen"][0]).split(",") if n.strip()))
+    # Gaat de vraag over één vergelijking (zoals vooropleiding bij C), dan staat die er altijd bij, vooraan
+    if vraag.get("kern"):
+        namen = [vraag["kern"], *(n for n in namen if n != vraag["kern"])]
     onbekend_naam = [n for n in namen if n not in casus["uitsplitsingen"]]
     if onbekend_naam:
         sys.exit(f"Onbekende uitsplitsing: {', '.join(onbekend_naam)}. Kies uit: {', '.join(casus['uitsplitsingen'])}")

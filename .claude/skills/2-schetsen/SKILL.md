@@ -87,6 +87,9 @@ twee zinnen dat het een mooi idee is voor na de workshop, als het script wordt u
 een begeleider. Is de AskUserQuestion-tool niet beschikbaar, stel de vraag dan in het gesprek: de opties als A, B, C (met
 *(aanbevolen)* achter de aanbevolen optie), en stop je bericht daar. Ga pas verder als de gebruiker antwoordt.
 
+**Past het bij de vraag?** Kijk vóór je de schets maakt of de keuzes de vraag beantwoorden. Gaat de vraag over
+één ding (de `kern` in de casus) en staat dat niet vooraan, zeg dan dat het script het erbij zet en waarom.
+
 ## 2. Schets maken
 
 Zeg in één zin wat je doet (*"Ik schets nu de twee grafieken, nog zonder getallen: eerst kijken of de opzet

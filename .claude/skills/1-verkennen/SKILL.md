@@ -83,6 +83,13 @@ dan op Submit."*). Leg de keuze vast als
 in het dashboard wissel je straks met één klik tussen sector en opleiding."* Het dashboard kan hooguit drie
 vergelijkingen tegelijk; vraagt de gebruiker meer, zeg dat eerlijk en neem de eerste drie.
 
+**De vraag en de vergelijking horen bij elkaar.** Heeft de gekozen vraag een `kern` in de casus (zoals
+`vooropleiding` bij vraag C), dan staat die er altijd bij, vooraan: zet die optie eerst met *(hoort bij je
+vraag)*. Laat de gebruiker hem weg, zeg dan in één zin dat hij erbij blijft omdat het dashboard anders je vraag
+niet beantwoordt. Noemt de gebruiker een vergelijking die niet bij de drie opties staat maar wel in de
+`uitsplitsingen` van de casus (bijvoorbeeld opleiding of vestiging), gebruik die dan gewoon en zeg het. Vervang
+een keuze nooit stil door een andere.
+
 ## Eigen antwoorden
 
 Typt de gebruiker iets eigens ("Other"), neem het serieus en sorteer het eerst zoals bij *Onthouden*. Voor het

@@ -91,11 +91,15 @@ def stel_in(keuzes: dict, casus: dict) -> dict:
     # Meer vergelijkingen en filters mogen, met komma's: "sector,opleiding". De eerste vergelijking staat vooraan.
     namen = list(dict.fromkeys(n.strip() for n in str(keuzes.get("uitsplitsing") or vraag["uitsplitsingen"][0]).split(",")
                                if n.strip()))
+    # Gaat de vraag over één vergelijking (zoals vooropleiding bij C), dan staat die er altijd bij, vooraan
+    if vraag.get("kern"):
+        namen = [vraag["kern"], *(n for n in namen if n != vraag["kern"])]
     onbekend = [n for n in namen if n not in casus["uitsplitsingen"]]
     if onbekend:
         raise Melding(f"Onbekende uitsplitsing '{', '.join(onbekend)}'. Kies uit: {', '.join(casus['uitsplitsingen'])}")
     if len(namen) > MAX_VERGELIJKINGEN:
-        raise Melding(f"Kies hooguit {MAX_VERGELIJKINGEN} vergelijkingen; meer past niet overzichtelijk in één dashboard.")
+        bij = f" ({vraag['kern']} hoort altijd bij deze vraag)" if vraag.get("kern") else ""
+        raise Melding(f"Kies hooguit {MAX_VERGELIJKINGEN} vergelijkingen{bij}; meer past niet overzichtelijk in één dashboard.")
     gevraagd = str(keuzes.get("filter") or "standaard")
     filter_namen = [] if gevraagd == "geen" else [
         f for f in dict.fromkeys(gevraagd.split(",")) if f in casus["uitsplitsingen"] and f not in namen]

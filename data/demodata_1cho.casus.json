@@ -186,6 +186,7 @@
       "vraag": "Stoppen eerstejaars vaker na het eerste jaar bij de ene vooropleiding dan bij de andere?",
       "uitleg": "Vergelijk vooropleidingen en zie hoe het over de jaren verandert.",
       "berekening": "uitval",
+      "kern": "vooropleiding",
       "uitsplitsingen": [
         "vooropleiding",
         "sector",

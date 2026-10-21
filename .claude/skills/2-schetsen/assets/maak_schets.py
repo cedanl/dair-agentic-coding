@@ -51,6 +51,9 @@ def main() -> None:
     casus = json.loads(Path(keuzes["csv"]).with_suffix(".casus.json").read_text(encoding="utf-8"))
     vraag = casus["vragen"][keuzes["vraag"]]
     namen = keuzes["uitsplitsing"].split(",")
+    # Gaat de vraag over één vergelijking (zoals vooropleiding bij C), dan staat die er altijd bij, vooraan
+    if vraag.get("kern"):
+        namen = [vraag["kern"], *(n for n in namen if n != vraag["kern"])]
     label = casus["uitsplitsingen"][namen[0]]["label"]
     # Hooguit twee filters, nooit op iets waarop je al vergelijkt; geen geldig filter gekozen: het eerste uit de casus
     filters = [] if args.filter == "geen" else [
@@ -59,7 +62,7 @@ def main() -> None:
         filters = [f for f in casus["filters"] if f not in namen][:1]
     filter_naam = ",".join(filters) or "geen"
     maat = casus["maten"][vraag["maat"]]
-    keuzes.update(filter=filter_naam, volgorde=args.volgorde)
+    keuzes.update(uitsplitsing=",".join(namen), filter=filter_naam, volgorde=args.volgorde)
 
     groep = (vraag["titel_groep"].format(uitsplitsing=label), vraag["uitleg_groep"].format(uitsplitsing=label),
              f"Horizontaal staafdiagram, van hoog naar laag (vergelijken, lange labels)", STAAF,
