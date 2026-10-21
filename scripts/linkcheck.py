@@ -5,6 +5,10 @@ De scripts drukken een linkregel af (`### 👉 [Open je schets](...)`, ook voor 
 maar die uitvoer ziet de deelnemer niet: alleen Claude leest hem. Staat de nieuwste link nog niet in een bericht
 van Claude, dan weigert de PreToolUse-hook een keuzevraag, en laat de Stop-hook Claude niet stoppen, met de
 opdracht de regel eerst te tonen. Beide hooks staan in .claude/settings.json.
+
+Bij een keuzevraag over de schets of het dashboard moet de link bovendien in Claudes bericht vlak boven de
+vraag staan (na het laatste antwoord of de laatste uitvoer), ook als hij eerder al eens getoond is: anders is
+hij bij een tussenvraag al weggescrold.
 """
 import json
 import re
@@ -27,21 +31,26 @@ def main() -> None:
     pad = Path(invoer.get("transcript_path") or "")
     if not pad.is_file() or invoer.get("stop_hook_active"):  # na één keer tegenhouden niet blijven herhalen
         return
-    regel, url, getoond = None, None, True
+    regel, url, getoond, vlak_boven = None, None, True, False
     for lijn in pad.read_text(encoding="utf-8").splitlines():
         try:
             bericht = json.loads(lijn).get("message") or {}
         except json.JSONDecodeError:
             continue
         blokken = bericht.get("content") if isinstance(bericht.get("content"), list) else []
+        if bericht.get("role") == "user":  # nieuw antwoord of nieuwe uitvoer: de link staat niet meer vlak boven
+            vlak_boven = False
         for blok in blokken:
             if blok.get("type") == "tool_result":
                 for tekst in teksten(blok.get("content")):
                     for gevonden in LINKREGEL.finditer(tekst):
                         regel, url, getoond = gevonden.group(0), gevonden.group(1), False
             elif blok.get("type") == "text" and bericht.get("role") == "assistant" and url and url in blok.get("text", ""):
-                getoond = True
-    if not regel or getoond:
+                getoond = vlak_boven = True
+    if not regel:
+        return
+    over_schets_of_dashboard = "Open je schets" in regel or "Open je dashboard" in regel
+    if getoond and (vlak_boven or invoer.get("hook_event_name") == "Stop" or not over_schets_of_dashboard):
         return
     reden = ("De deelnemer ziet de uitvoer van het script niet, dus ook de link niet. Zet eerst deze regel "
              f"letterlijk in je bericht, als eigen regel:\n\n{regel}\n\n")

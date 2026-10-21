@@ -115,7 +115,7 @@ uit de uitvoer; de rest mag in je eigen woorden:
 ## 3. Eén vraag
 
 **Eerst de link, dan de vraag.** Stel de vraag pas als de regel `### 👉 [Open je dashboard](<link>)` in je bericht
-vlak boven de vraag staat. Zonder die regel geen vraag. Zet de link nooit in de vraagtekst: daar is hij niet aan
+vlak boven de vraag staat. Zonder die regel geen vraag. Dat geldt voor elke vraag, ook een tussenvraag na *Other*. Zet de link nooit in de vraagtekst: daar is hij niet aan
 te klikken.
 
 Vraag met de AskUserQuestion-tool: **Klopt je dashboard?** Opties: *Ja, het is goed* (aanbevolen), open

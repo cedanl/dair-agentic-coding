@@ -139,7 +139,7 @@ uitvoer neem je **letterlijk** over, als eigen regel:
 
 **Eerst de link, dan de vraag.** Stel de vraag hieronder pas als de gebruiker de schets heeft kunnen zien: de
 regel `### 👉 [Open je schets](<link>)` uit *Laten zien* (na een aanpassing met de nieuwe link) staat altijd
-letterlijk in je bericht vlak boven de vraag. Zonder die regel geen vraag. Zet de link **nooit** in de vraagtekst:
+letterlijk in je bericht vlak boven de vraag. Zonder die regel geen vraag. Dat geldt voor elke vraag, ook een tussenvraag na *Other*. Zet de link **nooit** in de vraagtekst:
 daar is hij niet aan te klikken. De vraagtekst verwijst naar boven: *"Bekijk je schets via de link hierboven. Wil
 je iets veranderen?"*
 
