@@ -108,6 +108,8 @@ if casus_pad.is_file() and not a.begrip:
 
 kolommen = [r[0] for r in q(f"describe select * from {bron}")]
 kolom_begrip = begrip.get("kolommen", {})
+# Kolommen waar leeg een betekenis heeft (zoals diplomajaar: leeg = geen diploma) tellen niet als ontbrekend
+leeg_is = {k: v["leeg_is"] for k, v in kolom_begrip.items() if v.get("leeg_is")}
 sleutel = a.sleutel or begrip.get("sleutel", [])
 onbekend = [k for k in a.uitsplitsing + sleutel if k not in kolommen]
 if onbekend:
@@ -165,7 +167,7 @@ for k in kolommen:
             f"select coalesce(nullif(trim(\"{k}\"), ''), '(leeg)'), count(*) from {bron} group by 1 order by 2 desc, 1"))
     structuur.append((k, uniek, leeg, waarden))
 een_waarde = [k for k, u, _, _ in structuur if u == 1]
-n_leeg = sum(leeg for _, _, leeg, _ in structuur)
+n_leeg = sum(leeg for k, _, leeg, _ in structuur if k not in leeg_is)
 
 if a.overzicht:
     print(f"{Path(a.csv).name}: {duizend(n_rijen)} rijen, {len(kolommen)} kolommen")
@@ -203,7 +205,9 @@ if een_waarde:
     kwaliteit.append("Kolommen met één waarde (kunnen niet uitsplitsen): " + e(", ".join(een_waarde)))
 
 ontbrekend_kolom = [(k, f"{duizend(leeg)} ({procent(leeg / n_rijen)})", balk(leeg / n_rijen))
-                    for k, _, leeg, _ in sorted(structuur, key=lambda r: -r[2]) if leeg]
+                    for k, _, leeg, _ in sorted(structuur, key=lambda r: -r[2]) if leeg and k not in leeg_is]
+verwacht_leeg = [(k, f"{duizend(leeg)} ({procent(leeg / n_rijen)})", leeg_is[k])
+                 for k, _, leeg, _ in structuur if leeg and k in leeg_is]
 n_getypeerd = sum(1 for soort, _, _, _ in typen.values() if soort != "tekst")
 type_rijen = [(k, soort, past_niet) for k, (soort, past_niet, _, _) in typen.items() if soort != "tekst" and past_niet]
 kwaliteit.append(f"{n_getypeerd} kolommen bevatten een getal of datum. " + (f"In {len(type_rijen)} daarvan passen niet alle waarden (zie de tabel)." if type_rijen else "Alle ingevulde waarden passen in dat type."))
@@ -212,7 +216,7 @@ ontbrekend_groep = []
 if a.uitsplitsing:
     cols = ", ".join(f'"{c}"' for c in a.uitsplitsing)
     for k, _, leeg, _ in structuur:
-        if not leeg or k in a.uitsplitsing:
+        if not leeg or k in a.uitsplitsing or k in leeg_is:
             continue
         laagste, hoogste, n_groepen = q(f"select min(aandeel), max(aandeel), count(*) from (select count(*) filter (where {waarde(k)} is null) / count(*) aandeel "
                                         f"from {bron} group by {cols} having count(*) >= {a.drempel})")[0]
@@ -356,7 +360,7 @@ for x in begrip.get("keuzes", []):
     keuze_rijen.append((x.get("onderwerp", ""), e(x.get("keuze", "")) + verwijzing, x.get("status", "")))
 
 tegels = "".join(f"<div><strong>{e(str(w))}</strong><span>{e(n)}</span></div>" for w, n in [
-    (duizend(n_rijen), "rijen"), (len(kolommen), "kolommen"), (procent(n_leeg / (n_rijen * len(kolommen))) if n_rijen else "0%", "van de cellen is leeg"),
+    (duizend(n_rijen), "rijen"), (len(kolommen), "kolommen"), (procent(n_leeg / (n_rijen * len(kolommen))) if n_rijen else "0%", "van de cellen ontbreekt"),
     (duizend(n_dubbel), "dubbele rijen"), (sleutel_tegel, "sleutel")])
 demo = '<p class="demo"><strong>Dit is demodata.</strong> Het profiel beschrijft wat er in het bestand zit, niet wat er in de werkelijkheid geldt.</p>' if a.demo else ""
 
@@ -367,6 +371,7 @@ inhoud = {
     "definities": "<dl>" + "".join(f"<dt>{e(d.get('naam', ''))}</dt><dd>{e(d.get('definitie', ''))}</dd>" for d in definities) + "</dl>" if definities else "",
     "kwaliteit": lijst(kwaliteit)
                  + (tabel("Ontbrekende waarden per kolom", ["Kolom", "Ontbrekend", ""], ontbrekend_kolom, html_kolommen={2}) if ontbrekend_kolom else "<p>Geen enkele kolom heeft ontbrekende waarden.</p>")
+                 + (tabel("Leeg met een betekenis (geen ontbrekende waarde)", ["Kolom", "Leeg", "Leeg betekent"], verwacht_leeg) if verwacht_leeg else "")
                  + (tabel(f"Aandeel ontbrekend per groep van {' × '.join(a.uitsplitsing)} (alleen groepen vanaf {a.drempel} rijen)", ["Kolom", "Laagste aandeel", "Hoogste aandeel", "Verschil"], ontbrekend_groep)
                     + "<p class='muted'>Ongelijk betekent: in de ene groep ontbreekt veel meer dan in de andere. Een vergelijking tussen groepen op die kolom is dan scheef.</p>" if ontbrekend_groep else "")
                  + (tabel("Kolommen waarin niet alle ingevulde waarden in het voorgestelde type passen", ["Kolom", "Voorgesteld type", "Past niet"], type_rijen) if type_rijen else ""),
@@ -441,6 +446,7 @@ STAPPEN = {
         (f"Sleutel {' × '.join(sleutel)}: " + ("uniek, elke student staat één keer per jaar in het bestand." if sleutel_tegel == "uniek" else "niet uniek.")) if sleutel else "Geen sleutel opgegeven.",
         "Geen dubbele rijen." if not n_dubbel else f"{n_dubbel} dubbele rijen.",
         *[f"Lege waarden in {k}: {kolom_let_op.get(k) or 'controleer wat leeg betekent.'}" for k, _, _ in ontbrekend_kolom],
+        *[f"Leeg in {k} is geen ontbrekende waarde: leeg betekent {betekenis}." for k, _, betekenis in verwacht_leeg],
     ]),
     4: ("Ideeën en aannames", [
         *[f"Hypothese: {h.get('vraag', '')} Andere verklaring: {h.get('alternatieve_verklaring', '')}" for h in ideeen.get("hypotheses", [])],
