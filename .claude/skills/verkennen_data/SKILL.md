@@ -87,7 +87,9 @@ Noem geen uitkomsten of percentages: die komen pas in het dashboard.
 Draai `python3 .claude/skills/verkennen_data/assets/toon.py data-profiel.html` en eindig met precies dit,
 met de afgedrukte link:
 
-> **Je dataprofiel staat klaar.** [Open het profiel](<link>) of klik in de verkenner links op `data-profiel.html`.
+> **Je dataprofiel staat klaar.** Klik op de link om het te openen:
+>
+> ### 👉 [Open je dataprofiel](<link>)
 >
 > Stel me gerust een vraag over je data of het profiel. Klaar om verder te gaan? Typ dan `/2-schetsen`.
 

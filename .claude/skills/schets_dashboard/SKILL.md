@@ -64,7 +64,9 @@ python3 .claude/skills/verkennen_data/assets/toon.py schets.html
 Eindig met precies dit, met de twee views en het filter uit de uitvoer van het eerste commando en de link
 uit het tweede:
 
-> **Je schets staat klaar.** [Open de schets](<link>) of klik in de verkenner links op `schets.html`.
+> **Je schets staat klaar.** Klik op de link om hem te openen:
+>
+> ### 👉 [Open je schets](<link>)
 >
 > Bovenaan komt *<view 1>*, daaronder *<view 2>*, met een filter op <filter>. Nog zonder getallen: die
 > komen pas in het dashboard.

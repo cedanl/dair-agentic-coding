@@ -55,7 +55,9 @@ aanpassingen kunnen. Het tweede drukt de link af.
 
 Geef de link meteen, met deze opbouw in je eigen woorden:
 
-> **Je dashboard staat klaar.** [Open het dashboard](<link>) of klik in de verkenner links op `dashboard.html`.
+> **Je dashboard staat klaar.** Klik op de link om het te openen:
+>
+> ### 👉 [Open je dashboard](<link>)
 >
 > <Eén zin over wat er bovenaan staat en één over de jaren, uit de afgedrukte regels, zonder oordeel.> Dit
 > is demodata: het laat zien wat het dashboard kan, niet hoe het echt zit.
