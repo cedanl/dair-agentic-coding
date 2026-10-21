@@ -169,3 +169,13 @@ def test_uit_de_keuzes_of_uit_de_schets_geeft_hetzelfde_dashboard(tmp_path: Path
         pagina[bron] = re.sub(r'<meta name="keuzes" content="[^"]*">', "", uit.read_text(encoding="utf-8"))
     assert pagina["mijn-keuzes.json"] == pagina["schets.html"]
     assert "<h1>Mijn titel</h1>" in pagina["schets.html"] and 'value="vooropleiding"' in pagina["schets.html"]
+
+
+def test_filter_op_elke_kolom_blijft_klein_en_veilig(tmp_path: Path) -> None:
+    """Elke kolom uit de casus mag een filter zijn; ook de grootste combinatie blijft onder 1 MB en toont geen kleine groep."""
+    resultaat, pagina = maak(tmp_path, "data/demodata_1cho.csv", "--vraag", "A", "--uitsplitsing", "sector,geslacht,vestiging",
+                             "--filter", "opleiding,vooropleiding")
+    assert resultaat.returncode == 0 and "Warning" not in resultaat.stderr, resultaat.stderr
+    assert len(pagina.encode("utf-8")) < 1_000_000
+    assert '<select id="filter2" data-filterkeuze>' in pagina
+    assert all(int(n.replace(".", "")) >= 30 for n in re.findall(r"n&nbsp;=&nbsp;([0-9.]+)", pagina))

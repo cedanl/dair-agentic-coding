@@ -89,7 +89,9 @@ en stel dan twee vragen met de AskUserQuestion-tool, **elk in een eigen aanroep*
 eerste, en pas na het antwoord de tweede.
 
 1. **Waarop wil je kunnen filteren?** Opties: de `filters` uit de casus behalve de gekozen uitsplitsingen, met
-   hun `label` en "(Aanbevolen)" achter de eerste, en *Geen filter*. Zet `multiSelect` aan: hooguit twee
+   hun `label` en "(Aanbevolen)" achter de eerste, en *Geen filter*. Elke andere kolom uit `uitsplitsingen` mag
+   ook een filter zijn (bijvoorbeeld opleiding of vooropleiding), zolang je er niet al op vergelijkt: noemt de
+   gebruiker die via *Other*, gebruik hem dan gewoon. Zeg er bij veel waarden bij dat het keuzemenu lang wordt. Zet `multiSelect` aan: hooguit twee
    filters samen. Zet in de vraag: *"Kies er één of twee en klik dan op Submit."* Kiest de gebruiker *Geen filter* samen met een filter, of meer dan twee, vraag dan in één zin
    wat de bedoeling is.
 2. **Wat wil je bovenaan zien?** Opties: *De vergelijking tussen groepen* (aanbevolen) en *De ontwikkeling over

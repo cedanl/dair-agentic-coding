@@ -62,7 +62,8 @@ def toon_aanpassingen(keuzes: dict, casus: dict, vraag: dict) -> None:
                  for n in namen if len(namen) > 1 and n != vraag.get("kern")]
     if len(filters) < MAX_FILTERS:
         mogelijk += [(f"Filter ook op {label(f)}", f"--filter {','.join([*filters, f])}", {"filter": ",".join([*filters, f])})
-                     for f in casus["filters"] if f not in filters and f not in namen]
+                     for f in dict.fromkeys([*casus["filters"], *casus["uitsplitsingen"]])
+                     if f not in filters and f not in namen]
     mogelijk += [(f"Haal het filter op {label(f)} weg", f"--filter {','.join(g for g in filters if g != f) or 'geen'}",
                   {"filter": ",".join(g for g in filters if g != f) or "geen"}) for f in filters]
     andere = "jaar" if keuzes["volgorde"] == "groep" else "groep"

@@ -312,6 +312,8 @@ def toon_view(view: dict, eerstejaars: pl.DataFrame, ins: dict, wissel: str = ""
 
 def toon_blok(data: pl.DataFrame, ins: dict) -> str:
     """Kerncijfers en de views voor één filterkeuze. Bij meer vergelijkingen één groepsview per vergelijking."""
+    if data.is_empty():  # een combinatie van filters zonder één student
+        return f'<div class="npuls-melding">In deze selectie zitten geen {ins["eenheid"]}. Kies een andere waarde.</div>'
     eerstejaars = bereken_eerstejaars(data, ins)
     teller, noemer = int(eerstejaars["telt"].sum()), eerstejaars.height
     if noemer < ins["groep"]:
