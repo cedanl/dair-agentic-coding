@@ -115,6 +115,9 @@ met de afgedrukte link:
 >
 > ### 👉 [Open je dataprofiel](<link>)
 >
+> **Bekijk het profiel en check of het klopt met wat je kent.** Herken je de kolommen, de aantallen en de
+> definities? Valt je iets op dat niet klopt met je eigen ervaring, vraag het me dan gerust.
+>
 > **Daarna even pauze: kijk op van je scherm.** De speaker neemt het nu over. Typ `/2-schetsen` zodra de
 > speaker zegt dat je verder mag. Een vraag over je data of het profiel mag je me ook nu stellen.
 
