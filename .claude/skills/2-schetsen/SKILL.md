@@ -143,7 +143,7 @@ iets veranderen?"*
 Dit is hét moment om te veranderen: het dashboard wordt straks precies zoals deze schets. Vraag met de
 AskUserQuestion-tool: **Wil je iets veranderen aan de schets?** Opties, in deze volgorde: open wensen voor
 `2-schetsen` of `3-bouwen` die over de opzet of de titel gaan, met *(jouw wens)*; dan de eerste twee regels uit
-de **laatste** uitvoer na *Aanpassen* (het deel vóór `=>` als label, de eerste met "(Aanbevolen)"); en *De
+de **laatste** uitvoer na *Aanpassen* (het deel vóór `=>` **letterlijk** als label, ook wat tussen haakjes staat, de eerste met "(Aanbevolen)"); en *De
 schets is goed*. Een eigen wens typt de gebruiker via *Other*.
 
 - **Een vaste aanpassing:** zeg in één zin wat je verandert, draai `python3

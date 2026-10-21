@@ -55,7 +55,8 @@ def toon_aanpassingen(keuzes: dict, casus: dict, vraag: dict) -> None:
     mogelijk = []
     if len(namen) < MAX_VERGELIJKINGEN:
         mogelijk += [(f"Vergelijk ook per {label(n)}" + (" (in plaats van het filter erop)" if n in filters else ""),
-                      f"--uitsplitsing {','.join([*namen, n])}",
+                      f"--uitsplitsing {','.join([*namen, n])}"
+                      + (f" --filter {','.join(f for f in filters if f != n) or 'geen'}" if n in filters else ""),
                       {"uitsplitsing": ",".join([*namen, n]), "filter": ",".join(f for f in filters if f != n) or "geen"})
                      for n in vraag["uitsplitsingen"] if n not in namen]
     mogelijk += [(f"Vergelijk niet meer per {label(n)}", f"--uitsplitsing {','.join(m for m in namen if m != n)}",
@@ -141,7 +142,7 @@ def main() -> None:
             let_op.append(f"Hooguit {MAX_FILTERS} filters; {f} valt weg.")
         else:
             filters.append(f)
-    if not filters and gevraagd != "geen":
+    if not filters and gevraagd == "standaard":  # alleen als er nog nooit een filter is gekozen
         filters = [f for f in casus["filters"] if f not in namen][:1]
     filter_naam = ",".join(filters) or "geen"
     maat = casus["maten"][vraag["maat"]]

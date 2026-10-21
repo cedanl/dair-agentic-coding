@@ -179,3 +179,17 @@ def test_filter_op_elke_kolom_blijft_klein_en_veilig(tmp_path: Path) -> None:
     assert len(pagina.encode("utf-8")) < 1_000_000
     assert '<select id="filter2" data-filterkeuze>' in pagina
     assert all(int(n.replace(".", "")) >= 30 for n in re.findall(r"n&nbsp;=&nbsp;([0-9.]+)", pagina))
+
+
+def test_een_filter_dat_vergelijking_wordt_valt_niet_terug_op_een_ander_filter(tmp_path: Path) -> None:
+    keuzes = {"csv": DATA.as_posix(), "keuzes": {"doelgroep": "A", "vraag": "A", "vergelijken": "sector",
+                                                 "filter": "opleiding", "bovenaan": "groep", "titel": ""},
+              "gezien": [], "wensen": []}
+    (tmp_path / "mijn-keuzes.json").write_text(json.dumps(keuzes), encoding="utf-8")
+    schets = [sys.executable, str(SCRIPT.parents[2] / "2-schetsen/assets/maak_schets.py")]
+    eerste = subprocess.run(schets, capture_output=True, text=True, cwd=tmp_path)
+    regel = next(r for r in eerste.stdout.splitlines() if r.startswith("- Vergelijk ook per opleiding"))
+    assert "in plaats van het filter" in regel and "--filter geen" in regel
+    subprocess.run([*schets, *regel.split("=>")[1].split()], capture_output=True, text=True, cwd=tmp_path, check=True)
+    na = json.loads((tmp_path / "mijn-keuzes.json").read_text(encoding="utf-8"))["keuzes"]
+    assert na["vergelijken"] == "sector,opleiding" and na["filter"] == "geen"
