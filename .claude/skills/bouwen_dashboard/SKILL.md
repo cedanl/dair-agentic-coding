@@ -104,14 +104,21 @@ in één zin, en kijk of het een kleine of een grote wens is.
   vaste aanpassing aan.
 - Twijfel je of het klein of groot is, behandel het dan als groot.
 
-## 4. Meenemen
+## 4. Meenemen en afsluiten
 
-Zeg tot slot, zonder vraag: *"Wil je weten wat er is gerekend? Open `dashboard-berekeningen.py` in de
-verkenner: daar staat precies hoe de cijfers zijn berekend. Deze Codespace is tijdelijk. Wil je je dashboard
-houden, klik dan met de rechtermuisknop op `dashboard.html` (en het rekenbestand erbij) en kies **Download**.
-Er gaat niets naar GitHub."*
-Zeg dan: *"Onderaan het dashboard staat het commando waarmee het opnieuw draait op je eigen data, zonder AI."*
-Sluit af met: *"Typ `/4-review` als je de sessie wilt beoordelen. Dat is anoniem."*
+Draai eerst opnieuw `python3 .claude/skills/verkennen_data/assets/toon.py dashboard.html` voor de link. Eindig
+dan, zonder vraag, met precies dit als **laatste bericht**, in één bericht. Zet er niets meer onder:
+
+> Wil je weten wat er is gerekend? In `dashboard-berekeningen.py` staat precies hoe de cijfers zijn berekend.
+> Deze Codespace is tijdelijk: wil je je dashboard houden, klik dan in de verkenner met de rechtermuisknop op
+> `dashboard.html` (en het rekenbestand erbij) en kies **Download**. Er gaat niets naar GitHub. Onderaan het
+> dashboard staat het commando waarmee het opnieuw draait op je eigen data, zonder AI.
+>
+> **Je dashboard is af.** Klik op de link om het te openen:
+>
+> ### 👉 [Open je dashboard](<link>)
+>
+> Typ `/4-review` als je de sessie wilt beoordelen. Dat is anoniem.
 
 ## Als er iets misgaat
 
