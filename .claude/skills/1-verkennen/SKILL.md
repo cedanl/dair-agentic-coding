@@ -25,7 +25,25 @@ samenhangende vragen in één aanroep. Wil de gebruiker iets anders, dan kiest d
 Standaard is één vraag met drie opties en één aanbeveling: een richtlijn, geen regel. Welke vragen je stelt en
 in welke volgorde ligt vast.
 
-**Start.** Draai eerst, zonder het te noemen: `uv run scripts/vragenteller.py fase 0`.
+**Onthouden.** Alles wat de gebruiker zegt telt, ook als het niet bij de vraag van dat moment hoort. Leg het
+vast met `python3 scripts/keuzes.py` (zonder het te noemen): het komt in `mijn-keuzes.json` en elke volgende
+skill leest het. Sorteer na elk antwoord wat je hoort:
+
+1. **Antwoord op deze vraag:** `python3 scripts/keuzes.py zet <sleutel> "<label>"`. Sleutels: `doelgroep`,
+   `vraag`, `vergelijken`, `filter` en `bovenaan`.
+2. **Antwoord op een latere vraag** (zoals een filter of wat bovenaan moet, al bij de eerste vraag): leg het ook
+   vast met `zet`. Stel die vraag later wel, maar met die optie eerst en *(jouw keuze)* in plaats van
+   *(Aanbevolen)*, zodat de gebruiker alleen hoeft te bevestigen.
+3. **Een wens voor later** (een titel, een kleur, iets extra's): `python3 scripts/keuzes.py wens "<in de woorden
+   van de gebruiker>" --voor <2-schetsen, 3-bouwen of later>`. Kan de workshop het niet, gebruik dan `later`.
+4. **In strijd met wat er al staat:** vraag het meteen met de AskUserQuestion-tool, met beide als optie
+   (*"Eerder koos je X, nu zeg je Y. Wat wil je?"*), en leg alleen het antwoord vast.
+
+Zeg in één zin wat je hebt onthouden en waar het terugkomt (*"Genoteerd: het filter op geslacht komt in de
+schets, de kortere titel in het dashboard."*).
+
+**Start.** Draai eerst, zonder het te noemen: `uv run scripts/vragenteller.py fase 0` en
+`python3 scripts/keuzes.py nieuw`.
 
 ## 1. Drie vragen
 
@@ -34,8 +52,8 @@ Lees `data/demodata_1cho.casus.json` (noemt de gebruiker een ander bestand `data
 Eerst drie vragen, dan ga ik aan de slag."* Stel dan met de AskUserQuestion-tool:
 
 **Voor wie maak je dit?** Opties: de drie `doelgroepen` uit de casus, in de volgorde A, B, C. Label: het veld
-`label`, met "(Aanbevolen)" achter A. Uitleg: het veld `uitleg`. Houd in al je berichten, ook in de volgende
-skills, de `toon` van de gekozen doelgroep aan. Kort en in gewone taal blijft gelden.
+`label`, met "(Aanbevolen)" achter A. Uitleg: het veld `uitleg`. Leg de keuze vast als `doelgroep`. Houd in al je berichten de `toon`
+van de gekozen doelgroep aan; de volgende skills lezen hem terug. Kort en in gewone taal blijft gelden.
 
 Reageer in één zin op de keuze (*"Dan houd ik het concreet per groep."*) en stel de volgende vraag, ook met de
 tool:
@@ -43,15 +61,16 @@ tool:
 **Wat wil je weten?** Opties: de drie `vragen` uit de casus, in de volgorde A, B, C. Label: het veld
 `label`, met "(Aanbevolen)" achter A. Uitleg: het veld `uitleg`. Vierde optie: *Leg dit eerst uit*. Kiest de
 gebruiker die, leg dan in drie zinnen uit dat jij met de data een dashboard gaat bouwen dat één vraag
-beantwoordt, en stel de vraag opnieuw zonder die optie.
+beantwoordt, en stel de vraag opnieuw zonder die optie. Leg de keuze vast als `vraag`.
 
 Reageer in één zin op de keuze (*"Mooie vraag: daar kan een dashboard echt iets laten zien."*) en stel de
 derde vraag, ook met de tool: **Waarop wil je het vergelijken?** Opties: de drie `uitsplitsingen` bij de
-gekozen vraag, in die volgorde, met het `label` uit `uitsplitsingen` en "(Aanbevolen)" achter de eerste.
+gekozen vraag, in die volgorde, met het `label` uit `uitsplitsingen` en "(Aanbevolen)" achter de eerste. Leg de keuze vast als `vergelijken`.
 
 ## Eigen antwoorden
 
-Typt de gebruiker iets eigens ("Other"), neem het serieus: herhaal in één zin wat je hoort, zeg welke optie
+Typt de gebruiker iets eigens ("Other"), neem het serieus en sorteer het eerst zoals bij *Onthouden*. Voor het
+deel dat bij deze vraag hoort: herhaal in één zin wat je hoort, zeg welke optie
 er het dichtst bij ligt en waarom, en ga daarmee door (*"Je wilt weten wie afhaakt: dat lijkt het meest op
 vraag A. Daar ga ik mee aan de slag."*). Past niets, kies dan de aanbevolen optie en zeg dat de rest later
 kan. Is de AskUserQuestion-tool niet beschikbaar, stel de vraag dan in het gesprek: de opties als A, B, C (met

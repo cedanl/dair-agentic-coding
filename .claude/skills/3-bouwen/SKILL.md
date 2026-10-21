@@ -28,6 +28,27 @@ samenhangende vragen in één aanroep. Wil de gebruiker iets anders, dan kiest d
 Standaard is één vraag met drie opties en één aanbeveling: een richtlijn, geen regel. Welke vragen je stelt en
 in welke volgorde ligt vast.
 
+**Onthouden.** Alles wat de gebruiker zegt telt, ook als het niet bij de vraag van dat moment hoort. Leg het
+vast met `python3 scripts/keuzes.py` (zonder het te noemen): het komt in `mijn-keuzes.json` en elke volgende
+skill leest het. Sorteer na elk antwoord wat je hoort:
+
+1. **Antwoord op deze vraag:** `python3 scripts/keuzes.py zet <sleutel> "<label>"`. Sleutels: `doelgroep`,
+   `vraag`, `vergelijken`, `filter` en `bovenaan`.
+2. **Antwoord op een latere vraag** (zoals een filter of wat bovenaan moet, al bij de eerste vraag): leg het ook
+   vast met `zet`. Stel die vraag later wel, maar met die optie eerst en *(jouw keuze)* in plaats van
+   *(Aanbevolen)*, zodat de gebruiker alleen hoeft te bevestigen.
+3. **Een wens voor later** (een titel, een kleur, iets extra's): `python3 scripts/keuzes.py wens "<in de woorden
+   van de gebruiker>" --voor <2-schetsen, 3-bouwen of later>`. Kan de workshop het niet, gebruik dan `later`.
+4. **In strijd met wat er al staat:** vraag het meteen met de AskUserQuestion-tool, met beide als optie
+   (*"Eerder koos je X, nu zeg je Y. Wat wil je?"*), en leg alleen het antwoord vast.
+
+Zeg in één zin wat je hebt onthouden en waar het terugkomt (*"Genoteerd: het filter op geslacht komt in de
+schets, de kortere titel in het dashboard."*).
+
+**Eerder gezegd.** Draai bij de start `python3 scripts/keuzes.py toon` en lees wat er al staat. Houd de `toon`
+van de gekozen doelgroep uit de casus aan. Open wensen voor `3-bouwen` bied je bij *Aanpassen* als eerste aan,
+met *(jouw wens)* erachter; zet een verwerkte wens op klaar met `python3 scripts/keuzes.py wens-klaar <nummer>`.
+
 Is de AskUserQuestion-tool niet beschikbaar, stel een keuzevraag dan in het gesprek: de opties als A, B, C
 (met *(aanbevolen)* achter de aanbevolen optie), en stop je bericht daar. Ga pas verder als de gebruiker
 antwoordt.
@@ -80,7 +101,7 @@ eigen wens typt de gebruiker via *Other*. Stop na *Het is goed zo* of na vijf aa
 
 **Een vaste aanpassing:**
 
-1. Zeg in één zin wat je verandert (*"Ik vergelijk nu per opleiding."*).
+1. Zeg in één zin wat je verandert (*"Ik vergelijk nu per opleiding."*). Leg het vast met `zet` (`vergelijken` of `bovenaan`).
 2. Draai `uv run --no-project --with polars==1.44.2 python .claude/skills/3-bouwen/assets/maak_dashboard.py --vanaf dashboard.html` met het deel na `=>` erachter (bijvoorbeeld `--uitsplitsing opleiding`),
    en daarna opnieuw `python3 .claude/skills/1-verkennen/assets/toon.py dashboard.html`.
 3. Zeg *"Gedaan: …"* en vertel in één zin wat er nu bovenaan staat, met de nieuwe link. Stel dan **Nog een

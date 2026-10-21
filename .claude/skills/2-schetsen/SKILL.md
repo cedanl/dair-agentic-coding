@@ -25,6 +25,29 @@ samenhangende vragen in één aanroep. Wil de gebruiker iets anders, dan kiest d
 Standaard is één vraag met drie opties en één aanbeveling: een richtlijn, geen regel. Welke vragen je stelt en
 in welke volgorde ligt vast.
 
+**Onthouden.** Alles wat de gebruiker zegt telt, ook als het niet bij de vraag van dat moment hoort. Leg het
+vast met `python3 scripts/keuzes.py` (zonder het te noemen): het komt in `mijn-keuzes.json` en elke volgende
+skill leest het. Sorteer na elk antwoord wat je hoort:
+
+1. **Antwoord op deze vraag:** `python3 scripts/keuzes.py zet <sleutel> "<label>"`. Sleutels: `doelgroep`,
+   `vraag`, `vergelijken`, `filter` en `bovenaan`.
+2. **Antwoord op een latere vraag** (zoals een filter of wat bovenaan moet, al bij de eerste vraag): leg het ook
+   vast met `zet`. Stel die vraag later wel, maar met die optie eerst en *(jouw keuze)* in plaats van
+   *(Aanbevolen)*, zodat de gebruiker alleen hoeft te bevestigen.
+3. **Een wens voor later** (een titel, een kleur, iets extra's): `python3 scripts/keuzes.py wens "<in de woorden
+   van de gebruiker>" --voor <2-schetsen, 3-bouwen of later>`. Kan de workshop het niet, gebruik dan `later`.
+4. **In strijd met wat er al staat:** vraag het meteen met de AskUserQuestion-tool, met beide als optie
+   (*"Eerder koos je X, nu zeg je Y. Wat wil je?"*), en leg alleen het antwoord vast.
+
+Zeg in één zin wat je hebt onthouden en waar het terugkomt (*"Genoteerd: het filter op geslacht komt in de
+schets, de kortere titel in het dashboard."*).
+
+**Eerder gezegd.** Draai bij de start `python3 scripts/keuzes.py toon` en lees wat er al staat. Houd de `toon`
+van de gekozen doelgroep uit de casus aan. Staan er een filter, wat bovenaan moet of open wensen voor
+`2-schetsen`, neem ze mee volgens punt 2 hierboven, zeg in één zin dat je ze meeneemt (*"Je noemde al een
+filter op geslacht: dat zet ik als eerste."*) en zet een verwerkte wens op klaar met `python3 scripts/keuzes.py
+wens-klaar <nummer>`.
+
 Staat `data-profiel.html` niet in de hoofdmap, zeg dan: *"Typ eerst `/1-verkennen`."* en stop.
 
 **Start.** Draai daarna, zonder het te noemen: `uv run scripts/vragenteller.py fase 2`.
@@ -40,6 +63,8 @@ en stel dan in **één** aanroep van de AskUserQuestion-tool twee vragen:
    hun `label` en "(Aanbevolen)" achter de eerste, en *Geen filter*.
 2. **Wat wil je bovenaan zien?** Opties: *De vergelijking tussen groepen* (aanbevolen) en *De ontwikkeling over
    de jaren*.
+
+Leg de antwoorden vast als `filter` en `bovenaan`.
 
 Typt de gebruiker iets eigens, herhaal dan in één zin wat je hoort en kies de optie die er het dichtst bij
 ligt (*"Je wilt per stad kunnen kijken: dat is het filter op vestiging."*). Past geen optie, zoals een ander
