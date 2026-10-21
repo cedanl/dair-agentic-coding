@@ -67,17 +67,24 @@ Geef de link meteen, met deze opbouw in je eigen woorden:
 
 ## 3. Aanpassen
 
-Vraag met de AskUserQuestion-tool: **Wil je nog iets anders zien?** Opties, in deze volgorde: de eerste twee
-aanpassingen uit de laatste uitvoer (de regels die met `- ` beginnen na *Aanpassen*, het deel vóór `=>` als
-label, de eerste met "(Aanbevolen)") en *Het is goed zo*. Een eigen wens typt de gebruiker via *Other*. Stop na *Het is goed zo*
-of na vijf aanpassingen of wensen samen.
+Vraag de eerste keer met de AskUserQuestion-tool: **Wil je iets aanpassen aan je dashboard?** Na elke
+aanpassing zeg je eerst in één zin wat er nu anders is (*"Gedaan: je vergelijkt nu per opleiding."*) en vraag je:
+**Nog een aanpassing?** Stel nooit twee keer dezelfde vraag met dezelfde opties: de gebruiker moet zien dat
+de vorige keuze is gelukt.
+
+Opties, in deze volgorde: de eerste twee aanpassingen uit de **laatste** uitvoer van het script (de regels die
+met `- ` beginnen na *Aanpassen*, het deel vóór `=>` als label, de eerste met "(Aanbevolen)") en *Het is goed
+zo*. Het script laat al weg wat de gebruiker eerder heeft gezien; noem ook zelf nooit een optie die de
+gebruiker al koos. Staat er *Geen nieuwe vaste aanpassingen meer*, bied dan alleen *Het is goed zo* aan. Een
+eigen wens typt de gebruiker via *Other*. Stop na *Het is goed zo* of na vijf aanpassingen of wensen samen.
 
 **Een vaste aanpassing:**
 
 1. Zeg in één zin wat je verandert (*"Ik vergelijk nu per opleiding."*).
 2. Draai `uv run --no-project --with polars==1.44.2 python .claude/skills/3-bouwen/assets/maak_dashboard.py --vanaf dashboard.html` met het deel na `=>` erachter (bijvoorbeeld `--uitsplitsing opleiding`),
    en daarna opnieuw `python3 .claude/skills/1-verkennen/assets/toon.py dashboard.html`.
-3. Vertel in één of twee zinnen wat er nu bovenaan staat, met de nieuwe link, en stel de vraag opnieuw.
+3. Zeg *"Gedaan: …"* en vertel in één zin wat er nu bovenaan staat, met de nieuwe link. Stel dan **Nog een
+   aanpassing?** met de opties uit deze nieuwe uitvoer.
 
 Een vaste aanpassing maakt het dashboard opnieuw: kleine wensen van eerder verdwijnen dan. Zeg dat als er al
 een kleine wens was doorgevoerd.
@@ -93,7 +100,7 @@ in één zin, en kijk of het een kleine of een grote wens is.
   2. Laat elk getal, elk percentage, elke verborgen groep, het filter, het label *Dit is demodata* en de
      privacyuitleg staan zoals ze zijn, en voeg geen getallen of scripts toe.
   3. Draai `uv run --no-project --with polars==1.44.2 python .claude/skills/3-bouwen/assets/maak_dashboard.py --vanaf dashboard.html --controleer`. Bij *Goed* geef je opnieuw de link (`toon.py
-     dashboard.html`) en zeg je eerlijk: *"Dit heb ik in je dashboard aangepast. Bouw je het later opnieuw op
+     dashboard.html`), haal je de opties voor **Nog een aanpassing?** uit deze controle-uitvoer, en zeg je eerlijk: *"Dit heb ik in je dashboard aangepast. Bouw je het later opnieuw op
      je eigen data, dan zit deze wijziging er niet in; daarvoor passen we na de workshop het script aan."*
   4. Bij *Niet goed* draai je `uv run --no-project --with polars==1.44.2 python .claude/skills/3-bouwen/assets/maak_dashboard.py --vanaf dashboard.html` om het dashboard te herstellen, en zeg je dat deze
      wens net te veel raakt, met een kleinere variant als voorstel. Probeer het niet een tweede keer.

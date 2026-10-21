@@ -76,6 +76,11 @@ def lees_casus(csv: Path) -> dict:
     return json.loads(pad.read_text(encoding="utf-8"))
 
 
+def bepaal_stand(keuzes: dict) -> str:
+    """Welke vergelijking en welke volgorde het dashboard toont; zo bieden we nooit een eerdere stand opnieuw aan."""
+    return f"{keuzes['uitsplitsing']}|{keuzes.get('volgorde') or 'groep'}"
+
+
 def stel_in(keuzes: dict, casus: dict) -> dict:
     """Zet de keuzes en de casus om in één instelling voor de rest van het script."""
     vraag = casus["vragen"].get(keuzes.get("vraag", "A"))
@@ -101,8 +106,10 @@ def stel_in(keuzes: dict, casus: dict) -> dict:
                   "uitleg": vraag["uitleg_groep"].format(uitsplitsing=uitsplitsing["label"])}
     jaar_view = {"soort": "lijn", "per": "periode", "titel": vraag["titel_jaar"], "uitleg": vraag["uitleg_jaar"]}
     views = [jaar_view, groep_view] if keuzes.get("volgorde") == "jaar" else [groep_view, jaar_view]
+    keuzes = {**keuzes, "uitsplitsing": naam, "filter": filter_naam}
+    keuzes["gezien"] = list(dict.fromkeys([*keuzes.get("gezien", []), bepaal_stand(keuzes)]))
     return {
-        "keuzes": {**keuzes, "uitsplitsing": naam, "filter": filter_naam},
+        "keuzes": keuzes,
         "vraag": vraag, "maat": maat, "uitsplitsing": uitsplitsing, "filter": filter_, "views": views,
         "kolommen": list(dict.fromkeys(kolommen)), "k": k, "eenheid": casus["eenheid"],
         "ondertitel": casus["ondertitel"], "demo": casus.get("demo", False),
@@ -317,15 +324,25 @@ def toon_uitkomst(data: pl.DataFrame, ins: dict) -> None:
         hoog, laag = max(jaren, key=lambda r: r["waarde"]), min(jaren, key=lambda r: r["waarde"])
         print(f"Over de jaren: het hoogst in {hoog['periode']} ({maak_procent(hoog['waarde'])}), "
               f"het laagst in {laag['periode']} ({maak_procent(laag['waarde'])}).")
-    print("Aanpassen (label => extra argumenten bij --vanaf dashboard.html):")
+    toon_aanpassingen(ins)
+
+
+def toon_aanpassingen(ins: dict) -> None:
+    """Alleen aanpassingen naar een stand die de gebruiker nog niet heeft gezien, zodat geen keuze terugkomt."""
     k = ins["keuzes"]
-    for naam in ins["vraag"]["uitsplitsingen"]:
-        if naam != k["uitsplitsing"]:
-            print(f"- Vergelijk per {ins['alle_uitsplitsingen'][naam]['label']} => --uitsplitsing {naam}")
-    if k.get("volgorde") == "jaar":
-        print("- Zet de vergelijking tussen groepen bovenaan => --volgorde groep")
+    volgorde = k.get("volgorde") or "groep"
+    mogelijk = [(f"Vergelijk per {ins['alle_uitsplitsingen'][naam]['label']}", f"--uitsplitsing {naam}",
+                 {**k, "uitsplitsing": naam}) for naam in ins["vraag"]["uitsplitsingen"] if naam != k["uitsplitsing"]]
+    if volgorde == "jaar":
+        mogelijk.append(("Zet de vergelijking tussen groepen bovenaan", "--volgorde groep", {**k, "volgorde": "groep"}))
     else:
-        print("- Zet de ontwikkeling over de jaren bovenaan => --volgorde jaar")
+        mogelijk.append(("Zet de ontwikkeling over de jaren bovenaan", "--volgorde jaar", {**k, "volgorde": "jaar"}))
+    nieuw = [(label, extra) for label, extra, stand in mogelijk if bepaal_stand(stand) not in k["gezien"]]
+    print("Aanpassen (label => extra argumenten bij --vanaf dashboard.html):")
+    for label, extra in nieuw:
+        print(f"- {label} => {extra}")
+    if not nieuw:
+        print("Geen nieuwe vaste aanpassingen meer: alles is al eens getoond.")
 
 
 def bepaal_vingerafdruk(pagina: str) -> dict:
@@ -353,6 +370,7 @@ def controleer(pad: Path, ins: dict, data: pl.DataFrame, csv: Path) -> None:
         sys.exit("Niet goed: de aanpassing raakt " + ", ".join(fouten)
                  + ". Maak het dashboard opnieuw met --vanaf " + pad.name + " en probeer een kleinere aanpassing.")
     print("Goed: alle cijfers, verborgen groepen, het filter en de privacyuitleg zijn ongewijzigd.")
+    toon_aanpassingen(ins)
 
 
 def maak_commando(ins: dict, csv: Path) -> str:

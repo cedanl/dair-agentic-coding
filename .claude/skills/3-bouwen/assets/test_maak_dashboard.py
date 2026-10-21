@@ -93,3 +93,11 @@ def test_controle_staat_tekst_toe_maar_geen_cijfers(tmp_path: Path) -> None:
     assert subprocess.run(controle, capture_output=True, cwd=REPO).returncode == 0
     pad.write_text(pagina.replace("<strong>23%</strong>", "<strong>25%</strong>", 1), encoding="utf-8")
     assert subprocess.run(controle, capture_output=True, cwd=REPO).returncode == 1
+
+
+def test_een_aanpassing_komt_niet_terug(tmp_path: Path) -> None:
+    resultaat, _ = maak(tmp_path, "data/demodata_1cho.csv", "--vraag", "A", "--uitsplitsing", "sector")
+    assert "--uitsplitsing opleiding" in resultaat.stdout
+    opnieuw, _ = maak(tmp_path, "--vanaf", str(tmp_path / "dashboard.html"), "--uitsplitsing", "opleiding")
+    aanbod = [r for r in opnieuw.stdout.splitlines() if r.startswith("- ")]
+    assert aanbod and not any("--uitsplitsing sector" in r or "--uitsplitsing opleiding" in r for r in aanbod)
