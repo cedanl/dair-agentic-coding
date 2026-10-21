@@ -20,8 +20,10 @@ Noem geen bestandsnamen of commando's, tenzij de gebruiker erom vraagt.
 **Vragen.** Stel elke vraag met de AskUserQuestion-tool, niet als losse tekst, zodat de gebruiker op de route
 blijft. Gebruik de mogelijkheden van de tool waar ze helpen en beslis per vraag zelf welke past: een korte
 `header`, bij elke optie een uitleg, de aanbevolen optie eerst met *(Aanbevolen)*, `multiSelect` als meer dan
-één antwoord tegelijk kan, `preview` als het vergelijken van opties daardoor duidelijker wordt, en tot vier
-samenhangende vragen in één aanroep. Wil de gebruiker iets anders, dan kiest die *Other* en typt zelf.
+één antwoord tegelijk kan, `preview` als het vergelijken van opties daardoor duidelijker wordt. Stel **één vraag per
+aanroep**: meer vragen in één aanroep worden tabbladen die deelnemers niet zien. Mag de gebruiker meer kiezen
+(`multiSelect`), zet dan in de vraag zelf hoe je verder gaat: *"Kies er één of meer en klik dan op Submit."*
+Wil de gebruiker iets anders, dan kiest die *Other* en typt zelf.
 Standaard is één vraag met drie opties en één aanbeveling: een richtlijn, geen regel. Welke vragen je stelt en
 in welke volgorde ligt vast.
 
@@ -66,7 +68,8 @@ beantwoordt, en stel de vraag opnieuw zonder die optie. Leg de keuze vast als `v
 Reageer in één zin op de keuze (*"Mooie vraag: daar kan een dashboard echt iets laten zien."*) en stel de
 derde vraag, ook met de tool: **Waarop wil je het vergelijken?** Opties: de drie `uitsplitsingen` bij de
 gekozen vraag, in die volgorde, met het `label` uit `uitsplitsingen` en "(Aanbevolen)" achter de eerste. Zet
-`multiSelect` aan en zeg in de vraag dat meer keuzes mogen (*"Kies er één of meer"*). Leg de keuze vast als
+`multiSelect` aan en zeg in de vraag dat meer keuzes mogen en hoe je verder gaat (*"Kies er één of meer en klik
+dan op Submit."*). Leg de keuze vast als
 `vergelijken`. Koos de gebruiker er meer, zeg dan in één zin wat dat betekent: *"Je profiel gaat over sector;
 in het dashboard wissel je straks met één klik tussen sector en opleiding."* Het dashboard kan hooguit drie
 vergelijkingen tegelijk; vraagt de gebruiker meer, zeg dat eerlijk en neem de eerste drie.

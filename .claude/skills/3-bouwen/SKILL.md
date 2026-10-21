@@ -23,8 +23,10 @@ commando's, tenzij de gebruiker erom vraagt.
 **Vragen.** Stel elke vraag met de AskUserQuestion-tool, niet als losse tekst, zodat de gebruiker op de route
 blijft. Gebruik de mogelijkheden van de tool waar ze helpen en beslis per vraag zelf welke past: een korte
 `header`, bij elke optie een uitleg, de aanbevolen optie eerst met *(Aanbevolen)*, `multiSelect` als meer dan
-één antwoord tegelijk kan, `preview` als het vergelijken van opties daardoor duidelijker wordt, en tot vier
-samenhangende vragen in één aanroep. Wil de gebruiker iets anders, dan kiest die *Other* en typt zelf.
+één antwoord tegelijk kan, `preview` als het vergelijken van opties daardoor duidelijker wordt. Stel **één vraag per
+aanroep**: meer vragen in één aanroep worden tabbladen die deelnemers niet zien. Mag de gebruiker meer kiezen
+(`multiSelect`), zet dan in de vraag zelf hoe je verder gaat: *"Kies er één of meer en klik dan op Submit."*
+Wil de gebruiker iets anders, dan kiest die *Other* en typt zelf.
 Standaard is één vraag met drie opties en één aanbeveling: een richtlijn, geen regel. Welke vragen je stelt en
 in welke volgorde ligt vast.
 

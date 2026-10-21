@@ -20,8 +20,10 @@ tenzij de gebruiker erom vraagt.
 **Vragen.** Stel elke vraag met de AskUserQuestion-tool, niet als losse tekst, zodat de gebruiker op de route
 blijft. Gebruik de mogelijkheden van de tool waar ze helpen en beslis per vraag zelf welke past: een korte
 `header`, bij elke optie een uitleg, de aanbevolen optie eerst met *(Aanbevolen)*, `multiSelect` als meer dan
-één antwoord tegelijk kan, `preview` als het vergelijken van opties daardoor duidelijker wordt, en tot vier
-samenhangende vragen in één aanroep. Wil de gebruiker iets anders, dan kiest die *Other* en typt zelf.
+één antwoord tegelijk kan, `preview` als het vergelijken van opties daardoor duidelijker wordt. Stel **één vraag per
+aanroep**: meer vragen in één aanroep worden tabbladen die deelnemers niet zien. Mag de gebruiker meer kiezen
+(`multiSelect`), zet dan in de vraag zelf hoe je verder gaat: *"Kies er één of meer en klik dan op Submit."*
+Wil de gebruiker iets anders, dan kiest die *Other* en typt zelf.
 Standaard is één vraag met drie opties en één aanbeveling: een richtlijn, geen regel. Welke vragen je stelt en
 in welke volgorde ligt vast.
 
@@ -57,11 +59,12 @@ Staat `data-profiel.html` niet in de hoofdmap, zeg dan: *"Typ eerst `/1-verkenne
 Lees de keuzes uit de regel `<meta name="keuzes" ...>` bovenaan `data-profiel.html` (de vraag en de
 uitsplitsing) en de `filters` en `uitsplitsingen` uit het casusbestand naast de data. Zeg in één zin wat je
 meeneemt (*"Je wilt weten welk deel van de eerstejaars stopt, per sector. Ik zet twee grafieken op papier."*)
-en stel dan in **één** aanroep van de AskUserQuestion-tool twee vragen:
+en stel dan twee vragen met de AskUserQuestion-tool, **elk in een eigen aanroep**: eerst de
+eerste, en pas na het antwoord de tweede.
 
 1. **Waarop wil je kunnen filteren?** Opties: de `filters` uit de casus behalve de gekozen uitsplitsingen, met
    hun `label` en "(Aanbevolen)" achter de eerste, en *Geen filter*. Zet `multiSelect` aan: hooguit twee
-   filters samen. Kiest de gebruiker *Geen filter* samen met een filter, of meer dan twee, vraag dan in één zin
+   filters samen. Zet in de vraag: *"Kies er één of twee en klik dan op Submit."* Kiest de gebruiker *Geen filter* samen met een filter, of meer dan twee, vraag dan in één zin
    wat de bedoeling is.
 2. **Wat wil je bovenaan zien?** Opties: *De vergelijking tussen groepen* (aanbevolen) en *De ontwikkeling over
    de jaren*.
