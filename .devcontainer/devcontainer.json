@@ -24,6 +24,7 @@
     "vscode": {
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.hideOnStartup": "always",
         "chat.editing.autoAccept": true,
         "claudeCode.allowDangerouslySkipPermissions": true,
         "livePreview.openPreviewTarget": "External Browser",
