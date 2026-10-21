@@ -114,11 +114,11 @@ dan, zonder vraag, met precies dit als **laatste bericht**, in één bericht. Ze
 > `dashboard.html` (en het rekenbestand erbij) en kies **Download**. Er gaat niets naar GitHub. Onderaan het
 > dashboard staat het commando waarmee het opnieuw draait op je eigen data, zonder AI.
 >
-> **Je dashboard is af.** Klik op de link om het te openen:
+> **Je dashboard is af. Even pauze: de speaker neemt het nu over.** Bekijk je dashboard via de link:
 >
 > ### 👉 [Open je dashboard](<link>)
 >
-> Typ `/4-review` als je de sessie wilt beoordelen. Dat is anoniem.
+> Typ `/4-review` als de speaker vraagt om de sessie te beoordelen. Dat is anoniem.
 
 ## Als er iets misgaat
 

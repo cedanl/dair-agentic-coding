@@ -91,7 +91,8 @@ met de afgedrukte link:
 >
 > ### 👉 [Open je dataprofiel](<link>)
 >
-> Stel me gerust een vraag over je data of het profiel. Klaar om verder te gaan? Typ dan `/2-schetsen`.
+> **Daarna even pauze: kijk op van je scherm.** De speaker neemt het nu over. Typ `/2-schetsen` zodra de
+> speaker zegt dat je verder mag. Een vraag over je data of het profiel mag je me ook nu stellen.
 
 ## 4. Vragen over het profiel
 
