@@ -34,6 +34,7 @@ p = argparse.ArgumentParser()
 p.add_argument("csv")
 p.add_argument("--begrip", help="JSON met de tekst van de gebruiker: datagebruik, jouw_aanpak, keuzes, eenheid_rij, sleutel, kolommen, definities, casus_ideeen, casus_aanpak")
 p.add_argument("--uit", default="data-profiel.html")
+p.add_argument("--keuzes", default="mijn-keuzes.json", help="het bestand met de keuzes van de deelnemer: vraag en vergelijken komen hieruit, en het profiel schrijft terug wat het deed")
 p.add_argument("--vraag", help="A, B of C uit het casusbestand naast de data")
 p.add_argument("--stap", type=int, choices=[1, 2, 3, 4], help="druk alleen de samenvatting van deze stap af; stap 4 schrijft ook het profiel")
 p.add_argument("--uitsplitsing", dest="uitsplitsing_naam", help="naam van de uitsplitsing uit het casusbestand, bijvoorbeeld sector, of meer met komma's: sector,opleiding")
@@ -67,6 +68,10 @@ casus_pad = Path(a.csv).with_suffix(".casus.json")
 if casus_pad.is_file() and not a.begrip:
     # De casus bepaalt de tekst: kolommen, definities en ideeën liggen vast, de keuzes komen uit het commando
     casus = json.loads(casus_pad.read_text(encoding="utf-8"))
+    mijn = json.loads(Path(a.keuzes).read_text(encoding="utf-8")) if Path(a.keuzes).is_file() else None
+    if mijn:  # de keuzes van de deelnemer zijn de waarheid; een argument op de opdrachtregel gaat voor
+        a.vraag = a.vraag or mijn["keuzes"].get("vraag")
+        a.uitsplitsing_naam = a.uitsplitsing_naam or mijn["keuzes"].get("vergelijken")
     vraag_letter = a.vraag or "A"
     vraag = casus["vragen"][vraag_letter]
     # Meer vergelijkingen mogen ("sector,opleiding"): het profiel gaat over de eerste, het dashboard krijgt ze allemaal
@@ -85,6 +90,9 @@ if casus_pad.is_file() and not a.begrip:
     a.uitsplitsing = [uitsplitsing["kolom"], *a.uitsplitsing]
     a.drempel, a.drempel_cel = casus["drempels"]["groep"], casus["drempels"]["cel"]
     keuzes.update(vraag=vraag_letter, uitsplitsing=",".join(namen))
+    if mijn:
+        mijn["keuzes"].update(vraag=vraag_letter, vergelijken=",".join(namen))
+        Path(a.keuzes).write_text(json.dumps(mijn, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     begrip = {
         **casus["begrip"],
         "jouw_aanpak": f"{vraag['vraag']} Uitgesplitst naar {label}.",

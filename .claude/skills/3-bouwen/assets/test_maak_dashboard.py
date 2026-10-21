@@ -6,6 +6,7 @@ Ze rekenen de uitkomsten op de demodata onafhankelijk na en controleren dat deze
 hetzelfde dashboard geven.
 """
 
+import json
 import re
 import subprocess
 import sys
@@ -148,3 +149,23 @@ def test_een_eigen_titel_blijft_staan_na_een_aanpassing(tmp_path: Path) -> None:
     maak(tmp_path, "data/demodata_1cho.csv", "--vraag", "A", "--titel", "Uitval eerstejaars")
     _, pagina = maak(tmp_path, "--vanaf", str(tmp_path / "dashboard.html"), "--volgorde", "jaar")
     assert "<h1>Uitval eerstejaars</h1>" in pagina and "Welk deel van de eerstejaars stopt" in pagina
+
+
+def test_uit_de_keuzes_of_uit_de_schets_geeft_hetzelfde_dashboard(tmp_path: Path) -> None:
+    """mijn-keuzes.json is de waarheid; de schets schrijft terug wat hij laat zien, dus beide routes zijn gelijk."""
+    keuzes = {"csv": DATA.as_posix(), "keuzes": {"doelgroep": "A", "vraag": "C", "vergelijken": "sector,geslacht",
+                                                 "filter": "vestiging,geslacht", "bovenaan": "jaar", "titel": "Mijn titel"},
+              "gezien": [], "wensen": []}
+    (tmp_path / "mijn-keuzes.json").write_text(json.dumps(keuzes), encoding="utf-8")
+    schets = subprocess.run([sys.executable, str(SCRIPT.parents[2] / "2-schetsen/assets/maak_schets.py")],
+                            capture_output=True, text=True, cwd=tmp_path)
+    assert schets.returncode == 0 and "Let op: geslacht is al een vergelijking" in schets.stdout, schets.stderr
+    pagina = {}
+    for bron in ("mijn-keuzes.json", "schets.html"):
+        uit = tmp_path / f"uit-{bron}.html"
+        r = subprocess.run([sys.executable, str(SCRIPT), "--vanaf", str(tmp_path / bron), "--uit", str(uit)],
+                           capture_output=True, text=True, cwd=REPO)
+        assert r.returncode == 0, r.stderr
+        pagina[bron] = re.sub(r'<meta name="keuzes" content="[^"]*">', "", uit.read_text(encoding="utf-8"))
+    assert pagina["mijn-keuzes.json"] == pagina["schets.html"]
+    assert "<h1>Mijn titel</h1>" in pagina["schets.html"] and 'value="vooropleiding"' in pagina["schets.html"]

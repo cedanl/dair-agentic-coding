@@ -76,9 +76,30 @@ def toon_aanpassingen(keuzes: dict, casus: dict, vraag: dict) -> None:
         print("Geen nieuwe vaste aanpassingen meer: alles is al eens getoond.")
 
 
+def lees_mijn_keuzes(pad: Path) -> dict | None:
+    """mijn-keuzes.json is de waarheid; zonder dat bestand nemen we de keuzes over uit het profiel (of --vanaf)."""
+    if not pad.is_file():
+        return None
+    mijn = json.loads(pad.read_text(encoding="utf-8"))
+    k = mijn["keuzes"]
+    return {"csv": mijn["csv"], "vraag": k["vraag"], "uitsplitsing": k["vergelijken"], "filter": k.get("filter"),
+            "volgorde": k.get("bovenaan"), "titel": k.get("titel", ""), "gezien": mijn.get("gezien", [])}
+
+
+def schrijf_mijn_keuzes(pad: Path, keuzes: dict) -> None:
+    """Schrijft terug wat de schets echt laat zien, zodat schets en mijn-keuzes.json altijd gelijk zijn."""
+    mijn = json.loads(pad.read_text(encoding="utf-8"))
+    mijn["keuzes"].update(vergelijken=keuzes["uitsplitsing"], filter=keuzes["filter"], bovenaan=keuzes["volgorde"],
+                          titel=keuzes["titel"])
+    mijn["gezien"] = keuzes["gezien"]
+    pad.write_text(json.dumps(mijn, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Maakt schets.html uit de keuzes in data-profiel.html.")
-    parser.add_argument("--vanaf", type=Path, default=Path("data-profiel.html"))
+    parser = argparse.ArgumentParser(description="Maakt schets.html uit mijn-keuzes.json (of uit data-profiel.html).")
+    parser.add_argument("--keuzes", type=Path, default=Path("mijn-keuzes.json"),
+                        help="het bestand met de keuzes; de schets schrijft hier terug wat hij laat zien")
+    parser.add_argument("--vanaf", type=Path, default=Path("data-profiel.html"), help="alleen als er geen --keuzes is")
     parser.add_argument("--uitsplitsing", help="vergelijkingen, bijvoorbeeld sector of sector,opleiding")
     parser.add_argument("--filter", help="bijvoorbeeld vestiging, geslacht, vestiging,geslacht of geen")
     parser.add_argument("--volgorde", choices=["groep", "jaar"], help="welke view bovenaan staat")
@@ -86,7 +107,7 @@ def main() -> None:
     parser.add_argument("--uit", type=Path, default=Path("schets.html"))
     args = parser.parse_args()
 
-    keuzes = lees_keuzes(args.vanaf)
+    keuzes = lees_mijn_keuzes(args.keuzes) or lees_keuzes(args.vanaf)
     casus = json.loads(Path(keuzes["csv"]).with_suffix(".casus.json").read_text(encoding="utf-8"))
     vraag = casus["vragen"][keuzes["vraag"]]
     namen = list(dict.fromkeys(n.strip() for n in (args.uitsplitsing or keuzes["uitsplitsing"]).split(",") if n.strip()))
@@ -157,6 +178,8 @@ def main() -> None:
         keuzes_tabel="".join(f"<tr><td>{e(a)}</td><td>{e(b)}</td></tr>" for a, b in rijen),
         niet="".join(f"<li>{e(n)}</li>" for n in niet),
     ), encoding="utf-8")
+    if args.keuzes.is_file():
+        schrijf_mijn_keuzes(args.keuzes, keuzes)
     print(f"Geschreven: {args.uit}")
     print(f"Titel: {titel or vraag['vraag']}  View 1: {views[0][0]}  View 2: {views[1][0]}  "
           f"Vergelijken: {vergelijken}  Filter: {filter_label}")

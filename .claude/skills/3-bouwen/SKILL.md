@@ -50,7 +50,9 @@ vast met `python3 scripts/keuzes.py` (zonder het te noemen): het komt in `mijn-k
 skill leest het. Sorteer na elk antwoord wat je hoort:
 
 1. **Antwoord op deze vraag:** `python3 scripts/keuzes.py zet <sleutel> "<label>"`. Sleutels: `doelgroep`,
-   `vraag`, `vergelijken`, `filter` en `bovenaan`.
+   `vraag`, `vergelijken`, `filter`, `bovenaan` en `titel`; een label of een code mag allebei. `mijn-keuzes.json`
+   is de waarheid: het profiel, de schets en het dashboard lezen hun keuzes daar en schrijven terug wat ze
+   echt deden. Lees na het draaien van een script dus opnieuw met `keuzes.py toon` wat er nu staat.
 2. **Antwoord op een latere vraag** (zoals een filter of wat bovenaan moet, al bij de eerste vraag): leg het ook
    vast met `zet`. Stel die vraag later wel, maar met die optie eerst en *(jouw keuze)* in plaats van
    *(Aanbevolen)*, zodat de gebruiker alleen hoeft te bevestigen.
@@ -85,12 +87,15 @@ Zeg in twee zinnen: *"Ik bouw je dashboard precies zoals je schets: dezelfde ver
 Wil je straks iets anders zien, dan pas je de schets aan met `/2-schetsen`."* Draai dan:
 
 ```bash
-uv run --no-project --with polars==1.44.2 python .claude/skills/3-bouwen/assets/maak_dashboard.py --vanaf schets.html
+uv run --no-project --with polars==1.44.2 python .claude/skills/3-bouwen/assets/maak_dashboard.py
 python3 .claude/skills/1-verkennen/assets/toon.py dashboard.html
 ```
 
 Het eerste commando drukt af wat het dashboard laat zien (hoogst, laagst, over de jaren). Het tweede drukt de
-link af. De regels onder *Aanpassen* gebruik je in deze skill niet: veranderen doe je in de schets.
+link af. De regels onder *Aanpassen* gebruik je in deze skill niet: veranderen doe je in de schets. Het script bouwt uit
+`mijn-keuzes.json` en controleert eerst of de schets precies hetzelfde zegt. Zegt het *"je schets en je keuzes
+zijn niet meer gelijk"*, leg dan uit dat de schets eerst bijgewerkt moet worden, zodat je dashboard precies
+wordt wat je in de schets ziet, en vraag de gebruiker `/2-schetsen` te typen.
 
 ## 2. Laten zien
 
@@ -131,7 +136,7 @@ typt de gebruiker via *Other*. Meer vragen stel je in deze skill niet.
      dashboard.html`) en zeg je eerlijk: *"Bouw je het later opnieuw, dan zit deze wijziging er niet in."*
      Vraag daarna nog één keer **Is het zo goed?** (*Ja, het is goed* of *Nog een kleine wens*).
   4. Bij *Niet goed* draai je `uv run --no-project --with polars==1.44.2 python
-     .claude/skills/3-bouwen/assets/maak_dashboard.py --vanaf schets.html` om het dashboard te herstellen, en zeg
+     .claude/skills/3-bouwen/assets/maak_dashboard.py` om het dashboard te herstellen, en zeg
      je dat deze wens net te veel raakt. Probeer het niet een tweede keer.
 - **Groot: een nieuwe maat, een ander soort grafiek, andere data, een voorspelling of een oorzaak.** Zeg in
   twee zinnen waarom het een mooi idee is en dat het een vervolgstap is voor na de workshop, noteer het als wens

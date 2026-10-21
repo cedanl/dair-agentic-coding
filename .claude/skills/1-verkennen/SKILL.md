@@ -47,7 +47,9 @@ vast met `python3 scripts/keuzes.py` (zonder het te noemen): het komt in `mijn-k
 skill leest het. Sorteer na elk antwoord wat je hoort:
 
 1. **Antwoord op deze vraag:** `python3 scripts/keuzes.py zet <sleutel> "<label>"`. Sleutels: `doelgroep`,
-   `vraag`, `vergelijken`, `filter` en `bovenaan`.
+   `vraag`, `vergelijken`, `filter`, `bovenaan` en `titel`; een label of een code mag allebei. `mijn-keuzes.json`
+   is de waarheid: het profiel, de schets en het dashboard lezen hun keuzes daar en schrijven terug wat ze
+   echt deden. Lees na het draaien van een script dus opnieuw met `keuzes.py toon` wat er nu staat.
 2. **Antwoord op een latere vraag** (zoals een filter of wat bovenaan moet, al bij de eerste vraag): leg het ook
    vast met `zet`. Stel die vraag later wel, maar met die optie eerst en *(jouw keuze)* in plaats van
    *(Aanbevolen)*, zodat de gebruiker alleen hoeft te bevestigen.
@@ -114,13 +116,12 @@ kan. Is de AskUserQuestion-tool niet beschikbaar, stel de vraag dan in het gespr
 Draai eerst, zonder het te noemen: `uv run scripts/vragenteller.py fase 1`. De drie vragen hierboven horen bij
 fase 0 en tellen niet mee voor de rondes.
 
-Draai de vier stappen als **vier losse commando's**, vanuit de hoofdmap, met de gekozen letter en
-uitsplitsing (zoals `A` en `sector`; bij meer keuzes met komma's en zonder spaties, de eerste keuze vooraan:
-`sector,opleiding`). Zet vóór elk commando één zin in de ik-vorm over wat je gaat doen, en
+Draai de vier stappen als **vier losse commando's**, vanuit de hoofdmap. Het script haalt de vraag en de
+vergelijkingen zelf uit `mijn-keuzes.json` en zet de vergelijking die bij de vraag hoort er vooraan bij. Zet vóór elk commando één zin in de ik-vorm over wat je gaat doen, en
 na elk commando één of twee zinnen over wat je zag, in je eigen woorden, op basis van de afgedrukte regels:
 
 ```bash
-uv run --no-project --with duckdb==1.5.6 python .claude/skills/1-verkennen/assets/verken.py data/demodata_1cho.csv --vraag A --uitsplitsing sector --stap 1
+uv run --no-project --with duckdb==1.5.6 python .claude/skills/1-verkennen/assets/verken.py data/demodata_1cho.csv --stap 1
 ```
 
 Daarna hetzelfde met `--stap 2`, `--stap 3` en `--stap 4`. Stap 4 schrijft ook het profiel.

@@ -47,7 +47,9 @@ vast met `python3 scripts/keuzes.py` (zonder het te noemen): het komt in `mijn-k
 skill leest het. Sorteer na elk antwoord wat je hoort:
 
 1. **Antwoord op deze vraag:** `python3 scripts/keuzes.py zet <sleutel> "<label>"`. Sleutels: `doelgroep`,
-   `vraag`, `vergelijken`, `filter` en `bovenaan`.
+   `vraag`, `vergelijken`, `filter`, `bovenaan` en `titel`; een label of een code mag allebei. `mijn-keuzes.json`
+   is de waarheid: het profiel, de schets en het dashboard lezen hun keuzes daar en schrijven terug wat ze
+   echt deden. Lees na het draaien van een script dus opnieuw met `keuzes.py toon` wat er nu staat.
 2. **Antwoord op een latere vraag** (zoals een filter of wat bovenaan moet, al bij de eerste vraag): leg het ook
    vast met `zet`. Stel die vraag later wel, maar met die optie eerst en *(jouw keuze)* in plaats van
    *(Aanbevolen)*, zodat de gebruiker alleen hoeft te bevestigen.
@@ -71,10 +73,17 @@ Staat `data-profiel.html` niet in de hoofdmap, zeg dan: *"Typ eerst `/1-verkenne
 
 **Start.** Draai daarna, zonder het te noemen: `uv run scripts/vragenteller.py fase 2`.
 
+**Is er al een schets?** Staat `schets.html` al in de hoofdmap (de gebruiker komt terug, bijvoorbeeld vanuit
+`/3-bouwen`), stel dan de vragen uit *Eén vraagronde* **niet** opnieuw. Zeg: *"Je schets van net staat er
+nog, met je keuzes en je titel. Ik zet hem opnieuw klaar."* Draai `python3
+.claude/skills/2-schetsen/assets/maak_schets.py` zonder extra's (hij tekent precies wat in `mijn-keuzes.json`
+staat), pas daarna de open wensen voor `2-schetsen` één voor één toe met de vaste aanpassingen uit *Schets
+aanpassen*, en ga verder bij *Laten zien*.
+
 ## 1. Eén vraagronde
 
-Lees de keuzes uit de regel `<meta name="keuzes" ...>` bovenaan `data-profiel.html` (de vraag en de
-uitsplitsing) en de `filters` en `uitsplitsingen` uit het casusbestand naast de data. Zeg in één zin wat je
+Lees de keuzes met `python3 scripts/keuzes.py toon` (de vraag en de vergelijkingen) en de `filters` en
+`uitsplitsingen` uit het casusbestand naast de data. Zeg in één zin wat je
 meeneemt (*"Je wilt weten welk deel van de eerstejaars stopt, per sector. Ik zet twee grafieken op papier."*)
 en stel dan twee vragen met de AskUserQuestion-tool, **elk in een eigen aanroep**: eerst de
 eerste, en pas na het antwoord de tweede.
@@ -86,7 +95,7 @@ eerste, en pas na het antwoord de tweede.
 2. **Wat wil je bovenaan zien?** Opties: *De vergelijking tussen groepen* (aanbevolen) en *De ontwikkeling over
    de jaren*.
 
-Leg de antwoorden vast als `filter` en `bovenaan`.
+Het schetsscript hieronder legt de antwoorden zelf vast in `mijn-keuzes.json`.
 
 Typt de gebruiker iets eigens, herhaal dan in één zin wat je hoort en kies de optie die er het dichtst bij
 ligt (*"Je wilt per stad kunnen kijken: dat is het filter op vestiging."*). Past geen optie, zoals een ander
@@ -135,9 +144,9 @@ de **laatste** uitvoer na *Aanpassen* (het deel vóór `=>` als label, de eerste
 schets is goed*. Een eigen wens typt de gebruiker via *Other*.
 
 - **Een vaste aanpassing:** zeg in één zin wat je verandert, draai `python3
-  .claude/skills/2-schetsen/assets/maak_schets.py --vanaf schets.html` met het deel na `=>` erachter, en daarna
-  opnieuw `toon.py schets.html`. Leg het vast met `zet` (`vergelijken`, `filter` of `bovenaan`).
-- **Een andere titel:** draai `maak_schets.py --vanaf schets.html --titel "<titel>"` (met `--titel standaard`
+  .claude/skills/2-schetsen/assets/maak_schets.py` met het deel na `=>` erachter, en daarna
+  opnieuw `toon.py schets.html`. Het script past de schets én `mijn-keuzes.json` aan.
+- **Een andere titel:** draai `maak_schets.py --titel "<titel>"` (met `--titel standaard`
   komt de vraag terug als titel). De titel blijft ook in het dashboard staan.
 - **Een andere wens:** kies de vaste aanpassing die er het dichtst bij ligt en zeg welke. Kan de schets het niet
   (een ander soort grafiek, een kaart, een voorspelling), zeg dat in twee zinnen en noteer het als wens voor

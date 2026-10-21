@@ -57,10 +57,31 @@ def lees_keuzes(pad: Path) -> dict:
     return json.loads(html.unescape(gevonden.group(1)))
 
 
+def lees_mijn_keuzes(pad: Path) -> dict:
+    """mijn-keuzes.json is de waarheid. De schets moet precies hetzelfde zeggen, anders bouwen we niet."""
+    mijn = json.loads(pad.read_text(encoding="utf-8"))
+    k = mijn["keuzes"]
+    keuzes = {"csv": mijn["csv"], "vraag": k.get("vraag"), "uitsplitsing": k.get("vergelijken"),
+              "filter": k.get("filter"), "volgorde": k.get("bovenaan"), "titel": k.get("titel", "")}
+    schets = pad.with_name("schets.html")
+    if schets.is_file():
+        getekend = lees_keuzes(schets)
+        anders = [veld for veld in ("vraag", "uitsplitsing", "filter", "volgorde", "titel")
+                  if (getekend.get(veld) or "") != (keuzes.get(veld) or "")]
+        if anders:
+            raise Melding(f"je schets en je keuzes zijn niet meer gelijk ({', '.join(anders)}). "
+                          "Typ /2-schetsen om de schets bij te werken, dan bouw ik daarna precies die schets.")
+    return keuzes
+
+
 def bepaal_keuzes(args: argparse.Namespace) -> dict:
     keuzes: dict = {}
-    vanaf = args.vanaf or (Path("schets.html") if not args.csv and Path("schets.html").is_file() else None)
-    if vanaf:
+    mijn = Path("mijn-keuzes.json")
+    vanaf = args.vanaf or (mijn if not args.csv and mijn.is_file() else
+                           Path("schets.html") if not args.csv and Path("schets.html").is_file() else None)
+    if vanaf and Path(vanaf).suffix == ".json":
+        keuzes = lees_mijn_keuzes(Path(vanaf))
+    elif vanaf:
         keuzes = lees_keuzes(Path(vanaf))
     for naam in ("csv", "vraag", "uitsplitsing", "filter", "volgorde", "titel"):
         if getattr(args, naam):
@@ -462,7 +483,7 @@ def maak_html(data: pl.DataFrame, csv: Path, ins: dict) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Maakt het dashboard als één HTML-bestand.")
     parser.add_argument("csv", nargs="?", type=Path, help="pad naar het databestand")
-    parser.add_argument("--vanaf", type=Path, help="neem de keuzes over uit schets.html")
+    parser.add_argument("--vanaf", type=Path, help="neem de keuzes over uit mijn-keuzes.json (standaard), schets.html of dashboard.html")
     parser.add_argument("--vraag", help="A, B of C uit het casusbestand")
     parser.add_argument("--uitsplitsing", help="bijvoorbeeld sector")
     parser.add_argument("--filter", help="bijvoorbeeld vestiging, of geen")
