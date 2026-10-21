@@ -99,7 +99,8 @@ wordt wat je in de schets ziet, en vraag de gebruiker `/2-schetsen` te typen.
 
 ## 2. Laten zien
 
-Geef de link meteen, met deze opbouw in je eigen woorden:
+Geef de link meteen, met deze opbouw. De regel `### 👉 [Open je dashboard](<link>)` neem je **letterlijk** over,
+met de link uit `toon.py`; de rest mag in je eigen woorden:
 
 > **Je dashboard staat klaar.** Klik op de link om het te openen:
 >
@@ -112,6 +113,10 @@ Geef de link meteen, met deze opbouw in je eigen woorden:
 > verdwijnen vanzelf: zo beschermt het dashboard de privacy.
 
 ## 3. Eén vraag
+
+**Eerst de link, dan de vraag.** Stel de vraag pas als de regel `### 👉 [Open je dashboard](<link>)` in je bericht
+vlak boven de vraag staat. Zonder die regel geen vraag. Zet de link nooit in de vraagtekst: daar is hij niet aan
+te klikken.
 
 Vraag met de AskUserQuestion-tool: **Klopt je dashboard?** Opties: *Ja, het is goed* (aanbevolen), open
 wensen voor `3-bouwen` over tekst of kleur met *(jouw wens)*, en *Ik wil iets anders zien*. Een kleine wens
@@ -133,7 +138,7 @@ ook een wens die de gebruiker eerder al noemde: ga nooit zonder antwoord door na
   2. Laat elk getal, elk percentage, elke verborgen groep, het filter, het label *Dit is demodata* en de
      privacyuitleg staan zoals ze zijn, en voeg geen getallen of scripts toe.
   3. Draai `uv run --no-project --with polars==1.44.2 python .claude/skills/3-bouwen/assets/maak_dashboard.py
-     --vanaf dashboard.html --controleer`. Bij *Goed* zeg je *"Gedaan: …"*, geef je opnieuw de link (`toon.py
+     --vanaf dashboard.html --controleer`. Bij *Goed* zeg je *"Gedaan: …"*, geef je opnieuw de regel `### 👉 [Open je dashboard](<link>)` (link uit `toon.py
      dashboard.html`) en zeg je eerlijk: *"Bouw je het later opnieuw, dan zit deze wijziging er niet in."*
      Vraag daarna nog één keer **Is het zo goed?** (*Ja, het is goed* of *Nog een kleine wens*).
   4. Bij *Niet goed* draai je `uv run --no-project --with polars==1.44.2 python
