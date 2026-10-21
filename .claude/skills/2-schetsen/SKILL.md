@@ -94,8 +94,7 @@ eerste, en pas na het antwoord de tweede.
    via *Other*, gebruik hem dan gewoon. Zeg er bij veel waarden bij dat het keuzemenu lang wordt. Zet
    `multiSelect` aan: hooguit twee filters samen. Zet in de vraag: *"Kies er één of twee en klik dan op Submit.
    Geen filter of een ander filter? Typ het bij Other."* Kiest de gebruiker meer dan twee, vraag dan in één zin
-   welke twee. Het filter op instroomjaar geldt voor de kerncijfers en de groepen; de lijn over de jaren laat
-   altijd alle jaren zien.
+   welke twee. Instroomjaar wordt een schuif waarmee je een reeks jaren kiest; die geldt voor de kerncijfers en de groepen; de lijn over de jaren laat altijd alle jaren zien, met de gekozen jaren gemarkeerd.
 2. **Wat wil je bovenaan zien?** Opties: *De vergelijking tussen groepen* (aanbevolen) en *De ontwikkeling over
    de jaren*.
 

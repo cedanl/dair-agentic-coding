@@ -37,6 +37,7 @@ from berekeningen import bereken_eerstejaars, pas_drempels_toe, tel
 HIER = Path(__file__).resolve().parent
 e = html.escape
 MAX_VERGELIJKINGEN, MAX_FILTERS = 3, 2
+MAX_BLOKKEN, MAX_GROOTTE = 1500, 5_000_000  # daarboven wordt de schuif voor instroomjaren één jaar of alle jaren
 MAANDEN = ["januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september",
            "oktober", "november", "december"]
 
@@ -249,8 +250,7 @@ def toon_lijn(rijen: list[dict], ins: dict, groepsets: list[tuple[str | None, di
     Eén set per vergelijking: de wisselknop toont alleen de lijnen en vinkjes van de gekozen vergelijking.
     """
     perioden = [r["periode"] for r in rijen]
-    groepsets = [(naam, {g: reeks for g, reeks in groepen.items() if any(not r["verborgen"] for r in reeks)})
-                 for naam, groepen in groepsets or []]
+    groepsets = groepsets or []
     if ins.get("schets"):  # echte jaren, een vlakke lijn: de vorm komt pas met de getallen
         rijen = [{**r, "waarde": 0.5} for r in rijen]
     zichtbaar = [r for r in rijen if not r["verborgen"]]
@@ -285,10 +285,16 @@ def toon_lijn(rijen: list[dict], ins: dict, groepsets: list[tuple[str | None, di
     groepslijnen, keuzes = "", ""
     for naam, groepen in groepsets:
         wissel = f' data-uitsplitsing="{e(naam)}"' if naam else ""
-        grootste = sorted(groepen, key=lambda g: -sum(r["noemer"] for r in groepen[g]))[:2]
+        # Een groep die in geen enkel jaar groot genoeg is, staat grijs in de lijst, zodat je ziet waarom er geen lijn is
+        te_klein = {g for g, reeks in groepen.items() if all(r["verborgen"] for r in reeks)}
+        grootste = sorted(set(groepen) - te_klein, key=lambda g: -sum(r["noemer"] for r in groepen[g]))[:2]
         vinkjes = ""
-        for i, (groep, reeks) in enumerate(sorted(groepen.items())):
+        for i, (groep, reeks) in enumerate(sorted(groepen.items(), key=lambda gr: (gr[0] in te_klein, gr[0]))):
             lijn = f"{naam or 'groep'}-{i}"
+            if groep in te_klein:
+                vinkjes += (f'<label class="npuls-te-weinig"><input type="checkbox" disabled> {e(maak_label(groep))} '
+                            f"<small>te weinig {ins['eenheid']} per jaar</small></label>")
+                continue
             kleur = f' data-kleur="{grootste.index(groep) + 1}"' if groep in grootste and not ins.get("schets") else ""
             waarden = ", ".join(f"{r['periode']}: {'–' if r['verborgen'] else maak_procent(r['waarde'])}" for r in reeks)
             if not ins.get("schets"):
@@ -385,7 +391,17 @@ def toon_view(view: dict, eerstejaars: pl.DataFrame, ins: dict, wissel: str = ""
 
 
 def kies_instroom(eerstejaars: pl.DataFrame, instroom: str | None) -> pl.DataFrame:
-    return eerstejaars if instroom is None else eerstejaars.filter(pl.col("periode") == int(instroom))
+    """instroom is "2014-2019" (van en tot en met), of None voor alle jaren."""
+    if instroom is None:
+        return eerstejaars
+    van, tot = (int(j) for j in instroom.split("-"))
+    return eerstejaars.filter(pl.col("periode").is_between(van, tot))
+
+
+def maak_jaren(instroom: str) -> tuple[str, str]:
+    """De tekst voor de tegel en de uitleg: "2016" en "instroomjaar 2016", of "2014–2019" en "instroomjaren 2014–2019"."""
+    van, tot = instroom.split("-")
+    return (van, f"instroomjaar {van}") if van == tot else (f"{van}–{tot}", f"instroomjaren {van}–{tot}")
 
 
 def toon_blok(data: pl.DataFrame, ins: dict, instroom: str | None = None, lijn_van: str | None = None) -> str:
@@ -410,14 +426,16 @@ def toon_blok(data: pl.DataFrame, ins: dict, instroom: str | None = None, lijn_v
               f"<span>{e(ins['vraag']['kerncijfer'])}</span></div>"
               f'<div class="npuls-tegel"><strong>{"?" if ins.get("schets") else maak_getal(noemer)}</strong>'
               "<span>Eerstejaars die meetellen</span></div>"
-              + (f'<div class="npuls-tegel"><strong>{instroom}</strong><span>Instroomjaar</span></div>' if instroom else
+              + (f'<div class="npuls-tegel"><strong>{maak_jaren(instroom)[0]}</strong>'
+                 f'<span>{"Instroomjaar" if "–" not in maak_jaren(instroom)[0] else "Instroomjaren"}</span></div>' if instroom else
                  f'<div class="npuls-tegel"><strong>{perioden[0]}–{perioden[-1]}</strong><span>Instroomjaren</span></div>'))
     groep_views, jaar_view = ins["groep_views"], ins["jaar_view"]
     if instroom:
-        groep_views = {n: {**v, "uitleg": re.sub(r"alle (meetellende )?instroomjaren samen", f"instroomjaar {instroom}",
+        groep_views = {n: {**v, "uitleg": re.sub(r"alle (meetellende )?instroomjaren samen", maak_jaren(instroom)[1],
                                                   v["uitleg"])} for n, v in groep_views.items()}
     if any(f.get("alleen_filter") for f in ins["filters"]):
-        jaar_view = {**jaar_view, "uitleg": jaar_view["uitleg"] + " Het filter op instroomjaar geldt hier niet: je ziet alle jaren."}
+        jaar_view = {**jaar_view, "uitleg": jaar_view["uitleg"] + " Je ziet altijd alle jaren; de gekozen instroomjaren "
+                                                                  "zijn gemarkeerd."}
     views = ""
     for soort in ins["views"]:
         if soort == "jaar" and lijn_van:
@@ -540,15 +558,32 @@ def maak_keuzelijst(id_: str, label: str, opties: list[tuple[str, str]], rol: st
 
 
 def maak_html(data: pl.DataFrame, csv: Path, ins: dict, meta: dict | None = None) -> str:
+    """Maakt de pagina; wordt hij met de schuif voor instroomjaren te groot, dan opnieuw met één jaar of alle jaren."""
+    pagina = maak_pagina(data, csv, ins, meta)
+    if len(pagina.encode("utf-8")) > MAX_GROOTTE and not ins.get("geen_schuif"):
+        ins.setdefault("let_op", []).append(
+            "Met dit tweede filter werd het dashboard te groot voor een schuif; bij instroomjaar kies je één jaar of alle jaren.")
+        pagina = maak_pagina(data, csv, {**ins, "geen_schuif": True}, meta)
+    return pagina
+
+
+def maak_pagina(data: pl.DataFrame, csv: Path, ins: dict, meta: dict | None = None) -> str:
     """Eén blok per combinatie van filterwaarden, vooraf berekend; de keuzelijsten tonen alleen het gekozen blok.
 
     Met ins["schets"] dezelfde pagina zonder getallen: één blok voor alle data en filters die je nog niet kunt kiezen.
     """
     schets = ins.get("schets", False)
-    # Instroomjaar kent alleen de jaren die meetellen; de andere filters alle waarden in de kolom
-    instroomjaren = [str(p) for p in bereken_eerstejaars(data, ins)["periode"].unique().sort().to_list()]
-    waarden_per_filter = [["alle", *(instroomjaren if f.get("alleen_filter") else
-                                     sorted(w for w in data[f["kolom"]].unique().to_list() if w is not None))]
+    # Instroomjaar kent alleen de jaren die meetellen, als interval ("2014-2019") met een schuif. Wordt dat te veel
+    # (veel waarden in een tweede filter), dan kies je één jaar of alle jaren.
+    jaren = [str(p) for p in bereken_eerstejaars(data, ins)["periode"].unique().sort().to_list()]
+    intervallen = [f"{a}-{b}" for i, a in enumerate(jaren) for b in jaren[i:] if (a, b) != (jaren[0], jaren[-1])]
+    andere = math.prod(data[f["kolom"]].n_unique() + 1 for f in ins["filters"] if not f.get("alleen_filter"))
+    schuif = not ins.get("geen_schuif") and (len(intervallen) + 1) * andere <= MAX_BLOKKEN
+    if not schuif and len(intervallen) > len(jaren) and not ins.get("geen_schuif") and not schets:
+        ins.setdefault("let_op", []).append(
+            "Met dit tweede filter worden het te veel combinaties voor een schuif; bij instroomjaar kies je één jaar of alle jaren.")
+    waarden_per_filter = [["alle", *((intervallen if schuif else [f"{j}-{j}" for j in jaren]) if f.get("alleen_filter")
+                                     else sorted(w for w in data[f["kolom"]].unique().to_list() if w is not None))]
                           for f in ins["filters"]]
     blokken = []
     for combinatie in [tuple("alle" for _ in ins["filters"])] if schets else itertools.product(*waarden_per_filter):
@@ -559,7 +594,7 @@ def maak_html(data: pl.DataFrame, csv: Path, ins: dict, meta: dict | None = None
             elif w != "alle":
                 deel = deel.filter(pl.col(f["kolom"]) == w)
         sleutel = "|".join(combinatie) or "alle"
-        # De lijn hangt niet af van het instroomjaar: die staat alleen in het blok met instroomjaar "alle"
+        # De lijn hangt niet af van de instroomjaren: die staat alleen in het blok met instroomjaar "alle"
         lijn_van = "|".join("alle" if f.get("alleen_filter") else w
                             for f, w in zip(ins["filters"], combinatie, strict=True)) if instroom else None
         blokken.append(f'<div data-filter="{e(sleutel)}">{toon_blok(deel, ins, instroom, lijn_van)}</div>')
@@ -567,9 +602,23 @@ def maak_html(data: pl.DataFrame, csv: Path, ins: dict, meta: dict | None = None
     if len(ins["uitsplitsingen"]) > 1:
         keuzelijsten.append(maak_keuzelijst("uitsplitsing", "Vergelijk per", [
             (n, maak_label(u["label"])) for n, u in ins["uitsplitsingen"]], "data-wissel"))
+    uit = " disabled" if schets else ""
     for i, (f, waarden) in enumerate(zip(ins["filters"], waarden_per_filter, strict=True)):
-        keuzelijsten.append(maak_keuzelijst("filter" if i == 0 else f"filter{i + 1}", maak_label(f["label"]), [
-            (w, "Alles" if w == "alle" else maak_label(w)) for w in waarden], "data-filterkeuze" + (" disabled" if schets else "")))
+        id_ = "filter" if i == 0 else f"filter{i + 1}"
+        if f.get("alleen_filter") and schuif:
+            keuzelijsten.append(
+                f'<div class="npuls-schuif" data-filterkeuze data-instroom data-waarde="alle" data-jaren="{",".join(jaren)}">'
+                f'<span class="npuls-schuif-kop">Instroomjaren <output>{jaren[0]}–{jaren[-1]}</output></span>'
+                f'<label>van <input type="range" min="0" max="{len(jaren) - 1}" value="0" data-rol="van"{uit}></label>'
+                f'<label>tot en met <input type="range" min="0" max="{len(jaren) - 1}" value="{len(jaren) - 1}" '
+                f'data-rol="tot"{uit}></label></div>')
+        elif f.get("alleen_filter"):
+            keuzelijsten.append(maak_keuzelijst(id_, maak_label(f["label"]), [
+                (w, "Alles" if w == "alle" else w.split("-")[0]) for w in waarden],
+                f'data-filterkeuze data-instroom data-jaren="{",".join(jaren)}"{uit}'))
+        else:
+            keuzelijsten.append(maak_keuzelijst(id_, maak_label(f["label"]), [
+                (w, "Alles" if w == "alle" else maak_label(w)) for w in waarden], "data-filterkeuze" + uit))
     filter_html = "".join(keuzelijsten)
     vandaag = datetime.date.today()
     personen = data[ins["k"]["persoon"]].n_unique()
@@ -630,6 +679,8 @@ def main() -> None:
     shutil.copyfile(HIER / "berekeningen.py", args.uit.with_name("dashboard-berekeningen.py"))
     print(f"Klaar in {time.perf_counter() - start:.1f} s: {args.uit} ({maak_getal(data.height)} rijen gelezen)")
     toon_uitkomst(data, ins)
+    for regel in ins.get("let_op", []):
+        print(f"Let op: {regel}")
     if args.uit.resolve() == Path("dashboard.html").resolve() and not os.environ.get("DAIR_GEEN_LINK"):
         sys.path.insert(0, str(HIER.parents[1] / "1-verkennen/assets"))
         import toon

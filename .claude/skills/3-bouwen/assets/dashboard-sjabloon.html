@@ -24,11 +24,13 @@ $blokken
 // Toont alleen het blok bij de gekozen filterwaarden, en bij meer vergelijkingen alleen de gekozen vergelijking.
 // Alle cijfers zijn vooraf berekend en door de privacydrempel gegaan: dit script rekent niets uit en leest geen data.
 (function () {
-  var filters = document.querySelectorAll("select[data-filterkeuze]");
+  var filters = document.querySelectorAll("[data-filterkeuze]");
   var wissel = document.querySelector("select[data-wissel]");
   var blokken = document.querySelectorAll("[data-filter]");
   function toon() {
-    var waarde = Array.prototype.map.call(filters, function (f) { return f.value; }).join("|") || "alle";
+    var waarde = Array.prototype.map.call(filters, function (f) {
+      return f.tagName === "SELECT" ? f.value : f.getAttribute("data-waarde");
+    }).join("|") || "alle";
     blokken.forEach(function (blok) {
       blok.hidden = blok.getAttribute("data-filter") !== waarde;
       // Een gekozen instroomjaar neemt de lijn over uit het blok zonder instroomjaar: die is voor elk jaar gelijk
@@ -39,6 +41,7 @@ $blokken
         });
       }
     });
+    markeer();
     // style.display werkt ook voor de lijnen in de SVG, waar hidden niet werkt
     if (wissel) {
       document.querySelectorAll("[data-uitsplitsing]").forEach(function (view) {
@@ -46,6 +49,39 @@ $blokken
       });
     }
   }
+  // De gekozen instroomjaren als band in de lijn, die altijd alle jaren laat zien
+  function markeer() {
+    var keuze = document.querySelector("[data-instroom]");
+    if (!keuze) { return; }
+    var jaren = keuze.getAttribute("data-jaren").split(",");
+    var waarde = keuze.tagName === "SELECT" ? keuze.value : keuze.getAttribute("data-waarde");
+    var stap = jaren.length > 1 ? 92 / (jaren.length - 1) : 0;
+    document.querySelectorAll(".npuls-lijn-vlak").forEach(function (vlak) {
+      var band = vlak.querySelector(".npuls-band");
+      if (!band) { band = document.createElement("div"); band.className = "npuls-band"; vlak.insertBefore(band, vlak.firstChild); }
+      band.hidden = waarde === "alle";
+      if (waarde === "alle") { return; }
+      var van = jaren.indexOf(waarde.split("-")[0]), tot = jaren.indexOf(waarde.split("-")[1]);
+      var links = Math.max(0, 4 + stap * van - stap / 2), rechts = Math.min(100, 4 + stap * tot + stap / 2);
+      band.style.left = links + "%";
+      band.style.width = (rechts - links) + "%";
+    });
+  }
+  // De schuif: twee handgrepen, van en tot en met; schuift de een voorbij de ander, dan schuift die mee
+  document.querySelectorAll(".npuls-schuif").forEach(function (schuif) {
+    var jaren = schuif.getAttribute("data-jaren").split(",");
+    var van = schuif.querySelector('[data-rol="van"]'), tot = schuif.querySelector('[data-rol="tot"]');
+    schuif.addEventListener("input", function (gebeurtenis) {
+      if (Number(van.value) > Number(tot.value)) {
+        if (gebeurtenis.target === van) { tot.value = van.value; } else { van.value = tot.value; }
+      }
+      var a = jaren[van.value], b = jaren[tot.value];
+      var alles = Number(van.value) === 0 && Number(tot.value) === jaren.length - 1;
+      schuif.setAttribute("data-waarde", alles ? "alle" : a + "-" + b);
+      schuif.querySelector("output").textContent = a === b ? a : a + "–" + b;
+      toon();
+    });
+  });
   filters.forEach(function (f) { f.addEventListener("change", toon); });
   if (wissel) { wissel.addEventListener("change", toon); }
   toon();
@@ -56,7 +92,7 @@ document.addEventListener("change", function (gebeurtenis) {
   if (!keuze) { return; }
   var max = Number(keuze.getAttribute("data-max"));
   var view = keuze.closest(".npuls-view");
-  var labels = keuze.querySelectorAll("label");
+  var labels = keuze.querySelectorAll("label:not(.npuls-te-weinig)");
   var bezet = [];
   labels.forEach(function (l) { if (l.querySelector("input").checked && l.dataset.kleur) { bezet.push(l.dataset.kleur); } });
   labels.forEach(function (l) {

@@ -108,7 +108,8 @@ uit de uitvoer; de rest mag in je eigen woorden:
 > <Eén zin over wat er bovenaan staat en één over de jaren, uit de afgedrukte regels, zonder oordeel.> Dit
 > is demodata: het laat zien wat het dashboard kan, niet hoe het echt zit.
 >
-> <Alleen als het dashboard filters of meer vergelijkingen heeft: "Probeer de keuzelijsten bovenaan."> Groepen met te weinig studenten
+> <Alleen als het dashboard filters of meer vergelijkingen heeft: "Probeer de keuzelijsten en de schuif bovenaan, en de vinkjes onder de lijn."> <Staat er een regel *Let op*
+> in de uitvoer, zeg die in je eigen woorden.> Groepen met te weinig studenten
 > verdwijnen vanzelf: zo beschermt het dashboard de privacy.
 
 ## 3. Eén vraag

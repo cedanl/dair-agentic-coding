@@ -65,6 +65,14 @@ h3 { font-size: 1rem; margin: 0 0 4px; }
   background: var(--npuls-wit); color: var(--npuls-zwart); max-width: 100%; cursor: pointer;
 }
 .npuls-balk select:focus-visible { outline: 3px solid var(--npuls-blauw); outline-offset: 2px; }
+/* Schuif voor instroomjaren: van en tot en met */
+.npuls-schuif { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; align-items: center; min-width: 260px; margin-left: auto; }
+.npuls-schuif-kop { grid-column: 1 / -1; font-weight: 600; }
+.npuls-schuif-kop output { font-weight: 700; color: var(--npuls-blauw); margin-left: 6px; }
+.npuls-balk .npuls-schuif label { display: contents; font-weight: 400; color: var(--npuls-grijs-tekst); font-size: 0.875rem; }
+.npuls-schuif input[type="range"] { width: 100%; accent-color: var(--npuls-blauw); }
+.npuls-schuif input:disabled { opacity: .6; cursor: not-allowed; }
+.npuls-band { position: absolute; top: 0; bottom: 0; background: var(--npuls-licht-blauw); border-radius: 6px; }
 
 
 /* Kerncijfers */
@@ -129,6 +137,8 @@ g.groep[data-kleur="3"] polyline { stroke: var(--npuls-zwart); stroke-dasharray:
 .npuls-lijnkeuze label[data-kleur="2"]::after { background: var(--npuls-groen); }
 .npuls-lijnkeuze label[data-kleur="3"]::after { background: var(--npuls-zwart); }
 .npuls-lijnkeuze input { accent-color: var(--npuls-blauw); width: 18px; height: 18px; margin: 0; }
+.npuls-lijnkeuze .npuls-te-weinig { color: var(--npuls-grijs-tekst); }
+.npuls-lijnkeuze .npuls-te-weinig small { font-style: italic; }
 .npuls-lijn-x { grid-column: 2; position: relative; height: 1.6em; color: var(--npuls-grijs-tekst); font-size: 0.8125rem; }
 .npuls-lijn-x span { position: absolute; top: 4px; transform: translateX(-50%); white-space: nowrap; }
 .npuls-lijn-x b { font-weight: 400; }

@@ -136,7 +136,7 @@ def test_dashboard_blijft_klein_bij_de_meeste_keuzes(tmp_path: Path) -> None:
     resultaat, pagina = maak(tmp_path, "data/demodata_1cho.csv", "--vraag", "B",
                              "--uitsplitsing", "opleiding,vooropleiding,sector", "--filter", "vestiging,geslacht")
     assert resultaat.returncode == 0, resultaat.stderr
-    assert len(pagina.encode("utf-8")) < 1_000_000
+    assert len(pagina.encode("utf-8")) < 5_000_000
 
 
 def test_de_kern_van_de_vraag_staat_er_altijd_bij(tmp_path: Path) -> None:
@@ -182,7 +182,7 @@ def test_filter_op_elke_kolom_blijft_klein_en_veilig(tmp_path: Path) -> None:
     resultaat, pagina = maak(tmp_path, "data/demodata_1cho.csv", "--vraag", "A", "--uitsplitsing", "sector,geslacht,vestiging",
                              "--filter", "opleiding,vooropleiding")
     assert resultaat.returncode == 0 and "Warning" not in resultaat.stderr, resultaat.stderr
-    assert len(pagina.encode("utf-8")) < 1_000_000
+    assert len(pagina.encode("utf-8")) < 5_000_000
     assert '<select id="filter2" data-filterkeuze>' in pagina
     assert all(int(n.replace(".", "")) >= 30 for n in re.findall(r"n&nbsp;=&nbsp;([0-9.]+)", pagina))
 
@@ -210,12 +210,25 @@ def test_filter_op_instroomjaar_rekent_eerst_en_laat_de_lijn_heel(tmp_path: Path
     volgend = set(zip(d["persoonsgebonden_nummer"], d["inschrijvingsjaar"].to_list(), strict=True))
     cohort = eerst.filter(pl.col("inschrijvingsjaar") == 2016).unique("persoonsgebonden_nummer")
     gestopt = sum((p, 2017) not in volgend for p in cohort["persoonsgebonden_nummer"])
-    blok = re.search(r'<div data-filter="2016">(.*?)(?=<div data-filter=)', pagina, re.S).group(1)
+    blok = re.search(r'<div data-filter="2016-2016">(.*?)(?=<div data-filter=)', pagina, re.S).group(1)
     assert f"<strong>{round(100 * gestopt / cohort.height)}%</strong>" in blok
     assert '<div data-lijn-van="alle"></div>' in blok  # de lijn staat er één keer in, in het blok zonder jaar
     # Lijnen per groep, met vinkjes; de twee grootste staan aan, en een groepslijn toont geen aantallen
     assert pagina.count('<g class="groep"') > 2 and pagina.count('<input type="checkbox" checked>') == 2
     assert not re.search(r"<title>[^<]*n = ", pagina)
-    assert 'value="2023"' not in pagina  # van het laatste jaar is stoppen nog niet te zeggen
+    assert '2023' not in re.search(r'data-jaren="([^"]*)"', pagina).group(1)  # stoppen is daar nog niet te zeggen
+    # Een interval van instroomjaren, met de schuif: dezelfde berekening over meer jaren
+    cohort = eerst.filter(pl.col("inschrijvingsjaar").is_between(2014, 2016)).unique("persoonsgebonden_nummer")
+    gestopt = sum((p, j + 1) not in volgend for p, j in zip(cohort["persoonsgebonden_nummer"], cohort["inschrijvingsjaar"]))
+    blok = re.search(r'<div data-filter="2014-2016">(.*?)(?=<div data-filter=)', pagina, re.S).group(1)
+    assert f"<strong>{round(100 * gestopt / cohort.height)}%</strong>" in blok and "2014–2016" in blok
     fout, _ = maak(tmp_path, "data/demodata_1cho.csv", "--vraag", "A", "--uitsplitsing", "instroomjaar")
     assert fout.returncode != 0 and "Onbekende uitsplitsing" in fout.stderr
+
+
+def test_te_veel_combinaties_geeft_een_jaar_of_alle_jaren(tmp_path: Path) -> None:
+    """Met een tweede filter met veel waarden past de schuif niet: dan kies je één jaar of alle jaren, en het script zegt het."""
+    resultaat, pagina = maak(tmp_path, "data/demodata_1cho.csv", "--vraag", "A", "--uitsplitsing", "sector",
+                             "--filter", "instroomjaar,opleiding")
+    assert resultaat.returncode == 0 and "Let op: Met dit tweede filter" in resultaat.stdout, resultaat.stderr
+    assert 'class="npuls-schuif"' not in pagina and 'value="2016-2016"' in pagina and 'data-filter="2014-2016' not in pagina
