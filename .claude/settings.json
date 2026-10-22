@@ -9,11 +9,29 @@
             "command": "uv run \"$CLAUDE_PROJECT_DIR/scripts/vragenteller.py\""
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run \"$CLAUDE_PROJECT_DIR/scripts/linkcheck.py\""
+          }
+        ]
       }
     ],
     "PreToolUse": [
       {
         "matcher": "AskUserQuestion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run \"$CLAUDE_PROJECT_DIR/scripts/linkcheck.py\""
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
         "hooks": [
           {
             "type": "command",

@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
-"""Houdt Claude tegen zolang de deelnemer de nieuwste link nog niet in het gesprek heeft gezien.
+"""Houdt Claude tegen zolang de deelnemer een link nog niet in het gesprek heeft gezien.
 
-De scripts drukken een linkregel af (`### 👉 [Open je schets](...)`, ook voor het dashboard en het dataprofiel),
-maar die uitvoer ziet de deelnemer niet: alleen Claude leest hem. Staat de nieuwste link nog niet in een bericht
-van Claude, dan weigert de PreToolUse-hook een keuzevraag, en laat de Stop-hook Claude niet stoppen, met de
-opdracht de regel eerst te tonen. Beide hooks staan in .claude/settings.json.
+De scripts drukken een linkregel af (`### 👉 [Open je schets](...)`, ook voor het dashboard, het dataprofiel en de
+review), maar die uitvoer ziet de deelnemer niet: alleen Claude leest hem. Dat geldt voor elke link, niet alleen de
+laatste. Staat een afgedrukte link nog niet in een bericht van Claude, dan weigert de PreToolUse-hook een
+keuzevraag, en laat de Stop-hook Claude niet stoppen, met de opdracht de regels eerst te tonen.
 
-Bij een keuzevraag over de schets of het dashboard moet de link bovendien in Claudes bericht vlak boven de
-vraag staan (na het laatste antwoord of de laatste uitvoer), ook als hij eerder al eens getoond is: anders is
+Bij een bash-commando werkt de hook ook: een link ín het commando (bijvoorbeeld met echo) weigert hij, want ook
+die ziet de deelnemer niet; en drukt een commando linkregels af, dan krijgt Claude meteen de opdracht ze allemaal
+in zijn volgende bericht te zetten, buiten elk commando. Alle hooks staan in .claude/settings.json.
+
+Bij een keuzevraag over de schets of het dashboard moet de nieuwste link bovendien in Claudes bericht vlak boven
+de vraag staan (na het laatste antwoord of de laatste uitvoer), ook als hij eerder al eens getoond is: anders is
 hij bij een tussenvraag al weggescrold.
 """
 import json
@@ -26,12 +30,56 @@ def teksten(inhoud) -> list[str]:
     return []
 
 
+def alle_tekst(inhoud) -> list[str]:
+    """Alle tekst in de uitvoer van een commando, hoe die ook genest is (stdout, stderr, blokken)."""
+    if isinstance(inhoud, str):
+        return [inhoud]
+    if isinstance(inhoud, dict):
+        inhoud = list(inhoud.values())
+    if isinstance(inhoud, list):
+        return [t for deel in inhoud for t in alle_tekst(deel)]
+    return []
+
+
+def linkregels(tekst: str) -> dict[str, str]:
+    """De linkregels in een tekst, per url, in volgorde."""
+    return {gevonden.group(1): gevonden.group(0) for gevonden in LINKREGEL.finditer(tekst)}
+
+
+def toon_eerst(regels: list[str]) -> str:
+    woorden = "deze regel letterlijk in je bericht, als" if len(regels) == 1 else \
+        f"deze {len(regels)} regels letterlijk in je bericht, elk als"
+    return ("De deelnemer ziet commando's en hun uitvoer niet, dus ook de link niet. Zet eerst, buiten elk commando, "
+            f"{woorden} eigen regel:\n\n" + "\n\n".join(regels) + "\n\n")
+
+
+def bash(invoer: dict) -> None:
+    """Link nooit in een bash-commando; na een commando dat links afdrukt meteen de opdracht ze allemaal te tonen."""
+    if invoer.get("hook_event_name") == "PreToolUse":
+        if "👉" in str((invoer.get("tool_input") or {}).get("command", "")):
+            print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "deny",
+                                                     "permissionDecisionReason": "Zet de link niet in een bash-commando: "
+                                                     "de deelnemer ziet commando's en hun uitvoer niet. Zet de "
+                                                     "linkregel letterlijk in je bericht, als eigen regel."}},
+                             ensure_ascii=False))
+        return
+    regels = linkregels("\n".join(alle_tekst(invoer.get("tool_response"))))
+    if regels:
+        print(json.dumps({"hookSpecificOutput": {"hookEventName": "PostToolUse",
+                                                 "additionalContext": toon_eerst(list(regels.values()))}},
+                         ensure_ascii=False))
+
+
 def main() -> None:
     invoer = json.load(sys.stdin)
+    sys.stdout.reconfigure(encoding="utf-8")
+    if invoer.get("tool_name") == "Bash":
+        bash(invoer)
+        return
     pad = Path(invoer.get("transcript_path") or "")
     if not pad.is_file() or invoer.get("stop_hook_active"):  # na één keer tegenhouden niet blijven herhalen
         return
-    regel, url, getoond, vlak_boven = None, None, True, False
+    open_, laatste, vlak_boven = {}, None, False  # open_: afgedrukte links die nog niet in een bericht stonden
     for lijn in pad.read_text(encoding="utf-8").splitlines():
         try:
             rij = json.loads(lijn)
@@ -47,24 +95,28 @@ def main() -> None:
         for blok in blokken:
             if blok.get("type") == "tool_result":
                 for tekst in teksten(blok.get("content")):
-                    for gevonden in LINKREGEL.finditer(tekst):
-                        regel, url, getoond = gevonden.group(0), gevonden.group(1), False
-            elif blok.get("type") == "text" and bericht.get("role") == "assistant" and url and url in blok.get("text", ""):
-                getoond = vlak_boven = True
-    if not regel:
+                    for url, regel in linkregels(tekst).items():
+                        open_.pop(url, None)  # opnieuw afgedrukt: achteraan, als nieuwste
+                        open_[url], laatste = regel, (url, regel)
+            elif blok.get("type") == "text" and bericht.get("role") == "assistant":
+                tekst = blok.get("text", "")
+                for url in [url for url in open_ if url in tekst]:
+                    del open_[url]
+                if laatste and laatste[0] in tekst:
+                    vlak_boven = True
+    regels = list(open_.values())
+    over_schets_of_dashboard = laatste and ("Open je schets" in laatste[1] or "Open je dashboard" in laatste[1])
+    if (invoer.get("hook_event_name") != "Stop" and over_schets_of_dashboard and not vlak_boven
+            and laatste[1] not in regels):
+        regels.append(laatste[1])
+    if not regels:
         return
-    over_schets_of_dashboard = "Open je schets" in regel or "Open je dashboard" in regel
-    if getoond and (vlak_boven or invoer.get("hook_event_name") == "Stop" or not over_schets_of_dashboard):
-        return
-    reden = ("De deelnemer ziet de uitvoer van het script niet, dus ook de link niet. Zet eerst deze regel "
-             f"letterlijk in je bericht, als eigen regel:\n\n{regel}\n\n")
-    sys.stdout.reconfigure(encoding="utf-8")
     if invoer.get("hook_event_name") == "Stop":
-        print(json.dumps({"decision": "block", "reason": reden + "Sluit daarna af zoals de skill zegt."},
+        print(json.dumps({"decision": "block", "reason": toon_eerst(regels) + "Sluit daarna af zoals de skill zegt."},
                          ensure_ascii=False))
     else:
         print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "deny",
-                                                 "permissionDecisionReason": reden + "Stel daarna dezelfde vraag opnieuw."}},
+                                                 "permissionDecisionReason": toon_eerst(regels) + "Stel daarna dezelfde vraag opnieuw."}},
                          ensure_ascii=False))
 
 

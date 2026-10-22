@@ -4,7 +4,7 @@
   feedback.py questions                 vragenlijst (JSON) van de server
   feedback.py submit '{"nuttig":"5"}'   antwoorden versturen (of JSON via stdin)
   feedback.py form                      invulformulier in de terminal, zonder Claude
-  feedback.py link                      link naar het webformulier (token zit erin), open die in je browser
+  feedback.py link                      linkregel naar het webformulier (token zit erin), open die in je browser
 
 Configuratie (omgevingsvariabelen):
   VOXPOP_FEEDBACK_TOKEN   workshop-token van de begeleider (of in ~/.config/dair/feedback-token)
@@ -135,7 +135,8 @@ def form() -> None:
 
 def link() -> None:
     query = "" if WORKSHOP == "dair" else f"?workshop={WORKSHOP}"
-    print(f"{URL}/feedback/{query}#token={token()}")
+    sys.stdout.reconfigure(encoding="utf-8")
+    print(f"### 👉 [Open je review]({URL}/feedback/{query}#token={token()})")
 
 
 def main(argv: list[str]) -> None:
