@@ -142,8 +142,8 @@ ook een wens die de gebruiker eerder al noemde: ga nooit zonder antwoord door na
      dashboard.html`) en zeg je eerlijk: *"Bouw je het later opnieuw, dan zit deze wijziging er niet in."*
      Vraag daarna nog één keer **Is het zo goed?** (*Ja, het is goed* of *Nog een kleine wens*).
   4. Bij *Niet goed* draai je `uv run --no-project --with polars==1.44.2 python
-     .claude/skills/3-bouwen/assets/maak_dashboard.py` om het dashboard te herstellen, en zeg
-     je dat deze wens net te veel raakt. Probeer het niet een tweede keer.
+     .claude/skills/3-bouwen/assets/maak_dashboard.py` om het dashboard te herstellen, zeg
+     je dat deze wens net te veel raakt en geef je de nieuwe regel `### 👉 [Open je dashboard](<link>)` uit de uitvoer. Probeer het niet een tweede keer.
 - **Groot: een nieuwe maat, een ander soort grafiek, andere data, een voorspelling of een oorzaak.** Zeg in
   twee zinnen waarom het een mooi idee is en dat het een vervolgstap is voor na de workshop, noteer het als wens
   voor `later`, en ga naar *Meenemen en afsluiten*.
