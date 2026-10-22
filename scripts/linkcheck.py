@@ -17,8 +17,10 @@ hij bij een tussenvraag al weggescrold.
 import json
 import re
 import sys
+import time
 from pathlib import Path
 
+WACHTTIJDEN = (0, 0.5, 1.0, 1.5)  # seconden vóór elke poging om het transcript te lezen
 LINKREGEL = re.compile(r"### 👉 \[Open je [^\]]+\]\((https?://\S+?)\)")  # geen voorbeelden als (<link>) uit de skills
 
 
@@ -79,6 +81,24 @@ def main() -> None:
     pad = Path(invoer.get("transcript_path") or "")
     if not pad.is_file() or invoer.get("stop_hook_active"):  # na één keer tegenhouden niet blijven herhalen
         return
+    # De extensie schrijft Claudes laatste bericht soms pas net na het starten van de hook in het transcript.
+    # Daarom pas tegenhouden als de link er na even wachten nog steeds niet staat.
+    for wacht in WACHTTIJDEN:
+        time.sleep(wacht)
+        regels = ontbrekend(pad, invoer)
+        if not regels:
+            return
+    if invoer.get("hook_event_name") == "Stop":
+        print(json.dumps({"decision": "block", "reason": toon_eerst(regels) + "Sluit daarna af zoals de skill zegt."},
+                         ensure_ascii=False))
+    else:
+        print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "deny",
+                                                 "permissionDecisionReason": toon_eerst(regels) + "Stel daarna dezelfde vraag opnieuw."}},
+                         ensure_ascii=False))
+
+
+def ontbrekend(pad: Path, invoer: dict) -> list[str]:
+    """De linkregels die de deelnemer nog moet zien voordat Claude mag vragen of stoppen."""
     open_, laatste, vlak_boven = {}, None, False  # open_: afgedrukte links die nog niet in een bericht stonden
     for lijn in pad.read_text(encoding="utf-8").splitlines():
         try:
@@ -104,20 +124,17 @@ def main() -> None:
                     del open_[url]
                 if laatste and laatste[0] in tekst:
                     vlak_boven = True
+    # Bij Stop geeft Claude Code het laatste bericht ook zelf mee: dat telt, ook als het nog niet in het transcript staat
+    slot = invoer.get("last_assistant_message")
+    if isinstance(slot, str):
+        for url in [url for url in open_ if url in slot]:
+            del open_[url]
     regels = list(open_.values())
     over_schets_of_dashboard = laatste and ("Open je schets" in laatste[1] or "Open je dashboard" in laatste[1])
     if (invoer.get("hook_event_name") != "Stop" and over_schets_of_dashboard and not vlak_boven
             and laatste[1] not in regels):
         regels.append(laatste[1])
-    if not regels:
-        return
-    if invoer.get("hook_event_name") == "Stop":
-        print(json.dumps({"decision": "block", "reason": toon_eerst(regels) + "Sluit daarna af zoals de skill zegt."},
-                         ensure_ascii=False))
-    else:
-        print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "deny",
-                                                 "permissionDecisionReason": toon_eerst(regels) + "Stel daarna dezelfde vraag opnieuw."}},
-                         ensure_ascii=False))
+    return regels
 
 
 if __name__ == "__main__":
