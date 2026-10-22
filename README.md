@@ -65,8 +65,8 @@ Een skill is een werkwijze die Claude volgt. Je start er een met `/` en de naam.
 | Stap | Skill | Wat Claude doet | Wat je krijgt |
 |---|---|---|---|
 | 1 | `/1-verkennen` | Leert samen met jou de data kennen: wat de kolommen kunnen betekenen, hoe het staat met de datakwaliteit en de verdelingen, welke definities en privacyregels gelden, en welke ideeën er bij jouw vraag passen | `data-profiel.html` |
-| 2 | `/2-schetsen` | Schetst twee of drie grafieken (views) op papier, nog zonder code | `schets.html` |
-| 3 | `/3-bouwen` | Bouwt het dashboard, met een (schijn-)uploadscherm als eerste scherm, en test het daarna | Een dashboard dat je zelf opent |
+| 2 | `/2-schetsen` | Schetst je dashboard in grijs: de grafieken (views), het filter en de titel, met de echte groepen en jaren maar nog zonder getallen. Hier pas je de opzet aan | `schets.html` |
+| 3 | `/3-bouwen` | Bouwt het dashboard precies zoals je schets en vraagt of het klopt. Een kleine wens in tekst of kleur past Claude meteen aan; wil je iets anders zien, dan past Claude schets en dashboard samen aan | `dashboard.html` |
 
 **Hoe het werkt.** Claude stelt je vragen één voor één, elk met een standaardantwoord, of doet een voorstel. Antwoord "ok" of corrigeer wat niet klopt: jij beslist over de inhoud, Claude voert uit. De uitkomsten (HTML) komen in de hoofdmap, bovenaan in de verkenner. Zie hieronder hoe je ze opent.
 
@@ -76,7 +76,7 @@ Een skill is een werkwijze die Claude volgt. Je start er een met `/` en de naam.
 
 **Meenemen.** Claude zet niets in GitHub. Je Codespace is tijdelijk: wil je je werk houden, klik dan met de rechtermuisknop op het bestand in de verkenner en kies *Download*. Naast `dashboard.html` staat `dashboard-berekeningen.py`: daarin kun je lezen hoe de cijfers zijn berekend. Download die er ook bij als je wilt kunnen terugkijken.
 
-**De data.** De demodata (fictieve studenten) staat in `data/demodata_1cho.csv`. Heb je uitleg bij de data (een codebook, een omschrijving van de kolommen, een definitie), geef die dan aan Claude wanneer `/1-verkennen` daarom vraagt. Heb je dat niet, dan leidt Claude de betekenis af uit de kolomnamen en vraagt het jou om te bevestigen. De skills zelf kennen geen 1CHO en werken ook met andere data. Het dashboard begint met een uploadscherm, zoals in een echte toepassing. Voor de workshop staat het bestand daar al klaar: je hoeft niets te downloaden of te uploaden, alleen op *Doorgaan* te klikken. Welk bestand het dashboard gebruikt, staat in het startcommando dat Claude je geeft.
+**De data.** De demodata (fictieve studenten) staat in `data/demodata_1cho.csv`. Heb je uitleg bij de data (een codebook, een omschrijving van de kolommen, een definitie), geef die dan aan Claude wanneer `/1-verkennen` daarom vraagt. Heb je dat niet, dan leidt Claude de betekenis af uit de kolomnamen en vraagt het jou om te bevestigen. De skills zelf kennen geen 1CHO en werken ook met andere data. Je hoeft niets te downloaden of te uploaden: het dashboard rekent met de demodata die al in de Codespace staat.
 
 Aan het einde van de sessie sluit je af met `/4-review` (zie hieronder).
 
@@ -84,7 +84,7 @@ Aan het einde van de sessie sluit je af met `/4-review` (zie hieronder).
 
 ## Review geven
 
-Aan het einde van de sessie geef je je review **in Claude**: typ `/4-review`. Er opent een vragenlijst die je invult.
+Aan het einde van de sessie geef je je review **in Claude**: typ `/4-review`. Claude geeft je een link naar de vragenlijst: klik erop en vul hem in je browser in.
 
 De review is anoniem en gaat naar de begeleiders. Je kunt een vraag overslaan.
 
