@@ -36,7 +36,7 @@ Fictieve studentgegevens in de opzet van 1CijferHO 2025 (v1.0). 1CijferHO (één
 
 ## Voorbeeldvragen
 
-De workshopskills bieden drie vragen aan. De uitwerking (definities, uitsplitsingen, filters, teksten) staat in `demodata_1cho.casus.json`; de berekening zit in `.claude/skills/bouwen_dashboard/assets/maak_dashboard.py`. Ze zijn zo gekozen dat de demodata een zichtbaar verschil laat zien. Wat de demodata erop antwoordt, zegt niets over de werkelijkheid: de data is bruikbaar om code mee te bouwen, niet betrouwbaar als uitkomst.
+De workshopskills bieden drie vragen aan. De uitwerking (definities, uitsplitsingen, filters, teksten) staat in `demodata_1cho.casus.json`; de berekening zit in `.claude/skills/3-bouwen/assets/maak_dashboard.py`. Ze zijn zo gekozen dat de demodata een zichtbaar verschil laat zien. Wat de demodata erop antwoordt, zegt niets over de werkelijkheid: de data is bruikbaar om code mee te bouwen, niet betrouwbaar als uitkomst.
 
 | | Vraag | Uitsplitsing (aanbevolen) | Andere uitsplitsingen |
 |---|---|---|---|

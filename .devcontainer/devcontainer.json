@@ -6,6 +6,17 @@
     "ANTHROPIC_FOUNDRY_API_KEY": "${localEnv:ANTHROPIC_FOUNDRY_API_KEY}"
   },
   "postCreateCommand": "bash .devcontainer/welcome.sh",
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "4gb",
+    "storage": "16gb"
+  },
+  "portsAttributes": {
+    "8765": {
+      "label": "Dashboard",
+      "onAutoForward": "silent"
+    }
+  },
   "otherPortsAttributes": {
     "onAutoForward": "silent"
   },
@@ -13,6 +24,9 @@
     "vscode": {
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.hideOnStartup": "always",
+        "workbench.secondarySideBar.defaultVisibility": "visible",
+        "claudeCode.preferredLocation": "sidebar",
         "chat.editing.autoAccept": true,
         "claudeCode.allowDangerouslySkipPermissions": true,
         "livePreview.openPreviewTarget": "External Browser",
@@ -25,7 +39,33 @@
         "extensions.ignoreRecommendations": true,
         "update.showReleaseNotes": false,
         "git.autofetch": false,
-        "git.openRepositoryInParentFolders": "never"
+        "git.openRepositoryInParentFolders": "never",
+        "chat.disableAIFeatures": true,
+        "files.exclude": {
+          ".devcontainer": true,
+          ".entire": true,
+          ".gitattributes": true,
+          ".github": true,
+          ".gitignore": true,
+          "docs": true,
+          "package.json": true,
+          "PLANNING.md": true,
+          "scripts": true,
+          "**/__pycache__": true,
+          "**/.pytest_cache": true
+        },
+        "workbench.colorTheme": "Default Light Modern",
+        "workbench.colorCustomizations": {
+          "titleBar.activeBackground": "#3D68EC",
+          "titleBar.activeForeground": "#FFFFFF",
+          "titleBar.inactiveBackground": "#D6E2FD",
+          "titleBar.inactiveForeground": "#5C5C66",
+          "statusBar.background": "#3D68EC",
+          "statusBar.foreground": "#FFFFFF",
+          "statusBar.noFolderBackground": "#3D68EC",
+          "statusBarItem.remoteBackground": "#2B4FC0",
+          "statusBarItem.remoteForeground": "#FFFFFF"
+        }
       },
       "extensions": [
         "anthropic.claude-code",

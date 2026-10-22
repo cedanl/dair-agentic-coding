@@ -1,2 +1,2 @@
-# Testgereedschap voor de tests van bouwen_dashboard. Het image zet het vooraf in de uv-cache.
+# Testgereedschap voor de tests van 3-bouwen. Het image zet het vooraf in de uv-cache.
 pytest==9.1.1

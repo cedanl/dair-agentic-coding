@@ -1,0 +1,693 @@
+"""Maakt het dashboard als één HTML-bestand. Draait zonder AI, ook op andere data.
+
+Gebruik, vanuit de hoofdmap van de repo:
+
+    python .claude/skills/3-bouwen/assets/maak_dashboard.py --vanaf schets.html
+    python .claude/skills/3-bouwen/assets/maak_dashboard.py data/eigen.csv --vraag A \\
+        --uitsplitsing sector --filter vestiging
+
+De vraag, de definities en de teksten komen uit het casusbestand naast de data (data/x.csv -> data/x.casus.json).
+De berekeningen staan in berekeningen.py, naast dit script, en zijn getest: tel eerstejaars, en per eerstejaars of
+die het jaar erna gestopt is of binnen een termijn een diploma haalde. Het dashboard krijgt een kopie mee als
+dashboard-berekeningen.py, zodat de deelnemer ziet wat er is gerekend. De privacydrempels worden toegepast voordat er iets in het bestand
+komt: in het dashboard staan alleen uitkomsten per groep, nooit rijen.
+"""
+
+from __future__ import annotations
+
+import argparse
+import base64
+import datetime
+import html
+import itertools
+import json
+import math
+import os
+import re
+import shutil
+import string
+import sys
+import time
+from pathlib import Path
+
+import polars as pl
+
+from berekeningen import bereken_eerstejaars, pas_drempels_toe, tel
+
+HIER = Path(__file__).resolve().parent
+e = html.escape
+MAX_VERGELIJKINGEN, MAX_FILTERS = 3, 2
+MAX_BLOKKEN, MAX_GROOTTE = 1500, 5_000_000  # daarboven wordt de schuif voor instroomjaren één jaar of alle jaren
+MAANDEN = ["januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september",
+           "oktober", "november", "december"]
+
+
+class Melding(Exception):
+    """Een fout die de gebruiker kan oplossen: één zin, geen traceback."""
+
+
+# ── Keuzes en casus ─────────────────────────────────────────────────────────
+
+
+def lees_keuzes(pad: Path) -> dict:
+    """Leest de keuzes die schets.html of data-profiel.html in een meta-tag meedraagt."""
+    if not pad.is_file():
+        raise Melding(f"{pad} niet gevonden. Maak het eerst met de vorige skill.")
+    gevonden = re.search(r'<meta name="keuzes" content="([^"]*)"', pad.read_text(encoding="utf-8"))
+    if not gevonden:
+        raise Melding(f"{pad.name} bevat geen keuzes. Maak het opnieuw met de skill.")
+    return json.loads(html.unescape(gevonden.group(1)))
+
+
+def lees_mijn_keuzes(pad: Path) -> dict:
+    """mijn-keuzes.json is de waarheid. De schets moet precies hetzelfde zeggen, anders bouwen we niet."""
+    mijn = json.loads(pad.read_text(encoding="utf-8"))
+    k = mijn["keuzes"]
+    keuzes = {"csv": mijn["csv"], "vraag": k.get("vraag"), "uitsplitsing": k.get("vergelijken"),
+              "filter": k.get("filter"), "volgorde": k.get("bovenaan"), "titel": k.get("titel", "")}
+    schets = pad.with_name("schets.html")
+    if schets.is_file():
+        getekend = lees_keuzes(schets)
+        anders = [veld for veld in ("vraag", "uitsplitsing", "filter", "volgorde", "titel")
+                  if (getekend.get(veld) or "") != (keuzes.get(veld) or "")]
+        if anders:
+            raise Melding(f"je schets en je keuzes zijn niet meer gelijk ({', '.join(anders)}). "
+                          "Typ /2-schetsen om de schets bij te werken, dan bouw ik daarna precies die schets.")
+    return keuzes
+
+
+def bepaal_keuzes(args: argparse.Namespace) -> dict:
+    keuzes: dict = {}
+    mijn = Path("mijn-keuzes.json")
+    vanaf = args.vanaf or (mijn if not args.csv and mijn.is_file() else
+                           Path("schets.html") if not args.csv and Path("schets.html").is_file() else None)
+    if vanaf and Path(vanaf).suffix == ".json":
+        keuzes = lees_mijn_keuzes(Path(vanaf))
+    elif vanaf:
+        keuzes = lees_keuzes(Path(vanaf))
+    for naam in ("csv", "vraag", "uitsplitsing", "filter", "volgorde", "titel"):
+        if getattr(args, naam):
+            keuzes[naam] = str(getattr(args, naam))
+    if not keuzes.get("csv"):
+        raise Melding("Geef het databestand of --vanaf schets.html.\n"
+                      "Gebruik: python maak_dashboard.py <pad-naar-csv> --vraag A --uitsplitsing sector")
+    return keuzes
+
+
+def lees_casus(csv: Path) -> dict:
+    pad = csv.with_suffix(".casus.json")
+    if not pad.is_file():
+        raise Melding(f"Geen casusbestand gevonden naast de data: {pad}")
+    return json.loads(pad.read_text(encoding="utf-8"))
+
+
+def bepaal_stand(keuzes: dict) -> str:
+    """Welke vergelijking en welke volgorde het dashboard toont; zo bieden we nooit een eerdere stand opnieuw aan."""
+    return f"{keuzes['uitsplitsing']}|{keuzes.get('volgorde') or 'groep'}"
+
+
+def stel_in(keuzes: dict, casus: dict) -> dict:
+    """Zet de keuzes en de casus om in één instelling voor de rest van het script."""
+    vraag = casus["vragen"].get(keuzes.get("vraag", "A"))
+    if vraag is None:
+        raise Melding(f"Onbekende vraag '{keuzes.get('vraag')}'. Kies uit: {', '.join(casus['vragen'])}")
+    # Meer vergelijkingen en filters mogen, met komma's: "sector,opleiding". De eerste vergelijking staat vooraan.
+    namen = list(dict.fromkeys(n.strip() for n in str(keuzes.get("uitsplitsing") or vraag["uitsplitsingen"][0]).split(",")
+                               if n.strip()))
+    # Gaat de vraag over één vergelijking (zoals vooropleiding bij C), dan staat die er altijd bij, vooraan
+    if vraag.get("kern"):
+        namen = [vraag["kern"], *(n for n in namen if n != vraag["kern"])]
+    onbekend = [n for n in namen if casus["uitsplitsingen"].get(n, {"alleen_filter": True}).get("alleen_filter")]
+    if onbekend:
+        raise Melding(f"Onbekende uitsplitsing '{', '.join(onbekend)}'. Kies uit: {', '.join(casus['uitsplitsingen'])}")
+    if len(namen) > MAX_VERGELIJKINGEN:
+        bij = f" ({vraag['kern']} hoort altijd bij deze vraag)" if vraag.get("kern") else ""
+        raise Melding(f"Kies hooguit {MAX_VERGELIJKINGEN} vergelijkingen{bij}; meer past niet overzichtelijk in één dashboard.")
+    gevraagd = str(keuzes.get("filter") or "standaard")
+    filter_namen = [] if gevraagd == "geen" else [
+        f for f in dict.fromkeys(gevraagd.split(",")) if f in casus["uitsplitsingen"] and f not in namen]
+    if not filter_namen and gevraagd != "geen":
+        filter_namen = [f for f in casus["filters"] if f not in namen][:1]
+    if len(filter_namen) > MAX_FILTERS:
+        raise Melding(f"Kies hooguit {MAX_FILTERS} filters; meer past niet overzichtelijk in één dashboard.")
+    uitsplitsingen = [(n, casus["uitsplitsingen"][n]) for n in namen]
+    filters = [casus["uitsplitsingen"][f] for f in filter_namen]
+    maat = casus["maten"][vraag["maat"]]
+    k = casus["kolommen"]
+    kolommen = [k["persoon"], k["jaar"], k["start"], *(u["kolom"] for _, u in uitsplitsingen)]
+    if maat["soort"] == "diploma":
+        kolommen.append(k["diplomajaar"])
+    kolommen += [f["kolom"] for f in filters]
+    groep_views = {n: {"soort": "staaf", "per": "groep",
+                       "titel": vraag["titel_groep"].format(uitsplitsing=u["label"]),
+                       "uitleg": vraag["uitleg_groep"].format(uitsplitsing=u["label"])} for n, u in uitsplitsingen}
+    jaar_view = {"soort": "lijn", "per": "periode", "titel": vraag["titel_jaar"], "uitleg": vraag["uitleg_jaar"]}
+    views = ["jaar", "groep"] if keuzes.get("volgorde") == "jaar" else ["groep", "jaar"]
+    keuzes = {**keuzes, "uitsplitsing": ",".join(namen), "filter": ",".join(filter_namen) or "geen"}
+    keuzes["gezien"] = list(dict.fromkeys([*keuzes.get("gezien", []), bepaal_stand(keuzes)]))
+    return {
+        "keuzes": keuzes,
+        "vraag": vraag, "maat": maat, "uitsplitsing": uitsplitsingen[0][1], "uitsplitsingen": uitsplitsingen,
+        "filters": filters, "views": views, "groep_views": groep_views, "jaar_view": jaar_view,
+        "kolommen": list(dict.fromkeys(kolommen)), "k": k, "eenheid": casus["eenheid"],
+        "ondertitel": casus["ondertitel"], "demo": casus.get("demo", False),
+        "scheidingsteken": casus.get("scheidingsteken", ";"),
+        "groep": casus["drempels"]["groep"], "cel": casus["drempels"]["cel"],
+        "alle_uitsplitsingen": casus["uitsplitsingen"],
+    }
+
+
+def lees_data(pad: Path, ins: dict) -> pl.DataFrame:
+    """Leest alleen de kolommen die nodig zijn, als tekst. Controleert eerst de kopregel."""
+    if not pad.is_file():
+        raise Melding(f"Databestand niet gevonden: {pad}")
+    kop = pl.read_csv(pad, separator=ins["scheidingsteken"], n_rows=0).columns
+    ontbreekt = [k for k in ins["kolommen"] if k not in kop]
+    if ontbreekt:
+        raise Melding(f"In {pad.name} ontbreken de kolommen: {', '.join(ontbreekt)}. "
+                      f"Controleer het bestand en het scheidingsteken ('{ins['scheidingsteken']}').")
+    try:
+        return pl.read_csv(pad, separator=ins["scheidingsteken"], columns=ins["kolommen"], infer_schema=False)
+    except MemoryError as fout:
+        raise Melding(f"{pad.name} is te groot om in te lezen. Sla alleen de kolommen "
+                      f"{', '.join(ins['kolommen'])} op in een kleiner bestand.") from fout
+
+
+# ── Tekst ───────────────────────────────────────────────────────────────────
+
+
+def maak_getal(n: float) -> str:
+    return f"{round(n):,}".replace(",", ".")
+
+
+def maak_procent(w: float) -> str:
+    return "<1%" if 0 < w < 0.005 else f"{round(100 * w)}%"
+
+
+def maak_label(tekst: str) -> str:
+    return tekst[:1].upper() + tekst[1:]
+
+
+def maak_telwoord(n: int) -> str:
+    woorden = ["nul", "één", "twee", "drie", "vier", "vijf", "zes", "zeven", "acht", "negen", "tien"]
+    return woorden[n] if n < len(woorden) else str(n)
+
+
+def maak_schaal(hoogste: float) -> float:
+    """Een rond percentage net boven de hoogste waarde; de as begint altijd bij nul."""
+    stap = 0.05 if hoogste <= 0.3 else 0.1
+    return min(1.0, max(stap, math.ceil(hoogste / stap - 1e-9) * stap))
+
+
+# ── HTML per grafiek ────────────────────────────────────────────────────────
+
+
+def toon_staaf(rijen: list[dict], ins: dict) -> tuple[str, str]:
+    te_weinig = f"te weinig {ins['eenheid']}"
+    if ins.get("schets"):  # echte groepen, op alfabet en even lang: de volgorde zou al een uitkomst verraden
+        items = "".join(
+            f'<li><div class="npuls-staaf-kop"><span>{e(maak_label(r["groep"]))}</span><span><strong>?</strong></span></div>'
+            '<div class="npuls-staaf-spoor"><div class="npuls-staaf" style="width:60%"></div></div></li>'
+            if not r["verborgen"] else
+            f'<li class="npuls-staaf-verborgen"><div class="npuls-staaf-kop"><span>{e(maak_label(r["groep"]))}</span>'
+            f"<span>{te_weinig}</span></div></li>" for r in sorted(rijen, key=lambda r: r["groep"]))
+        return (f'<ul class="npuls-staven">{items}</ul>',
+                "Hier staat straks welke groep het hoogst en welke het laagst uitkomt, met het percentage erbij.")
+    zichtbaar = sorted((r for r in rijen if not r["verborgen"]), key=lambda r: -r["waarde"])
+    verborgen = sorted((r for r in rijen if r["verborgen"]), key=lambda r: r["groep"])
+    top = maak_schaal(max((r["waarde"] for r in zichtbaar), default=0))
+    items = "".join(
+        f'<li><div class="npuls-staaf-kop"><span>{e(maak_label(r["groep"]))}</span>'
+        f'<span><strong>{maak_procent(r["waarde"])}</strong> <small>(n&nbsp;=&nbsp;{maak_getal(r["n"])})</small></span></div>'
+        f'<div class="npuls-staaf-spoor"><div class="npuls-staaf" style="width:{100 * r["waarde"] / top:.1f}%"></div></div></li>'
+        for r in zichtbaar)
+    items += "".join(
+        f'<li class="npuls-staaf-verborgen"><div class="npuls-staaf-kop"><span>{e(maak_label(r["groep"]))}</span>'
+        f"<span>{te_weinig}</span></div></li>" for r in verborgen)
+    grafiek = (f'<ul class="npuls-staven">{items}</ul>'
+               f'<div class="npuls-schaal" aria-hidden="true"><span>0%</span><span>{maak_procent(top)}</span></div>')
+    if len(zichtbaar) >= 2:
+        hoog, laag = zichtbaar[0], zichtbaar[-1]
+        zin = (f"Het hoogst bij {maak_label(hoog['groep'])} ({maak_procent(hoog['waarde'])}), "
+               f"het laagst bij {maak_label(laag['groep'])} ({maak_procent(laag['waarde'])}).")
+    elif zichtbaar:
+        zin = f"{maak_label(zichtbaar[0]['groep'])}: {maak_procent(zichtbaar[0]['waarde'])}."
+    else:
+        zin = f"Alle groepen hebben {te_weinig} om te tonen."
+    if verborgen and zichtbaar:
+        zin += (f" {maak_label(maak_telwoord(len(verborgen)))} {'groep is' if len(verborgen) == 1 else 'groepen zijn'} "
+                f"niet getoond omdat er {te_weinig} in zitten.")
+    return grafiek, zin
+
+
+MAX_LIJNEN = 3  # groepslijnen tegelijk naast de lijn van alle eerstejaars; meer wordt onleesbaar
+
+
+def toon_lijn(rijen: list[dict], ins: dict, groepsets: list[tuple[str | None, dict]] | None = None) -> tuple[str, str]:
+    """Lijn in een SVG die meerekt met de breedte; punten, labels en assen zijn HTML, zodat tekst scherp blijft.
+
+    Met groepsets ook een lijn per groep, aan en uit te zetten met vinkjes; de twee grootste groepen staan aan.
+    Eén set per vergelijking: de wisselknop toont alleen de lijnen en vinkjes van de gekozen vergelijking.
+    """
+    perioden = [r["periode"] for r in rijen]
+    groepsets = groepsets or []
+    if ins.get("schets"):  # echte jaren, een vlakke lijn: de vorm komt pas met de getallen
+        rijen = [{**r, "waarde": 0.5} for r in rijen]
+    zichtbaar = [r for r in rijen if not r["verborgen"]]
+    alle_waarden = [r["waarde"] for r in zichtbaar] + [r["waarde"] for _, groepen in groepsets for reeks in groepen.values()
+                                                       for r in reeks if not r["verborgen"]]
+    top = 1.0 if ins.get("schets") else maak_schaal(max(alle_waarden, default=0))
+
+    def x(i: int) -> float:
+        return 50.0 if len(perioden) == 1 else 4 + 92 * i / (len(perioden) - 1)
+
+    def y(w: float) -> float:
+        return 100 - 100 * w / top
+
+    def maak_lijnen(reeks: list[dict]) -> str:
+        """Een verborgen jaar is een gat in de lijn, geen verbinding eroverheen."""
+        stukken, stuk = [], []
+        for i, r in enumerate(reeks):
+            if r["verborgen"]:
+                stukken.append(stuk)
+                stuk = []
+            else:
+                stuk.append(f"{x(i):.1f},{y(r['waarde']):.1f}")
+        stukken.append(stuk)
+        return "".join(f'<polyline points="{" ".join(s)}" vector-effect="non-scaling-stroke"/>' for s in stukken if len(s) > 1)
+
+    punten = "".join(
+        f'<span class="npuls-punt" style="left:{x(i):.2f}%;top:{y(r["waarde"]):.2f}%" '
+        f'title="{r["periode"]}: {maak_procent(r["waarde"])} (n = {maak_getal(r["n"])})"></span>'
+        for i, r in enumerate(rijen) if not r["verborgen"])
+    lijnen = maak_lijnen(rijen)
+    # Per groep een lijn; alleen het percentage per jaar, zonder aantallen, zodat niets terug te rekenen is
+    groepslijnen, keuzes = "", ""
+    for naam, groepen in groepsets:
+        wissel = f' data-uitsplitsing="{e(naam)}"' if naam else ""
+        # Een groep die in geen enkel jaar groot genoeg is, staat grijs in de lijst, zodat je ziet waarom er geen lijn is
+        te_klein = {g for g, reeks in groepen.items() if all(r["verborgen"] for r in reeks)}
+        grootste = sorted(set(groepen) - te_klein, key=lambda g: -sum(r["noemer"] for r in groepen[g]))[:2]
+        vinkjes = ""
+        for i, (groep, reeks) in enumerate(sorted(groepen.items(), key=lambda gr: (gr[0] in te_klein, gr[0]))):
+            lijn = f"{naam or 'groep'}-{i}"
+            if groep in te_klein:
+                vinkjes += (f'<label class="npuls-te-weinig"><input type="checkbox" disabled> {e(maak_label(groep))} '
+                            f"<small>te weinig {ins['eenheid']} per jaar</small></label>")
+                continue
+            kleur = f' data-kleur="{grootste.index(groep) + 1}"' if groep in grootste and not ins.get("schets") else ""
+            waarden = ", ".join(f"{r['periode']}: {'–' if r['verborgen'] else maak_procent(r['waarde'])}" for r in reeks)
+            if not ins.get("schets"):
+                groepslijnen += (f'<g class="groep" data-lijn="{e(lijn)}"{kleur}{wissel}>'
+                                 f"<title>{e(maak_label(groep))}: {waarden}</title>{maak_lijnen(reeks)}</g>")
+            vinkjes += (f'<label data-lijn="{e(lijn)}"{kleur}><input type="checkbox"{" checked" if kleur else ""}'
+                        f'{" disabled" if ins.get("schets") else ""}> {e(maak_label(groep))}</label>')
+        if vinkjes:
+            uitleg = ("In het dashboard zet je hier per groep een lijn aan." if ins.get("schets") else
+                      f"De blauwe lijn is alle eerstejaars samen. Zet hooguit {MAX_LIJNEN} groepen tegelijk aan. "
+                      f"Een gat in een lijn is een jaar met te weinig {ins['eenheid']}.")
+            keuzes += (f'<fieldset class="npuls-lijnkeuze" data-max="{MAX_LIJNEN}"{wissel}><legend>Toon ook de lijn van'
+                       f'</legend><p>{e(uitleg)}</p><div class="npuls-lijnkeuze-lijst">{vinkjes}</div></fieldset>')
+    labels = ""
+    if zichtbaar:  # waarde bij het hoogste, het laagste en het laatste punt
+        hoog = max(zichtbaar, key=lambda r: r["waarde"])
+        laag = min(zichtbaar, key=lambda r: r["waarde"])
+        for i, r in enumerate(rijen):
+            if r is hoog or r is laag or r is zichtbaar[-1]:
+                kant = " rechts" if x(i) > 80 else (" links" if x(i) < 12 else "")
+                # het laagste punt en een punt tegen de bovenrand krijgen hun label eronder
+                onder = " onder" if (r is laag and laag is not hoog) or y(r["waarde"]) < 15 else ""
+                labels += (f'<span class="npuls-punt-label{kant}{onder}" style="left:{x(i):.2f}%;top:{y(r["waarde"]):.2f}%">'
+                           f"{maak_procent(r['waarde'])}</span>")
+    if ins.get("schets"):
+        punten, labels = re.sub(r' title="[^"]*"', "", punten), ""
+    rasters = "".join(f'<line x1="0" x2="100" y1="{v}" y2="{v}" vector-effect="non-scaling-stroke"/>' for v in (0, 50, 100))
+    y_labels = "".join(f'<span style="top:{100 - f * 100:.0f}%">{"?" if ins.get("schets") and f else maak_procent(top * f)}</span>'
+                       for f in (0, 0.5, 1))
+    x_labels = "".join(f'<span style="left:{x(i):.2f}%"><b class="lang">{p}</b><b class="kort">&#8217;{str(p)[-2:]}</b></span>'
+                       for i, p in enumerate(perioden))
+    grafiek = (f'<div class="npuls-lijn" aria-hidden="true"><div class="npuls-lijn-y">{y_labels}</div>'
+               f'<div class="npuls-lijn-vlak"><svg viewBox="0 0 100 100" preserveAspectRatio="none">'
+               f'<g class="raster">{rasters}</g>{groepslijnen}<g class="lijn">{lijnen}</g></svg>{punten}{labels}</div>'
+               f'<div class="npuls-lijn-x">{x_labels}</div></div>{keuzes}')
+    if ins.get("schets"):
+        zin = "Hier staat straks hoe het percentage over de jaren verandert, en in welk jaar het het hoogst en het laagst was."
+    elif len(zichtbaar) >= 2:
+        hoog, laag = max(zichtbaar, key=lambda r: r["waarde"]), min(zichtbaar, key=lambda r: r["waarde"])
+        zin = (f"Van {maak_procent(zichtbaar[0]['waarde'])} in {zichtbaar[0]['periode']} naar "
+               f"{maak_procent(zichtbaar[-1]['waarde'])} in {zichtbaar[-1]['periode']}. Het hoogst in {hoog['periode']} "
+               f"({maak_procent(hoog['waarde'])}), het laagst in {laag['periode']} ({maak_procent(laag['waarde'])}).")
+    elif zichtbaar:
+        zin = f"In {zichtbaar[0]['periode']}: {maak_procent(zichtbaar[0]['waarde'])}."
+    else:
+        zin = f"Elk jaar heeft te weinig {ins['eenheid']} om te tonen."
+    weg = [str(r["periode"]) for r in rijen if r["verborgen"]]
+    if weg and zichtbaar:
+        zin += f" Niet getoond omdat er te weinig {ins['eenheid']} zijn: {', '.join(weg)}."
+    return grafiek, zin
+
+
+def toon_cijfers(view: dict, rijen: list[dict], ins: dict) -> str:
+    """De getallen achter de grafiek als tabel, voor wie ze wil nalezen of een schermlezer gebruikt."""
+    if ins.get("schets"):
+        return ""
+    kop = "Groep" if view["per"] == "groep" else "Instroomjaar"
+    regels = ""
+    for r in rijen:
+        cellen = f"<td>{e(maak_label(str(r[view['per']])))}</td>"
+        if r["verborgen"]:
+            cellen += f'<td colspan="2">te weinig {ins["eenheid"]}</td>'
+        else:
+            cellen += f"<td>{maak_procent(r['waarde'])}</td><td>{maak_getal(r['n'])}</td>"
+        regels += f"<tr>{cellen}</tr>"
+    return (f'<details class="npuls-cijfers"><summary>Toon de cijfers</summary><div class="npuls-tabel">'
+            f"<table><caption>{e(view['titel'])}</caption><thead><tr><th scope=\"col\">{kop}</th>"
+            f'<th scope="col">Aandeel</th><th scope="col">Aantal eerstejaars</th></tr></thead>'
+            f"<tbody>{regels}</tbody></table></div></details>")
+
+
+def tel_per_groep_en_jaar(eerstejaars: pl.DataFrame, perioden: list, ins: dict) -> dict[str, list[dict]]:
+    """Per groep een reeks over de jaren. De drempels gelden per jaar over alle groepen, net als in de staven."""
+    reeksen: dict[str, dict] = {}
+    for periode in perioden:
+        for r in pas_drempels_toe(tel(eerstejaars.filter(pl.col("periode") == periode), "groep"), ins):
+            reeksen.setdefault(r["groep"], {})[periode] = r
+    leeg = {"verborgen": True, "waarde": None, "noemer": 0}
+    return {g: [{**rij.get(p, leeg), "periode": p} for p in perioden] for g, rij in reeksen.items()}
+
+
+def toon_view(view: dict, eerstejaars: pl.DataFrame, ins: dict, wissel: str = "",
+              per_vergelijking: list[tuple[str | None, pl.DataFrame]] | None = None) -> str:
+    rijen = pas_drempels_toe(tel(eerstejaars, view["per"]), ins)
+    if view["soort"] == "staaf":
+        grafiek, zin = toon_staaf(rijen, ins)
+    else:
+        perioden = [r["periode"] for r in rijen]
+        groepsets = [(naam, tel_per_groep_en_jaar(df, perioden, ins)) for naam, df in per_vergelijking or []]
+        grafiek, zin = toon_lijn(rijen, ins, groepsets)
+    jaarview = " data-jaarview" if view["soort"] == "lijn" else ""
+    return (f'<section class="npuls-view"{wissel}{jaarview}><h2>{e(view["titel"])}</h2><p class="npuls-uitleg">{e(view["uitleg"])}</p>'
+            f'{grafiek}<p class="npuls-samenvatting">{e(zin)}</p>{toon_cijfers(view, rijen, ins)}</section>')
+
+
+def kies_instroom(eerstejaars: pl.DataFrame, instroom: str | None) -> pl.DataFrame:
+    """instroom is "2014-2019" (van en tot en met), of None voor alle jaren."""
+    if instroom is None:
+        return eerstejaars
+    van, tot = (int(j) for j in instroom.split("-"))
+    return eerstejaars.filter(pl.col("periode").is_between(van, tot))
+
+
+def maak_jaren(instroom: str) -> tuple[str, str]:
+    """De tekst voor de tegel en de uitleg: "2016" en "instroomjaar 2016", of "2014–2019" en "instroomjaren 2014–2019"."""
+    van, tot = instroom.split("-")
+    return (van, f"instroomjaar {van}") if van == tot else (f"{van}–{tot}", f"instroomjaren {van}–{tot}")
+
+
+def toon_blok(data: pl.DataFrame, ins: dict, instroom: str | None = None, lijn_van: str | None = None) -> str:
+    """Kerncijfers en de views voor één filterkeuze. Bij meer vergelijkingen één groepsview per vergelijking.
+
+    Het filter op instroomjaar werkt pas na het rekenen (stoppen en diploma's kijken naar de jaren erna), en
+    alleen op de kerncijfers en de groepen: de lijn laat altijd alle jaren zien. Daarom staat de lijn er één keer
+    in, in het blok zonder instroomjaar (lijn_van); de pagina neemt hem over als je een jaar kiest.
+    """
+    if data.is_empty():  # een combinatie van filters zonder één student
+        return f'<div class="npuls-melding">In deze selectie zitten geen {ins["eenheid"]}. Kies een andere waarde.</div>'
+    alle_jaren = bereken_eerstejaars(data, ins)
+    eerstejaars = kies_instroom(alle_jaren, instroom)
+    teller, noemer = int(eerstejaars["telt"].sum()), eerstejaars.height
+    if noemer < ins["groep"]:
+        return (f'<div class="npuls-melding">In deze selectie zitten te weinig {ins["eenheid"]} om iets te tonen. '
+                "Kies een andere waarde.</div>")
+    perioden = eerstejaars["periode"].unique().sort().to_list()
+    verborgen_totaal = teller < ins["cel"] or noemer - teller < ins["cel"]
+    kern = "?" if ins.get("schets") else "–" if verborgen_totaal else maak_procent(teller / noemer)
+    tegels = (f'<div class="npuls-tegel hoofd"><strong>{kern}</strong>'
+              f"<span>{e(ins['vraag']['kerncijfer'])}</span></div>"
+              f'<div class="npuls-tegel"><strong>{"?" if ins.get("schets") else maak_getal(noemer)}</strong>'
+              "<span>Eerstejaars die meetellen</span></div>"
+              + (f'<div class="npuls-tegel"><strong>{maak_jaren(instroom)[0]}</strong>'
+                 f'<span>{"Instroomjaar" if "–" not in maak_jaren(instroom)[0] else "Instroomjaren"}</span></div>' if instroom else
+                 f'<div class="npuls-tegel"><strong>{perioden[0]}–{perioden[-1]}</strong><span>Instroomjaren</span></div>'))
+    groep_views, jaar_view = ins["groep_views"], ins["jaar_view"]
+    if instroom:
+        groep_views = {n: {**v, "uitleg": re.sub(r"alle (meetellende )?instroomjaren samen", maak_jaren(instroom)[1],
+                                                  v["uitleg"])} for n, v in groep_views.items()}
+    if any(f.get("alleen_filter") for f in ins["filters"]):
+        jaar_view = {**jaar_view, "uitleg": jaar_view["uitleg"] + " Je ziet altijd alle jaren; de gekozen instroomjaren "
+                                                                  "zijn gemarkeerd."}
+    views = ""
+    for soort in ins["views"]:
+        if soort == "jaar" and lijn_van:
+            views += f'<div data-lijn-van="{e(lijn_van)}"></div>'
+        elif soort == "jaar":  # één lijn voor alle eerstejaars, plus lijnen per groep die de wisselknop volgen
+            per_vergelijking = [(None, alle_jaren)] if len(ins["uitsplitsingen"]) == 1 else [
+                (naam, bereken_eerstejaars(data, {**ins, "uitsplitsing": u})) for naam, u in ins["uitsplitsingen"]]
+            views += toon_view(jaar_view, alle_jaren, ins, per_vergelijking=per_vergelijking)
+        elif len(ins["uitsplitsingen"]) == 1:
+            views += toon_view(groep_views[ins["uitsplitsingen"][0][0]], eerstejaars, ins)
+        else:
+            for naam, uitsplitsing in ins["uitsplitsingen"]:
+                per = kies_instroom(bereken_eerstejaars(data, {**ins, "uitsplitsing": uitsplitsing}), instroom)
+                views += toon_view(groep_views[naam], per, {**ins, "uitsplitsing": uitsplitsing},
+                                   f' data-uitsplitsing="{e(naam)}"')
+    return f'<div class="npuls-tegels">{tegels}</div>{views}'
+
+
+def toon_zo_lees_je_dit(ins: dict) -> str:
+    definities = "".join(f"<dt>{e(n)}</dt><dd>{e(t)}</dd>" for n, t in ins["maat"]["definities"])
+    niet = [*ins["maat"]["niet_zeggen"], "Waarom groepen verschillen: een verschil is geen oorzaak."]
+    if ins["demo"]:
+        niet.append("Iets over de werkelijkheid: dit is demodata.")
+    kaarten = [
+        ("Definities", f"<dl>{definities}</dl>"),
+        ("Privacy", f"<p>Groepen met minder dan {ins['groep']} {e(ins['eenheid'])} tonen we niet, en ook geen percentage "
+                    f"met minder dan {ins['cel']} {e(ins['eenheid'])} in de teller of in de rest. Is in een grafiek één groep "
+                    "verborgen, dan verbergen we ook de kleinste andere groep, zodat niemand de verborgen waarde kan "
+                    "terugrekenen. In dit bestand staan alleen uitkomsten per groep, geen gegevens van personen.</p>"),
+        ("Aannames", "<ul>" + "".join(f"<li>{e(a)}</li>" for a in ins["maat"]["aannames"]) + "</ul>"),
+        ("Wat dit dashboard niet kan zeggen", "<ul>" + "".join(f"<li>{e(n)}</li>" for n in niet) + "</ul>"),
+    ]
+    return "".join(f'<div class="npuls-uitlegkaart"><h3>{t}</h3>{inhoud}</div>' for t, inhoud in kaarten)
+
+
+def bepaal_ranglijst(data: pl.DataFrame, ins: dict) -> list[dict]:
+    """De zichtbare groepen over alle data, van hoog naar laag."""
+    rijen = pas_drempels_toe(tel(bereken_eerstejaars(data, ins), "groep"), ins)
+    return sorted((r for r in rijen if not r["verborgen"]), key=lambda r: -r["waarde"])
+
+
+def toon_uitkomst(data: pl.DataFrame, ins: dict) -> None:
+    """Wat het dashboard laat zien, en wat de gebruiker daarna kan aanpassen. Voor het gesprek."""
+    lijst = bepaal_ranglijst(data, ins)
+    eerstejaars = bereken_eerstejaars(data, ins)
+    jaren = [r for r in pas_drempels_toe(tel(eerstejaars, "periode"), ins) if not r["verborgen"]]
+    print(f"Hoogst: {maak_label(lijst[0]['groep'])} ({maak_procent(lijst[0]['waarde'])}). "
+          f"Laagst: {maak_label(lijst[-1]['groep'])} ({maak_procent(lijst[-1]['waarde'])}). "
+          f"Alle eerstejaars samen: {maak_procent(eerstejaars['telt'].mean())}.")
+    if jaren:
+        hoog, laag = max(jaren, key=lambda r: r["waarde"]), min(jaren, key=lambda r: r["waarde"])
+        print(f"Over de jaren: het hoogst in {hoog['periode']} ({maak_procent(hoog['waarde'])}), "
+              f"het laagst in {laag['periode']} ({maak_procent(laag['waarde'])}).")
+    toon_aanpassingen(ins)
+
+
+def toon_aanpassingen(ins: dict) -> None:
+    """Alleen aanpassingen naar een stand die de gebruiker nog niet heeft gezien, zodat geen keuze terugkomt."""
+    k = ins["keuzes"]
+    volgorde = k.get("volgorde") or "groep"
+    namen = k["uitsplitsing"].split(",")
+    mogelijk = []
+    if len(namen) < MAX_VERGELIJKINGEN:
+        for naam in ins["vraag"]["uitsplitsingen"]:
+            if naam not in namen and naam not in k["filter"].split(","):
+                erbij = ",".join([*namen, naam])
+                mogelijk.append((f"Vergelijk ook per {ins['alle_uitsplitsingen'][naam]['label']}",
+                                 f"--uitsplitsing {erbij}", {**k, "uitsplitsing": erbij}))
+    if volgorde == "jaar":
+        mogelijk.append(("Zet de vergelijking tussen groepen bovenaan", "--volgorde groep", {**k, "volgorde": "groep"}))
+    else:
+        mogelijk.append(("Zet de ontwikkeling over de jaren bovenaan", "--volgorde jaar", {**k, "volgorde": "jaar"}))
+    nieuw = [(label, extra) for label, extra, stand in mogelijk if bepaal_stand(stand) not in k["gezien"]]
+    print("Aanpassen (label => extra argumenten bij --vanaf dashboard.html):")
+    for label, extra in nieuw:
+        print(f"- {label} => {extra}")
+    if not nieuw:
+        print("Geen nieuwe vaste aanpassingen meer: alles is al eens getoond.")
+
+
+def bepaal_vingerafdruk(pagina: str) -> dict:
+    """Wat er na een handmatige aanpassing hetzelfde moet blijven: de cijfers, wat verborgen is, het filter en het label."""
+    tekst = re.sub(r"<style>.*?</style>|style=\"[^\"]*\"", "", pagina, flags=re.S)  # opmaak mag veranderen
+    return {
+        "procenten": sorted(re.findall(r"\d+%", tekst)),
+        "cijfers": sorted(re.findall(r"<strong>([^<]*)</strong>", pagina)),
+        "n": sorted(re.findall(r"n&nbsp;=&nbsp;([0-9.]+)", pagina)),
+        "punten": sorted(re.findall(r'title="([^"]*)"', pagina)),
+        "verborgen": pagina.count("npuls-staaf-verborgen"),
+        "filterwaarden": re.findall(r'data-filter="([^"]*)"', pagina),
+        "cijfertabellen": sorted(re.findall(r"<td>([^<]*%)</td><td>([0-9.]+)</td>", pagina)),
+        "demo": "Dit is demodata" in pagina,
+        "privacy": "terugrekenen" in pagina,
+    }
+
+
+def controleer(pad: Path, ins: dict, data: pl.DataFrame, csv: Path) -> None:
+    """Vergelijkt een met de hand aangepast dashboard met een nieuw gemaakt dashboard op dezelfde keuzes."""
+    aangepast = bepaal_vingerafdruk(pad.read_text(encoding="utf-8"))
+    nieuw = bepaal_vingerafdruk(maak_html(data, csv, ins))
+    fouten = [naam for naam in nieuw if aangepast[naam] != nieuw[naam]]
+    if fouten:
+        sys.exit("Niet goed: de aanpassing raakt " + ", ".join(fouten)
+                 + ". Maak het dashboard opnieuw met --vanaf " + pad.name + " en probeer een kleinere aanpassing.")
+    print("Goed: alle cijfers, verborgen groepen, het filter en de privacyuitleg zijn ongewijzigd.")
+    toon_aanpassingen(ins)
+
+
+def maak_commando(ins: dict, csv: Path) -> str:
+    k = ins["keuzes"]
+    return (f"uv run --no-project --with polars python .claude/skills/3-bouwen/assets/maak_dashboard.py {csv.as_posix()} --vraag {k.get('vraag', 'A')} "
+            f"--uitsplitsing {k['uitsplitsing']} --filter {k['filter']}"
+            + (f" --volgorde {k['volgorde']}" if k.get("volgorde") else "")
+            + (f" --titel {json.dumps(k['titel'], ensure_ascii=False)}" if k.get("titel") else ""))
+
+
+def maak_keuzelijst(id_: str, label: str, opties: list[tuple[str, str]], rol: str) -> str:
+    return (f'<label for="{id_}">{e(label)}</label><select id="{id_}" {rol}>'
+            + "".join(f'<option value="{e(w)}">{e(t)}</option>' for w, t in opties) + "</select>")
+
+
+def maak_html(data: pl.DataFrame, csv: Path, ins: dict, meta: dict | None = None) -> str:
+    """Maakt de pagina; wordt hij met de schuif voor instroomjaren te groot, dan opnieuw met één jaar of alle jaren."""
+    pagina = maak_pagina(data, csv, ins, meta)
+    if len(pagina.encode("utf-8")) > MAX_GROOTTE and not ins.get("geen_schuif"):
+        ins.setdefault("let_op", []).append(
+            "Met dit tweede filter werd het dashboard te groot voor een schuif; bij instroomjaar kies je één jaar of alle jaren.")
+        pagina = maak_pagina(data, csv, {**ins, "geen_schuif": True}, meta)
+    return pagina
+
+
+def maak_pagina(data: pl.DataFrame, csv: Path, ins: dict, meta: dict | None = None) -> str:
+    """Eén blok per combinatie van filterwaarden, vooraf berekend; de keuzelijsten tonen alleen het gekozen blok.
+
+    Met ins["schets"] dezelfde pagina zonder getallen: één blok voor alle data en filters die je nog niet kunt kiezen.
+    """
+    schets = ins.get("schets", False)
+    # Instroomjaar kent alleen de jaren die meetellen, als interval ("2014-2019") met een schuif. Wordt dat te veel
+    # (veel waarden in een tweede filter), dan kies je één jaar of alle jaren.
+    jaren = [str(p) for p in bereken_eerstejaars(data, ins)["periode"].unique().sort().to_list()]
+    intervallen = [f"{a}-{b}" for i, a in enumerate(jaren) for b in jaren[i:] if (a, b) != (jaren[0], jaren[-1])]
+    andere = math.prod(data[f["kolom"]].n_unique() + 1 for f in ins["filters"] if not f.get("alleen_filter"))
+    schuif = not ins.get("geen_schuif") and (len(intervallen) + 1) * andere <= MAX_BLOKKEN
+    if not schuif and len(intervallen) > len(jaren) and not ins.get("geen_schuif") and not schets:
+        ins.setdefault("let_op", []).append(
+            "Met dit tweede filter worden het te veel combinaties voor een schuif; bij instroomjaar kies je één jaar of alle jaren.")
+    waarden_per_filter = [["alle", *((intervallen if schuif else [f"{j}-{j}" for j in jaren]) if f.get("alleen_filter")
+                                     else sorted(w for w in data[f["kolom"]].unique().to_list() if w is not None))]
+                          for f in ins["filters"]]
+    blokken = []
+    for combinatie in [tuple("alle" for _ in ins["filters"])] if schets else itertools.product(*waarden_per_filter):
+        deel, instroom = data, None
+        for f, w in zip(ins["filters"], combinatie, strict=True):
+            if w != "alle" and f.get("alleen_filter"):
+                instroom = w
+            elif w != "alle":
+                deel = deel.filter(pl.col(f["kolom"]) == w)
+        sleutel = "|".join(combinatie) or "alle"
+        # De lijn hangt niet af van de instroomjaren: die staat alleen in het blok met instroomjaar "alle"
+        lijn_van = "|".join("alle" if f.get("alleen_filter") else w
+                            for f, w in zip(ins["filters"], combinatie, strict=True)) if instroom else None
+        blokken.append(f'<div data-filter="{e(sleutel)}">{toon_blok(deel, ins, instroom, lijn_van)}</div>')
+    keuzelijsten = []
+    if len(ins["uitsplitsingen"]) > 1:
+        keuzelijsten.append(maak_keuzelijst("uitsplitsing", "Vergelijk per", [
+            (n, maak_label(u["label"])) for n, u in ins["uitsplitsingen"]], "data-wissel"))
+    uit = " disabled" if schets else ""
+    for i, (f, waarden) in enumerate(zip(ins["filters"], waarden_per_filter, strict=True)):
+        id_ = "filter" if i == 0 else f"filter{i + 1}"
+        if f.get("alleen_filter") and schuif:
+            keuzelijsten.append(
+                f'<div class="npuls-schuif" data-filterkeuze data-instroom data-waarde="alle" data-jaren="{",".join(jaren)}">'
+                f'<span class="npuls-schuif-kop">Instroomjaren <output>{jaren[0]}–{jaren[-1]}</output></span>'
+                f'<label>van <input type="range" min="0" max="{len(jaren) - 1}" value="0" data-rol="van"{uit}></label>'
+                f'<label>tot en met <input type="range" min="0" max="{len(jaren) - 1}" value="{len(jaren) - 1}" '
+                f'data-rol="tot"{uit}></label></div>')
+        elif f.get("alleen_filter"):
+            keuzelijsten.append(maak_keuzelijst(id_, maak_label(f["label"]), [
+                (w, "Alles" if w == "alle" else w.split("-")[0]) for w in waarden],
+                f'data-filterkeuze data-instroom data-jaren="{",".join(jaren)}"{uit}'))
+        else:
+            keuzelijsten.append(maak_keuzelijst(id_, maak_label(f["label"]), [
+                (w, "Alles" if w == "alle" else maak_label(w)) for w in waarden], "data-filterkeuze" + uit))
+    filter_html = "".join(keuzelijsten)
+    vandaag = datetime.date.today()
+    personen = data[ins["k"]["persoon"]].n_unique()
+    bron = (f"Bron: {e(csv.name)}, {maak_getal(data.height)} rijen, {maak_getal(personen)} {e(ins['eenheid'])}. "
+            f"Gemaakt op {vandaag.day} {MAANDEN[vandaag.month - 1]} {vandaag.year}.")
+    logo = "data:image/jpeg;base64," + base64.b64encode(
+        (HIER.parents[1] / "vormgever-npuls-huisstijl/assets/logos/npuls_logo.jpg").read_bytes()).decode()
+    # Een eigen titel komt uit de schets; de vraag zelf blijft dan in de ondertitel staan
+    titel = ins["keuzes"].get("titel") or ins["vraag"]["vraag"]
+    ondertitel = ins["ondertitel"] if titel == ins["vraag"]["vraag"] else f"{ins['vraag']['vraag']} {ins['ondertitel']}"
+    if schets:
+        voet = ("<p>Dit is een schets: zo komt je dashboard eruit te zien. De groepen en jaren zijn echt, de getallen "
+                "komen pas als je het dashboard bouwt. De filters werken dan ook.</p>")
+    else:
+        voet = (f"<p>{bron}</p><p>De berekeningen staan in <code>dashboard-berekeningen.py</code>, naast dit bestand.</p>"
+                f"<p>Draait opnieuw op je eigen data met: <code>{e(maak_commando(ins, csv))}</code></p>")
+    demo = '<p class="npuls-demo">Dit is demodata</p>' if ins["demo"] else ""
+    if schets:
+        demo = '<p class="npuls-demo npuls-schets">Schets: nog zonder getallen</p>' + demo
+    sjabloon = string.Template((HIER / "dashboard-sjabloon.html").read_text(encoding="utf-8"))
+    return sjabloon.substitute(
+        keuzes=e(json.dumps(meta or ins["keuzes"], ensure_ascii=False)), logo=logo,
+        titel=e(f"Schets: {titel}" if schets else titel), label="Schets van je dashboard" if schets else "Dashboard",
+        css=(HIER / "npuls/npuls-dashboard.css").read_text(encoding="utf-8"),
+        vraag=e(titel), ondertitel=e(ondertitel),
+        pagina="npuls-pagina npuls-schets-pagina" if schets else "npuls-pagina",
+        demo=demo, filter=filter_html, blokken="".join(blokken), zo_lees_je_dit=toon_zo_lees_je_dit(ins), voet=voet,
+    )
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Maakt het dashboard als één HTML-bestand.")
+    parser.add_argument("csv", nargs="?", type=Path, help="pad naar het databestand")
+    parser.add_argument("--vanaf", type=Path, help="neem de keuzes over uit mijn-keuzes.json (standaard), schets.html of dashboard.html")
+    parser.add_argument("--vraag", help="A, B of C uit het casusbestand")
+    parser.add_argument("--uitsplitsing", help="bijvoorbeeld sector")
+    parser.add_argument("--filter", help="bijvoorbeeld vestiging, of geen")
+    parser.add_argument("--volgorde", choices=["groep", "jaar"], help="welke view bovenaan staat")
+    parser.add_argument("--titel", help="een eigen titel boven het dashboard (standaard: de vraag)")
+    parser.add_argument("--uit", type=Path, default=Path("dashboard.html"))
+    parser.add_argument("--controleer", action="store_true",
+                        help="controleer een met de hand aangepast dashboard (--vanaf) tegen een nieuw gemaakt dashboard")
+    args = parser.parse_args()
+    start = time.perf_counter()
+    try:
+        keuzes = bepaal_keuzes(args)
+        csv = Path(keuzes["csv"])
+        ins = stel_in(keuzes, lees_casus(csv))
+        ins["keuzes"]["csv"] = csv.as_posix()
+        data = lees_data(csv, ins)
+        if args.controleer:
+            controleer(Path(args.vanaf or "dashboard.html"), ins, data, csv)
+            return
+        pagina = maak_html(data, csv, ins)
+    except Melding as melding:
+        sys.exit(f"Niet gelukt: {melding}")
+    args.uit.write_text(pagina, encoding="utf-8")
+    shutil.copyfile(HIER / "berekeningen.py", args.uit.with_name("dashboard-berekeningen.py"))
+    print(f"Klaar in {time.perf_counter() - start:.1f} s: {args.uit} ({maak_getal(data.height)} rijen gelezen)")
+    toon_uitkomst(data, ins)
+    for regel in ins.get("let_op", []):
+        print(f"Let op: {regel}")
+    if args.uit.resolve() == Path("dashboard.html").resolve() and not os.environ.get("DAIR_GEEN_LINK"):
+        sys.path.insert(0, str(HIER.parents[1] / "1-verkennen/assets"))
+        import toon
+        sys.stdout.reconfigure(encoding="utf-8")
+        print("Link (zet deze regel letterlijk in je bericht, vlak boven je vraag):")
+        print(toon.maak_regel("dashboard.html"))
+
+
+if __name__ == "__main__":
+    main()

@@ -1,5 +1,5 @@
 {
-  "toelichting": "Uitwerking van de workshopcasus bij demodata_1cho.csv. De skills verkennen_data, schets_dashboard en bouwen_dashboard lezen dit bestand en nemen de vragen, definities en teksten letterlijk over.",
+  "toelichting": "Uitwerking van de workshopcasus bij demodata_1cho.csv. De skills 1-verkennen, 2-schetsen en 3-bouwen lezen dit bestand en nemen de vragen, definities en teksten letterlijk over.",
   "demo": true,
   "eenheid": "studenten",
   "ondertitel": "Eerstejaars bij een hogeschool, per instroomjaar. In de opzet van 1CijferHO.",
@@ -36,11 +36,20 @@
     "vestiging": {
       "kolom": "vestigingsnummer_gemeentenaam_volgens_rio",
       "label": "vestiging"
+    },
+    "instroomjaar": {
+      "kolom": "inschrijvingsjaar",
+      "label": "instroomjaar",
+      "alleen_filter": true
     }
   },
   "filters": [
+    "instroomjaar",
     "vestiging",
-    "geslacht"
+    "geslacht",
+    "sector",
+    "opleiding",
+    "vooropleiding"
   ],
   "maten": {
     "uitval": {
@@ -93,6 +102,23 @@
       ],
       "soort": "diploma",
       "termijn": 5
+    }
+  },
+  "doelgroepen": {
+    "A": {
+      "label": "Studieadviseur",
+      "uitleg": "Wil weten welke studenten extra begeleiding nodig hebben.",
+      "toon": "Concreet en per groep: wat kun je ermee voor een student."
+    },
+    "B": {
+      "label": "Opleidingsmanager",
+      "uitleg": "Wil weten hoe de eigen opleiding het doet ten opzichte van andere.",
+      "toon": "Vergelijkend, met aandacht voor de ontwikkeling over de jaren."
+    },
+    "C": {
+      "label": "Bestuur of directie",
+      "uitleg": "Wil het grote plaatje in één blik.",
+      "toon": "Kort en op hoofdlijnen, zonder details."
     }
   },
   "vragen": {
@@ -169,6 +195,7 @@
       "vraag": "Stoppen eerstejaars vaker na het eerste jaar bij de ene vooropleiding dan bij de andere?",
       "uitleg": "Vergelijk vooropleidingen en zie hoe het over de jaren verandert.",
       "berekening": "uitval",
+      "kern": "vooropleiding",
       "uitsplitsingen": [
         "vooropleiding",
         "sector",
@@ -230,7 +257,8 @@
       "diplomajaar": {
         "rol": "tijd",
         "betekenis": "Het jaar waarin het diploma is behaald.",
-        "let_op": "Leeg betekent: in die rij geen diploma."
+        "let_op": "Staat alleen op de rij van het jaar waarin het diploma is behaald.",
+        "leeg_is": "geen diploma (op die rij)"
       },
       "soort_hoger_onderwijs": {
         "rol": "categorie",
@@ -270,7 +298,8 @@
       "soort_diploma_instelling": {
         "rol": "categorie",
         "betekenis": "Het soort diploma.",
-        "let_op": "Leeg betekent: geen diploma."
+        "let_op": "",
+        "leeg_is": "geen diploma"
       },
       "opleiding_actueel_equivalent": {
         "rol": "categorie",

@@ -1,0 +1,36 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "AskUserQuestion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run \"$CLAUDE_PROJECT_DIR/scripts/vragenteller.py\""
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "AskUserQuestion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run \"$CLAUDE_PROJECT_DIR/scripts/linkcheck.py\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run \"$CLAUDE_PROJECT_DIR/scripts/linkcheck.py\""
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,4 +1,4 @@
-# Pakketten die verkennen_data en bouwen_dashboard draaien. Het image zet ze vooraf in de uv-cache;
+# Pakketten die 1-verkennen en 3-bouwen draaien. Het image zet ze vooraf in de uv-cache;
 # houd de versies gelijk aan die in de skills (`uv run --with ...`). Wijzig je een versie,
 # dan bouwt het image opnieuw bij een push naar main.
 duckdb==1.5.6
