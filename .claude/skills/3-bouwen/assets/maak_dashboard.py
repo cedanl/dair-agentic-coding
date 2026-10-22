@@ -72,7 +72,7 @@ def lees_mijn_keuzes(pad: Path) -> dict:
                   if (getekend.get(veld) or "") != (keuzes.get(veld) or "")]
         if anders:
             raise Melding(f"je schets en je keuzes zijn niet meer gelijk ({', '.join(anders)}). "
-                          "Typ /2-schetsen om de schets bij te werken, dan bouw ik daarna precies die schets.")
+                          "Werk de schets eerst bij met maak_schets.py, dan bouw ik daarna precies die schets.")
     return keuzes
 
 
