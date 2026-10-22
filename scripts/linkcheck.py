@@ -19,7 +19,7 @@ import re
 import sys
 from pathlib import Path
 
-LINKREGEL = re.compile(r"### 👉 \[Open je [^\]]+\]\((\S+?)\)")
+LINKREGEL = re.compile(r"### 👉 \[Open je [^\]]+\]\((https?://\S+?)\)")  # geen voorbeelden als (<link>) uit de skills
 
 
 def teksten(inhoud) -> list[str]:
