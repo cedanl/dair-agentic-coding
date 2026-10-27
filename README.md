@@ -68,7 +68,7 @@ Een skill is een werkwijze die Claude volgt. Je start er een met `/` en de naam.
 | 2 | `/2-schetsen` | Schetst je dashboard in grijs: de grafieken (views), het filter en de titel, met de echte groepen en jaren maar nog zonder getallen. Hier pas je de opzet aan | `schets.html` |
 | 3 | `/3-bouwen` | Bouwt het dashboard precies zoals je schets en vraagt of het klopt. Een kleine wens in tekst of kleur past Claude meteen aan; wil je iets anders zien, dan past Claude schets en dashboard samen aan | `dashboard.html` |
 
-**De casus.** In `/1-verkennen` kies je eerst voor wie je het dashboard maakt en welke vraag het beantwoordt, en daarna waarop je vergelijkt. Elke combinatie levert één dashboard op. Op de slides staan de vragen in een andere volgorde; in Claude geldt deze.
+**De casus.** In `/1-verkennen` kies je eerst voor wie je het dashboard maakt en welke vraag het beantwoordt, en daarna waarop je vergelijkt. Elke combinatie levert één dashboard op. De vragen staan op de slides in dezelfde volgorde als in Claude.
 
 ![Claude stelt een vraag](docs/images/07-claude-vraag.png)
 
@@ -94,7 +94,7 @@ In `/2-schetsen` kies je nog een filter, meestal het instroomjaar, en wat bovena
 
 **Meenemen.** Claude zet niets in GitHub. Je Codespace is tijdelijk: wil je je werk houden, klik dan met de rechtermuisknop op het bestand in de verkenner en kies *Download*. Naast `dashboard.html` staat `dashboard-berekeningen.py`: daarin kun je lezen hoe de cijfers zijn berekend. Download die er ook bij als je wilt kunnen terugkijken.
 
-**De data.** De demodata (fictieve studenten van een hogeschool, in de opzet van 1CijferHO) staat in `data/demodata_1cho.csv`. Ernaast staat de casus, `data/demodata_1cho.casus.json`: de doelgroepen, vragen, definities en privacydrempels die de skills gebruiken (zie *De casus* hieronder). De skills werken ook met andere data, maar alleen als er zo'n casusbestand naast staat. Je hoeft niets te downloaden of te uploaden: het dashboard rekent met de demodata die al in de Codespace staat.
+**De data.** De demodata (fictieve studenten van een hogeschool, in de opzet van 1CijferHO) staat in `data/demodata_1cho.csv`. Ernaast staat de casus, `data/demodata_1cho.casus.json`: de doelgroepen, vragen, definities en privacydrempels die de skills gebruiken (zie *De casus* hierboven). De skills werken ook met andere data, maar alleen als er zo'n casusbestand naast staat. Je hoeft niets te downloaden of te uploaden: het dashboard rekent met de demodata die al in de Codespace staat.
 
 Aan het einde van de sessie sluit je af met `/4-review` (zie hieronder).
 
