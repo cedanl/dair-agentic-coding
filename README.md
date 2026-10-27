@@ -86,7 +86,7 @@ Een skill is een werkwijze die Claude volgt. Je start er een met `/` en de naam.
 
 In `/2-schetsen` kies je nog een filter, meestal het instroomjaar, en wat bovenaan komt.
 
-**Hoe het werkt.** Claude stelt je vragen één voor één, met een paar opties om aan te klikken; de aanbevolen optie staat bovenaan. Klik een optie aan (mag je er meer kiezen, klik dan daarna op **Submit answers**) of kies **Other** en typ je eigen antwoord: jij beslist over de inhoud, Claude voert uit. De uitkomsten (HTML) komen in de hoofdmap, bovenaan in de verkenner. Zie hieronder hoe je ze opent.
+**Hoe het werkt.** Claude stelt je vragen één voor één, met een paar opties om aan te klikken; de aanbevolen optie staat bovenaan. Klik een optie aan (mag je er meer kiezen, vink ze dan allemaal aan) en klik daarna op **Submit answers**, of kies **Other** en typ je eigen antwoord: jij beslist over de inhoud, Claude voert uit. De uitkomsten (HTML) komen in de hoofdmap, bovenaan in de verkenner. Zie hieronder hoe je ze opent.
 
 **Een HTML-bestand openen in Codespaces.** Claude geeft je na elke stap een link: klik erop. Werkt de link niet, klik dan met de rechtermuisknop op het bestand in de verkenner en kies **Show Preview**. De pagina opent in een nieuw tabblad van je browser; vraagt GitHub om door te gaan, klik dan op *Continue*. Zie je in plaats daarvan *This content is blocked*, dan opent de preview nog binnen VS Code: druk op `Ctrl+Shift+P` (Mac: `Cmd+Shift+P`) en kies **Live Preview: Show Preview (External Browser)**. Staat *Show Preview* er niet tussen, installeer dan de extensie **Live Preview** van Microsoft (`ms-vscode.live-server`) via het Extensions-paneel (`Ctrl+Shift+X`).
 
