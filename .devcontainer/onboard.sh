@@ -64,8 +64,26 @@ fi
 
 echo ""
 echo "DAIR — Claude koppelen"
-read -rsp "Plak de workshop-key van de begeleider (Enter = overslaan): " key
-echo ""
+
+# De key staat versleuteld in de repo (key.enc); de workshopcode van de begeleider ontsleutelt hem.
+# De code is bewust zichtbaar tijdens het typen, zodat typfouten meteen opvallen.
+enc=(/workspaces/*/.devcontainer/key.enc)
+key=""
+if [[ -f "${enc[0]}" ]]; then
+  read -rp "Workshopcode van de begeleider (Enter = key zelf plakken): " code
+  code="$(printf '%s' "$code" | tr -d '[:space:]')"
+  if [[ -n "$code" ]]; then
+    if ! key="$(printf '%s' "$code" | openssl enc -d -aes-256-cbc -pbkdf2 -a -pass stdin -in "${enc[0]}" 2>/dev/null)" || [[ -z "$key" ]]; then
+      echo "✘ Onjuiste workshopcode. Probeer opnieuw met: dair-onboard"
+      exit 1
+    fi
+  fi
+fi
+
+if [[ -z "$key" ]]; then
+  read -rsp "Plak de workshop-key van de begeleider (Enter = overslaan): " key
+  echo ""
+fi
 key="$(printf '%s' "$key" | tr -d '[:space:]')"
 if [[ -z "$key" ]]; then
   echo "Overgeslagen. Later instellen kan met: dair-onboard"

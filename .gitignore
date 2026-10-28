@@ -16,5 +16,8 @@ data/metadata_1cho.md
 uitvoer/.DS_Store
 uitvoer/verkennen-wasm/.DS_Store
 
+# Platte workshop-key: alleen lokaal, in de repo staat alleen de versleutelde key.enc
+/key.txt
+
 # Interne planning van de branch: blijft lokaal, niet voor deelnemers
 /PLANNING.md

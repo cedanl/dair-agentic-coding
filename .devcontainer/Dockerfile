@@ -12,6 +12,7 @@ RUN apt-get update && \
         git \
         curl \
         ca-certificates \
+        openssl \
         unzip \
         python3 \
         python3-venv \
